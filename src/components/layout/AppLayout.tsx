@@ -77,7 +77,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Logo />
         </SidebarHeader>
         <ScrollArea className="flex-1">
-        <SidebarContent className="p-2"> {/* Removed flex-1, base component has it */}
+        <SidebarContent className="p-2">
           <SidebarMenu>
             {navigationItems.map((item) => (
               <SidebarMenuItem key={item.label}>
@@ -111,10 +111,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
+          <div className="flex-1" /> {/* Spacer div */}
         </SidebarContent>
         </ScrollArea>
         <SidebarFooter className="p-2 border-t">
-          <SidebarMenuItem className="mt-auto"> {/* Added mt-auto here */}
+          <SidebarMenuItem className="mt-auto">
             <SidebarMenuButton
               asChild={true}
               isActive={pathname.startsWith('/settings')}
