@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -80,7 +81,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {navigationItems.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href} passHref legacyBehavior>
+                <Link href={item.href}>
                   <SidebarMenuButton
                     asChild={!item.disabled}
                     isActive={pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))}
