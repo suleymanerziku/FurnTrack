@@ -192,7 +192,7 @@ export default function TaskTypesPage() {
                       <Button variant="outline" size="sm" onClick={() => handleOpenEditForm(task)}>
                         <Edit className="h-3 w-3 mr-1" /> Edit
                       </Button>
-                       <Button variant="destructive" outline size="sm" onClick={() => handleOpenDeleteDialog(task)}>
+                       <Button variant="destructive" size="sm" onClick={() => handleOpenDeleteDialog(task)}>
                         <Trash2 className="h-3 w-3 mr-1" /> Delete
                       </Button>
                     </div>
