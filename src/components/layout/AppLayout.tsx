@@ -14,7 +14,7 @@ import {
   Menu,
   MoreHorizontal,
   LogOut,
-  Wand2, // Added Wand2 import
+  Wand2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -119,7 +119,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex-1" /> {/* Spacer div */}
         </SidebarContent>
         </ScrollArea>
-        <SidebarFooter className="p-2 border-t">
+        <SidebarFooter className="p-2"> {/* Removed border-t */}
           <SidebarMenuItem className="mt-auto">
             <SidebarMenuButton
               asChild={true}
