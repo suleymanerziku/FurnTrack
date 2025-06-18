@@ -32,16 +32,17 @@ export interface AssignedTask {
   // For UI display:
   employee_name?: string;
   task_name?: string;
-  status?: "Pending" | "In Progress" | "Completed" | "Pending Payment"; // Added for UI consistency
+  status?: "Pending" | "In Progress" | "Completed" | "Pending Payment";
 }
 
 export interface Payment {
   id: string; // UUID
   employee_id: string;
   amount: number;
-  payment_type: 'Daily' | 'Partial' | 'Advance' | 'Full';
+  payment_type: 'Daily' | 'Partial' | 'Advance' | 'Full' | 'Withdrawal'; // Added Withdrawal
   date: string; // ISO date string
   created_at: string; // ISO timestamp string
+  notes?: string; // Added for withdrawals
   // For UI display:
   employee_name?: string;
 }
@@ -118,11 +119,20 @@ export const TaskTypeFormInputSchema = z.object({
 });
 export type TaskTypeFormData = z.infer<typeof TaskTypeFormInputSchema>;
 
-// Task Assignment Form Schema
+// Task Assignment (Work Log) Form Schema
 export const TaskAssignmentFormInputSchema = z.object({
   employee_id: z.string().min(1, "Employee is required."),
   task_type_id: z.string().min(1, "Task type is required."),
-  quantity: z.coerce.number({invalid_type_error: "Quantity must be a number."}).int("Quantity must be an integer.").positive("Quantity must be positive."),
+  quantity_completed: z.coerce.number({invalid_type_error: "Quantity must be a number."}).int("Quantity must be an integer.").positive("Quantity must be positive."),
   date_assigned: z.date({ required_error: "Date assigned is required." }),
 });
 export type TaskAssignmentFormData = z.infer<typeof TaskAssignmentFormInputSchema>;
+
+// Employee Withdrawal Form Schema
+export const WithdrawalFormInputSchema = z.object({
+  employee_id: z.string().min(1, "Employee is required."),
+  amount: z.coerce.number({invalid_type_error: "Amount must be a number."}).positive("Amount must be positive."),
+  date: z.date({ required_error: "Date is required." }),
+  notes: z.string().max(255, "Notes can be at most 255 characters.").optional().or(z.literal('')),
+});
+export type WithdrawalFormData = z.infer<typeof WithdrawalFormInputSchema>;

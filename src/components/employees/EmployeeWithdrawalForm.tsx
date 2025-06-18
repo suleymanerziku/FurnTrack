@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -30,41 +31,37 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { TaskAssignmentFormInputSchema, type TaskAssignmentFormData, type Employee, type TaskType } from "@/lib/types";
-import { assignTask } from "@/lib/actions/task.actions";
+import { WithdrawalFormInputSchema, type WithdrawalFormData, type Employee } from "@/lib/types";
+import { recordWithdrawal } from "@/lib/actions/employee.actions";
 import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
 
-interface TaskAssignmentFormProps {
-  employees: Employee[]; // For employee selection
-  taskTypes: TaskType[]; // For task type selection
+interface EmployeeWithdrawalFormProps {
+  employees: Employee[];
   setOpen: Dispatch<SetStateAction<boolean>>;
   onSuccess?: () => void;
 }
 
-export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSuccess }: TaskAssignmentFormProps) {
+export default function EmployeeWithdrawalForm({ employees, setOpen, onSuccess }: EmployeeWithdrawalFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const form = useForm<TaskAssignmentFormData>({
-    resolver: zodResolver(TaskAssignmentFormInputSchema),
+  const form = useForm<WithdrawalFormData>({
+    resolver: zodResolver(WithdrawalFormInputSchema),
     defaultValues: {
       employee_id: "",
-      task_type_id: "",
-      quantity_completed: null, // Changed from quantity
-      date_assigned: new Date(),
+      amount: null,
+      date: new Date(),
+      notes: "",
     },
   });
 
-  async function onSubmit(values: TaskAssignmentFormData) {
+  async function onSubmit(values: WithdrawalFormData) {
     setIsLoading(true);
     try {
-      const result = await assignTask(values);
+      const result = await recordWithdrawal(values);
       if (result.success) {
-        toast({ 
-            title: "Success", 
-            description: result.message + (result.totalPayment ? ` Payment: $${result.totalPayment.toFixed(2)}` : '') 
-        });
+        toast({ title: "Success", description: result.message });
         form.reset();
         setOpen(false);
         onSuccess?.();
@@ -72,7 +69,7 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
         toast({
           variant: "destructive",
           title: "Error",
-          description: result.message || "Failed to log work.",
+          description: result.message || "Failed to record withdrawal.",
         });
       }
     } catch (error) {
@@ -116,37 +113,12 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
         />
         <FormField
           control={form.control}
-          name="task_type_id"
+          name="amount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Task Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a task type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {taskTypes.map(task => (
-                    <SelectItem key={task.id} value={task.id}>
-                      {task.name} (${task.unit_price.toFixed(2)}/unit)
-                    </SelectItem>
-                  ))}
-                  {taskTypes.length === 0 && <SelectItem value="" disabled>No task types available</SelectItem>}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="quantity_completed" // Changed from quantity
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Quantity Completed</FormLabel> 
+              <FormLabel>Withdrawal Amount</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="e.g., 5" {...field} value={field.value === null ? '' : field.value} />
+                <Input type="number" step="0.01" placeholder="e.g., 100.00" {...field} value={field.value === null ? '' : field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -154,10 +126,10 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
         />
         <FormField
           control={form.control}
-          name="date_assigned" // Could be "Date of Work"
+          name="date"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Date of Work</FormLabel>
+              <FormLabel>Date of Withdrawal</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -182,6 +154,7 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
+                    disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
                     initialFocus
                   />
                 </PopoverContent>
@@ -190,11 +163,29 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isLoading || employees.length === 0 || taskTypes.length === 0}>
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notes (Optional)</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="e.g., Advance for personal reasons"
+                  className="resize-none"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full" disabled={isLoading || employees.length === 0}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Log Work
+          Record Withdrawal
         </Button>
       </form>
     </Form>
   );
 }
+

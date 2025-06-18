@@ -7,7 +7,7 @@ import {
   LayoutDashboard,
   Users,
   ClipboardList,
-  ListChecks,
+  ListChecks, // Changed to ListChecks from ClipboardCheck for "Work Log"
   DollarSign,
   Sparkles,
   Settings as SettingsIcon,
@@ -55,7 +55,7 @@ const navigationItems: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/employees', label: 'Employees', icon: Users },
   { href: '/task-types', label: 'Task Types', icon: ClipboardList },
-  { href: '/task-assignments', label: 'Task Assignments', icon: ListChecks },
+  { href: '/work-log', label: 'Work Log', icon: ListChecks }, // Changed from Task Assignments
   { href: '/finances', label: 'Finances', icon: DollarSign },
   { href: '/ai-insights', label: 'AI Insights', icon: Sparkles },
   { href: '/settings', label: 'Settings', icon: SettingsIcon },
@@ -83,13 +83,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <SidebarMenuItem key={item.label}>
                 {item.disabled ? (
                   <SidebarMenuButton
-                    isActive={false}
+                    isActive={false} // Disabled items are never active
                     tooltip={item.label}
                     disabled={true}
                     aria-disabled={true}
                     className={cn("cursor-not-allowed opacity-50")}
                   >
-                    {/* Content for disabled button */}
                     <div className="flex w-full items-center gap-2">
                       <item.icon />
                       <span>{item.label}</span>
@@ -102,8 +101,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     tooltip={item.label}
                   >
                     <Link href={item.href}>
-                      {/* Wrap Link children in a single div */}
-                      <div className="flex w-full items-center gap-2">
+                       <div className="flex w-full items-center gap-2">
                         <item.icon />
                         <span>{item.label}</span>
                       </div>
@@ -165,5 +163,3 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-
-    
