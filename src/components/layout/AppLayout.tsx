@@ -11,10 +11,10 @@ import {
   ListChecks, 
   DollarSign,
   Settings as SettingsIcon,
-  Menu,
+  Menu, // Added Menu
+  Wand2,
   MoreHorizontal,
   LogOut,
-  Wand2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -28,8 +28,8 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarInset,
-  SidebarTrigger,
-  useSidebar,
+  SidebarTrigger, // Imported SidebarTrigger
+  useSidebar,   // Imported useSidebar
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Logo } from './Logo';
@@ -62,7 +62,7 @@ interface NavItem {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { isMobile } = useSidebar();
+  const { isMobile, toggleSidebar, state: sidebarState } = useSidebar(); // Get toggleSidebar and sidebarState
   const router = useRouter();
 
   const getPageTitle = () => {
@@ -78,8 +78,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen w-full">
       <Sidebar variant="sidebar" collapsible="icon" className="border-r">
-        <SidebarHeader className="p-4">
+        <SidebarHeader className="p-4 flex flex-row items-center"> {/* Ensure flex-row and items-center */}
           <Logo />
+          {/* Show trigger only on desktop when sidebar is expanded */}
+          {!isMobile && sidebarState === 'expanded' && (
+            <SidebarTrigger
+              variant="ghost"
+              size="icon"
+              className="ml-2 h-6 w-6" 
+              aria-label="Toggle sidebar"
+            />
+          )}
         </SidebarHeader>
         <ScrollArea className="flex-1">
         <SidebarContent className="p-2">
@@ -120,7 +129,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </SidebarContent>
         </ScrollArea>
         <SidebarFooter className="p-2"> 
-          <SidebarMenuItem className="mt-auto">
+          <SidebarMenuItem>
             <SidebarMenuButton
               asChild={true}
               isActive={pathname === '/settings'}
@@ -166,7 +175,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       <SidebarInset className="flex flex-1 flex-col">
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-6">
-          {isMobile && <SidebarTrigger><Menu /></SidebarTrigger>}
+          {isMobile && ( // Corrected mobile menu trigger
+            <Button variant="ghost" size="icon" onClick={toggleSidebar} aria-label="Open sidebar" className="h-8 w-8 md:hidden">
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
           <h1 className="text-xl font-semibold font-headline">{getPageTitle()}</h1>
           <div className="ml-auto">
             <ThemeToggle />
