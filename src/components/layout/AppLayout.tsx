@@ -2,6 +2,7 @@
 "use client";
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation'; // Added for DropdownMenu action
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -56,12 +57,12 @@ const navigationItems: NavItem[] = [
   { href: '/task-types', label: 'Task Types', icon: ClipboardList },
   { href: '/work-log', label: 'Work Log', icon: ListChecks },
   { href: '/finances', label: 'Finances', icon: DollarSign },
-  // Settings link moved to footer
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isMobile } = useSidebar();
+  const router = useRouter(); // Added for DropdownMenu action
 
   const getPageTitle = () => {
     if (pathname.startsWith('/settings')) return "Settings";
@@ -76,7 +77,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Logo />
         </SidebarHeader>
         <ScrollArea className="flex-1">
-        <SidebarContent className="flex-1 p-2">
+        <SidebarContent className="p-2"> {/* Removed flex-1, base component has it */}
           <SidebarMenu>
             {navigationItems.map((item) => (
               <SidebarMenuItem key={item.label}>
@@ -112,8 +113,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         </ScrollArea>
-        <SidebarFooter className="p-2 border-t"> {/* Changed padding from p-4 to p-2 */}
-          <SidebarMenuItem>
+        <SidebarFooter className="p-2 border-t">
+          <SidebarMenuItem className="mt-auto"> {/* Added mt-auto here */}
             <SidebarMenuButton
               asChild={true}
               isActive={pathname.startsWith('/settings')}
@@ -148,7 +149,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/settings')} disabled> {/* Kept disabled for now, main settings link is separate */}
+              <DropdownMenuItem onClick={() => router.push('/settings')} disabled> 
                 <SettingsIcon className="mr-2 h-4 w-4" />
                 <span>Profile Settings</span>
               </DropdownMenuItem>
