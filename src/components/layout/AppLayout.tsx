@@ -56,8 +56,7 @@ const navigationItems: NavItem[] = [
   { href: '/task-types', label: 'Task Types', icon: ClipboardList },
   { href: '/work-log', label: 'Work Log', icon: ListChecks },
   { href: '/finances', label: 'Finances', icon: DollarSign },
-  // AI Insights removed
-  { href: '/settings', label: 'Settings', icon: SettingsIcon },
+  // Settings link moved to footer
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -65,6 +64,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isMobile } = useSidebar();
 
   const getPageTitle = () => {
+    if (pathname.startsWith('/settings')) return "Settings";
     const item = navigationItems.find(item => pathname === '/' ? item.href === '/' : item.href !== '/' && pathname.startsWith(item.href));
     return item ? item.label : "FurnTrack";
   };
@@ -112,7 +112,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         </ScrollArea>
-        <SidebarFooter className="p-4 border-t">
+        <SidebarFooter className="p-2 border-t"> {/* Changed padding from p-4 to p-2 */}
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild={true}
+              isActive={pathname.startsWith('/settings')}
+              tooltip="Settings"
+            >
+              <Link href="/settings">
+                <div className="flex w-full items-center gap-2">
+                  <SettingsIcon />
+                  <span>Settings</span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center justify-start gap-2 w-full p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:p-0">
@@ -134,9 +148,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/settings')} disabled> {/* Kept disabled for now, main settings link is separate */}
                 <SettingsIcon className="mr-2 h-4 w-4" />
-                <span>Settings</span>
+                <span>Profile Settings</span>
               </DropdownMenuItem>
               <DropdownMenuItem disabled>
                 <Package className="mr-2 h-4 w-4" />
