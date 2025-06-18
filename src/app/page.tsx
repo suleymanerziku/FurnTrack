@@ -1,5 +1,6 @@
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, ListOrdered, AlertTriangle } from "lucide-react";
+import { DollarSign, Users, ListOrdered } from "lucide-react";
 import FinancialSummaryCard from "@/components/dashboard/FinancialSummaryCard";
 import EmployeeBalancesCard from "@/components/dashboard/EmployeeBalancesCard";
 import RecentActivityFeed from "@/components/dashboard/RecentActivityFeed";
@@ -63,34 +64,9 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      {/* Row 2: Recent Activity, Pending Actions */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      {/* Row 2: Recent Activity */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-1"> {/* Changed md:grid-cols-2 to md:grid-cols-1 */}
         <RecentActivityFeed activities={recentActivities} />
-        <Card className="border-destructive bg-destructive/10">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-destructive">Pending Actions</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-destructive/80" /> 
-                <span>Review employee payment balances.</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <ListOrdered className="h-4 w-4 text-destructive/80" />
-                <span>Approve <strong>3</strong> new task assignments.</span>
-              </li>
-               <li className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-destructive/80" />
-                <span>Process <strong>2</strong> overdue payments.</span>
-              </li>
-            </ul>
-          </CardContent>
-          <CardFooter>
-              <Button variant="destructive" size="sm">Address Issues</Button>
-          </CardFooter>
-        </Card>
       </div>
 
     </div>
