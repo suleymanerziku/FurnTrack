@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -79,6 +79,9 @@ export default function SettingsPage() {
             <Label htmlFor="notifications-enabled">Enable Notifications</Label>
           </div>
         </CardContent>
+        <CardFooter className="flex justify-end">
+          <Button onClick={handleSaveChanges} className="w-full sm:w-auto">Save Changes</Button>
+        </CardFooter>
       </Card>
 
       <Card>
@@ -97,10 +100,6 @@ export default function SettingsPage() {
           </Link>
         </CardContent>
       </Card>
-
-      <div className="flex justify-end">
-        <Button onClick={handleSaveChanges} className="w-full sm:w-auto">Save Changes</Button>
-      </div>
 
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">Note</h3>
