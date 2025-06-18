@@ -41,7 +41,7 @@ export default function RecordSaleForm({ setOpen, onSuccess }: RecordSaleFormPro
     resolver: zodResolver(SaleFormInputSchema),
     defaultValues: {
       productName: "",
-      amount: undefined, // Use undefined for number inputs to allow placeholder
+      amount: null, // Changed from undefined
       date: new Date(),
       receiptNumber: "",
     },
@@ -97,7 +97,7 @@ export default function RecordSaleForm({ setOpen, onSuccess }: RecordSaleFormPro
             <FormItem>
               <FormLabel>Amount</FormLabel>
               <FormControl>
-                <Input type="number" step="0.01" placeholder="e.g., 150.00" {...field} />
+                <Input type="number" step="0.01" placeholder="e.g., 150.00" {...field} value={field.value === null ? '' : field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -165,4 +165,3 @@ export default function RecordSaleForm({ setOpen, onSuccess }: RecordSaleFormPro
     </Form>
   );
 }
-

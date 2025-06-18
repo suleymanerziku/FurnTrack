@@ -51,7 +51,7 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
     defaultValues: {
       employee_id: "",
       task_type_id: "",
-      quantity: undefined,
+      quantity: null, // Changed from undefined
       date_assigned: new Date(),
     },
   });
@@ -143,7 +143,7 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
             <FormItem>
               <FormLabel>Quantity</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="e.g., 5" {...field} />
+                <Input type="number" placeholder="e.g., 5" {...field} value={field.value === null ? '' : field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>

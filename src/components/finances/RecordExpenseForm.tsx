@@ -42,7 +42,7 @@ export default function RecordExpenseForm({ setOpen, onSuccess }: RecordExpenseF
     resolver: zodResolver(ExpenseFormInputSchema),
     defaultValues: {
       description: "",
-      amount: undefined, // Use undefined for number inputs to allow placeholder
+      amount: null, // Changed from undefined
       date: new Date(),
       receiptNumber: "",
     },
@@ -102,7 +102,7 @@ export default function RecordExpenseForm({ setOpen, onSuccess }: RecordExpenseF
             <FormItem>
               <FormLabel>Amount</FormLabel>
               <FormControl>
-                <Input type="number" step="0.01" placeholder="e.g., 75.00" {...field} />
+                <Input type="number" step="0.01" placeholder="e.g., 75.00" {...field} value={field.value === null ? '' : field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -170,4 +170,3 @@ export default function RecordExpenseForm({ setOpen, onSuccess }: RecordExpenseF
     </Form>
   );
 }
-

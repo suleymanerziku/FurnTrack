@@ -35,7 +35,7 @@ export default function TaskTypeForm({ setOpen, onSuccess }: TaskTypeFormProps) 
     defaultValues: {
       name: "",
       description: "",
-      unit_price: undefined,
+      unit_price: null, // Changed from undefined
     },
   });
 
@@ -106,7 +106,7 @@ export default function TaskTypeForm({ setOpen, onSuccess }: TaskTypeFormProps) 
             <FormItem>
               <FormLabel>Unit Price</FormLabel>
               <FormControl>
-                <Input type="number" step="0.01" placeholder="e.g., 25.50" {...field} />
+                <Input type="number" step="0.01" placeholder="e.g., 25.50" {...field} value={field.value === null ? '' : field.value} />
               </FormControl>
               <FormMessage />
             </FormItem>
