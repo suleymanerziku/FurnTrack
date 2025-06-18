@@ -32,6 +32,7 @@ export interface AssignedTask {
   // For UI display:
   employee_name?: string;
   task_name?: string;
+  status?: "Pending" | "In Progress" | "Completed" | "Pending Payment"; // Added for UI consistency
 }
 
 export interface Payment {
@@ -50,7 +51,7 @@ export interface Sale {
   product_name: string;
   amount: number;
   date: string; // ISO date string
-  receiptNumber?: string; // Added
+  receiptNumber?: string;
   created_at: string; // ISO timestamp string
 }
 
@@ -59,7 +60,7 @@ export interface Expense {
   description: string;
   amount: number;
   date: string; // ISO date string
-  receiptNumber?: string; // Added
+  receiptNumber?: string;
   created_at: string; // ISO timestamp string
 }
 
@@ -99,3 +100,29 @@ export const ExpenseFormInputSchema = z.object({
 });
 export type ExpenseFormData = z.infer<typeof ExpenseFormInputSchema>;
 
+// Employee Form Schema
+export const EmployeeFormInputSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters.").max(100),
+  address: z.string().max(255).optional().or(z.literal('')),
+  contact_info: z.string().max(50, "Contact info can be at most 50 characters.").optional().or(z.literal('')),
+  role: z.string().max(50).optional().or(z.literal('')),
+  start_date: z.date({ required_error: "Start date is required" }),
+});
+export type EmployeeFormData = z.infer<typeof EmployeeFormInputSchema>;
+
+// Task Type Form Schema
+export const TaskTypeFormInputSchema = z.object({
+  name: z.string().min(2, "Task type name must be at least 2 characters.").max(100),
+  description: z.string().max(255).optional().or(z.literal('')),
+  unit_price: z.coerce.number({invalid_type_error: "Unit price must be a number."}).positive("Unit price must be a positive number."),
+});
+export type TaskTypeFormData = z.infer<typeof TaskTypeFormInputSchema>;
+
+// Task Assignment Form Schema
+export const TaskAssignmentFormInputSchema = z.object({
+  employee_id: z.string().min(1, "Employee is required."),
+  task_type_id: z.string().min(1, "Task type is required."),
+  quantity: z.coerce.number({invalid_type_error: "Quantity must be a number."}).int("Quantity must be an integer.").positive("Quantity must be positive."),
+  date_assigned: z.date({ required_error: "Date assigned is required." }),
+});
+export type TaskAssignmentFormData = z.infer<typeof TaskAssignmentFormInputSchema>;
