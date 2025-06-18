@@ -1,37 +1,21 @@
 
-"use client"; // Converted to client component
+"use client"; 
 
-import * as React from "react"; // Import React
+import * as React from "react"; 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PlusCircle, MinusCircle, User, Eye } from "lucide-react"; // Added Eye
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import EmployeeWithdrawalForm from "@/components/employees/EmployeeWithdrawalForm";
-import type { Employee } from "@/lib/types"; // Import Employee type
-import { getEmployeeDetailsPageData } from "@/lib/actions/employee.actions"; // To update balances on list after detail view potentially
+import { PlusCircle, Eye } from "lucide-react"; 
+import type { Employee } from "@/lib/types"; 
+import { getEmployeeDetailsPageData } from "@/lib/actions/employee.actions"; 
 
-// Mock function, replace with actual data fetching
-// This function is simplified as balance calculation is now more complex
-// and primarily handled by getEmployeeDetailsPageData for the detail view.
-// For the list, we'll show balances as they are after simulated updates.
 async function getEmployeesListData(): Promise<Employee[]> { 
   await new Promise(resolve => setTimeout(resolve, 100));
-  // In a real app, this would fetch from a DB where balances are stored or calculated
-  // For mock purposes, we rely on balances being updated by other actions
-  const MOCK_EMPLOYEES_LIST: Employee[] = [ // Use a distinct mock list if needed or ensure consistency
+  const MOCK_EMPLOYEES_LIST: Employee[] = [ 
     { id: "1", name: "Alice Smith", role: "Carpenter", start_date: "2023-01-10", pending_balance: 120.50, created_at: new Date().toISOString() },
     { id: "2", name: "Bob Johnson", role: "Painter", start_date: "2022-11-05", pending_balance: -50.00, created_at: new Date().toISOString() },
     { id: "3", name: "Charlie Brown", role: "Assembler", start_date: "2023-03-15", pending_balance: 210.75, created_at: new Date().toISOString() },
   ];
-  // Simulate fetching updated balances (in a real app, DB would be source of truth)
    const updatedEmployees = await Promise.all(MOCK_EMPLOYEES_LIST.map(async (emp) => {
     const details = await getEmployeeDetailsPageData(emp.id);
     return { ...emp, pending_balance: details.currentBalance };
@@ -43,7 +27,6 @@ async function getEmployeesListData(): Promise<Employee[]> {
 export default function EmployeesPage() {
   const [employees, setEmployees] = React.useState<Employee[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [isWithdrawalFormOpen, setIsWithdrawalFormOpen] = React.useState(false);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -56,40 +39,16 @@ export default function EmployeesPage() {
     fetchData();
   }, []);
 
-  const handleWithdrawalSuccess = () => {
-    fetchData(); 
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight font-headline">Employee Management</h2>
           <p className="text-muted-foreground">
-            View, add, manage employee profiles, and record withdrawals.
+            View, add, and manage employee profiles.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <Dialog open={isWithdrawalFormOpen} onOpenChange={setIsWithdrawalFormOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="w-full sm:w-auto">
-                <MinusCircle className="mr-2 h-4 w-4" /> Record Withdrawal
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Record Employee Withdrawal</DialogTitle>
-                <DialogDescription>
-                  Select employee and enter withdrawal details. This will deduct from their balance.
-                </DialogDescription>
-              </DialogHeader>
-              <EmployeeWithdrawalForm
-                employees={employees} // Pass currently listed employees
-                setOpen={setIsWithdrawalFormOpen}
-                onSuccess={handleWithdrawalSuccess}
-              />
-            </DialogContent>
-          </Dialog>
           <Button asChild className="w-full sm:w-auto">
             <Link href="/employees/new">
               <PlusCircle className="mr-2 h-4 w-4" /> Add Employee
@@ -137,7 +96,7 @@ export default function EmployeesPage() {
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">System Note</h3>
         <p className="text-sm text-accent-foreground/70">
-          Employee balances are conceptual and will be affected by work logged (earnings) and withdrawals (deductions). Transaction history and precise balance tracking are available in "View Details".
+          Employee balances are conceptual and will be affected by work logged (earnings) and withdrawals (deductions). Transaction history and precise balance tracking are available in "View Details". Withdrawals can now be recorded from the "Work Log" page.
         </p>
       </div>
     </div>

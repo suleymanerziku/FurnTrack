@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ListFilter, CheckCircle } from "lucide-react"; // Using CheckCircle for completed tasks
+import { PlusCircle, ListFilter, CheckCircle, MinusCircle } from "lucide-react"; 
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -14,13 +14,13 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import TaskAssignmentForm from "@/components/tasks/TaskAssignmentForm"; // Re-using this form, but context changes
+import TaskAssignmentForm from "@/components/tasks/TaskAssignmentForm"; 
+import EmployeeWithdrawalForm from "@/components/employees/EmployeeWithdrawalForm";
 import type { AssignedTask, Employee, TaskType } from "@/lib/types";
 
 // Mock data fetching functions
-async function getLoggedWorkData(): Promise<AssignedTask[]> { // Renamed from getAssignedTasksData
+async function getLoggedWorkData(): Promise<AssignedTask[]> { 
   await new Promise(resolve => setTimeout(resolve, 100));
-  // Status is now always "Completed" and total_payment should be present
   return [
     { id: "1", employee_id: "emp1", task_type_id: "tt1", employeeName: "Alice Smith", task_name: "Chair Making", quantity_completed: 5, date_assigned: "2024-07-28", status: "Completed", total_payment: 250, created_at: new Date().toISOString() },
     { id: "2", employee_id: "emp2", task_type_id: "tt2", employeeName: "Bob Johnson", task_name: "Table Assembly", quantity_completed: 2, date_assigned: "2024-07-27", status: "Completed", total_payment: 150, created_at: new Date().toISOString() },
@@ -45,21 +45,22 @@ async function getMockTaskTypesData(): Promise<TaskType[]> {
   ];
 }
 
-export default function WorkLogPage() { // Renamed from TaskAssignmentsPage
-  const [isFormOpen, setIsFormOpen] = React.useState(false);
-  const [loggedWork, setLoggedWork] = React.useState<AssignedTask[]>([]); // Renamed
+export default function WorkLogPage() { 
+  const [isTaskFormOpen, setIsTaskFormOpen] = React.useState(false);
+  const [isWithdrawalFormOpen, setIsWithdrawalFormOpen] = React.useState(false);
+  const [loggedWork, setLoggedWork] = React.useState<AssignedTask[]>([]); 
   const [employees, setEmployees] = React.useState<Employee[]>([]);
   const [taskTypes, setTaskTypes] = React.useState<TaskType[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   const fetchData = async () => {
     setIsLoading(true);
-    const [workData, employeesData, taskTypesData] = await Promise.all([ // Renamed tasksData
+    const [workData, employeesData, taskTypesData] = await Promise.all([ 
       getLoggedWorkData(),
       getMockEmployeesData(),
       getMockTaskTypesData(),
     ]);
-    setLoggedWork(workData); // Renamed
+    setLoggedWork(workData); 
     setEmployees(employeesData);
     setTaskTypes(taskTypesData);
     setIsLoading(false);
@@ -70,8 +71,13 @@ export default function WorkLogPage() { // Renamed from TaskAssignmentsPage
   }, []);
 
   const handleFormSuccess = () => {
-    fetchData(); // Re-fetch data after successful form submission
+    fetchData(); 
   };
+  
+  const handleWithdrawalSuccess = () => {
+    fetchData(); // Re-fetch data, potentially to update employee list if needed by form
+  };
+
 
   return (
     <div className="space-y-6">
@@ -79,14 +85,36 @@ export default function WorkLogPage() { // Renamed from TaskAssignmentsPage
         <div>
           <h2 className="text-2xl font-bold tracking-tight font-headline">Work Log</h2> 
           <p className="text-muted-foreground">
-            Log completed work for employees and track associated payments.
+            Log completed work and record employee withdrawals.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Button variant="outline" disabled className="w-full sm:w-auto">
             <ListFilter className="mr-2 h-4 w-4" /> Filter Log
           </Button>
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+          
+          <Dialog open={isWithdrawalFormOpen} onOpenChange={setIsWithdrawalFormOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="w-full sm:w-auto">
+                <MinusCircle className="mr-2 h-4 w-4" /> Record Withdrawal
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Record Employee Withdrawal</DialogTitle>
+                <DialogDescription>
+                  Select employee and enter withdrawal details. This will deduct from their balance.
+                </DialogDescription>
+              </DialogHeader>
+              <EmployeeWithdrawalForm
+                employees={employees}
+                setOpen={setIsWithdrawalFormOpen}
+                onSuccess={handleWithdrawalSuccess}
+              />
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isTaskFormOpen} onOpenChange={setIsTaskFormOpen}>
             <DialogTrigger asChild>
               <Button className="w-full sm:w-auto">
                 <PlusCircle className="mr-2 h-4 w-4" /> Log New Work
@@ -99,10 +127,10 @@ export default function WorkLogPage() { // Renamed from TaskAssignmentsPage
                   Select employee, task, quantity, and date. Payment will be calculated.
                 </DialogDescription>
               </DialogHeader>
-              <TaskAssignmentForm // Still uses the same form component
+              <TaskAssignmentForm 
                 employees={employees} 
                 taskTypes={taskTypes} 
-                setOpen={setIsFormOpen} 
+                setOpen={setIsTaskFormOpen} 
                 onSuccess={handleFormSuccess} 
               />
             </DialogContent>
@@ -118,9 +146,9 @@ export default function WorkLogPage() { // Renamed from TaskAssignmentsPage
         <CardContent>
           {isLoading ? (
             <p className="text-muted-foreground">Loading work log...</p>
-          ) : loggedWork.length > 0 ? ( // Renamed
+          ) : loggedWork.length > 0 ? ( 
             <div className="space-y-3">
-              {loggedWork.map(task => ( // Renamed
+              {loggedWork.map(task => ( 
                 <div key={task.id} className="p-4 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between sm:items-start hover:bg-muted/50">
                   <div className="mb-2 sm:mb-0">
                     <h3 className="font-semibold font-headline">{task.task_name || `Task ID: ${task.task_type_id}`}</h3>
@@ -144,7 +172,7 @@ export default function WorkLogPage() { // Renamed from TaskAssignmentsPage
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">System Note</h3>
         <p className="text-sm text-accent-foreground/70">
-          Logging work assumes immediate completion and calculates payment. This payment is conceptually added to the employee's balance. Employee withdrawals can be recorded on the Employees page.
+          Logging work assumes immediate completion and calculates payment. This payment is conceptually added to the employee's balance. Employee withdrawals can also be recorded here, affecting their balances.
         </p>
       </div>
     </div>
