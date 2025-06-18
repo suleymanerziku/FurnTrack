@@ -25,7 +25,7 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { recordExpense } from "@/lib/actions/finance.actions";
-import { ExpenseFormInputSchema, type ExpenseFormData } from "@/lib/types"; // Updated import
+import { ExpenseFormInputSchema, type ExpenseFormData } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -44,6 +44,7 @@ export default function RecordExpenseForm({ setOpen, onSuccess }: RecordExpenseF
       description: "",
       amount: undefined, // Use undefined for number inputs to allow placeholder
       date: new Date(),
+      receiptNumber: "",
     },
   });
 
@@ -148,6 +149,19 @@ export default function RecordExpenseForm({ setOpen, onSuccess }: RecordExpenseF
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="receiptNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Receipt Number (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., RCV-00456" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Record Expense
@@ -156,3 +170,4 @@ export default function RecordExpenseForm({ setOpen, onSuccess }: RecordExpenseF
     </Form>
   );
 }
+

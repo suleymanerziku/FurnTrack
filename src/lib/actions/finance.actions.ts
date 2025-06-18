@@ -12,12 +12,14 @@ export async function recordSale(data: SaleFormData) {
     productName: data.productName,
     amount: data.amount,
     date: data.date.toISOString().split('T')[0], // Format date for logging or DB
+    receiptNumber: data.receiptNumber,
   });
   // In a real app, you would insert into Supabase or your database:
   // const { error } = await supabase.from('sales').insert({ 
   //   product_name: data.productName, 
   //   amount: data.amount, 
-  //   date: data.date.toISOString().split('T')[0] 
+  //   date: data.date.toISOString().split('T')[0],
+  //   receipt_number: data.receiptNumber 
   // });
   // if (error) return { success: false, message: error.message };
   // revalidatePath('/finances');
@@ -32,14 +34,17 @@ export async function recordExpense(data: ExpenseFormData) {
     description: data.description,
     amount: data.amount,
     date: data.date.toISOString().split('T')[0], // Format date for logging or DB
+    receiptNumber: data.receiptNumber,
   });
   // In a real app, you would insert into Supabase or your database:
   // const { error } = await supabase.from('expenses').insert({ 
   //   description: data.description, 
   //   amount: data.amount, 
-  //   date: data.date.toISOString().split('T')[0] 
+  //   date: data.date.toISOString().split('T')[0],
+  //   receipt_number: data.receiptNumber
   // });
   // if (error) return { success: false, message: error.message };
   // revalidatePath('/finances');
   return { success: true, message: "Expense recorded successfully." };
 }
+

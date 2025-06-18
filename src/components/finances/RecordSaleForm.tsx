@@ -24,7 +24,7 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { recordSale } from "@/lib/actions/finance.actions";
-import { SaleFormInputSchema, type SaleFormData } from "@/lib/types"; // Updated import
+import { SaleFormInputSchema, type SaleFormData } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -43,6 +43,7 @@ export default function RecordSaleForm({ setOpen, onSuccess }: RecordSaleFormPro
       productName: "",
       amount: undefined, // Use undefined for number inputs to allow placeholder
       date: new Date(),
+      receiptNumber: "",
     },
   });
 
@@ -143,6 +144,19 @@ export default function RecordSaleForm({ setOpen, onSuccess }: RecordSaleFormPro
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="receiptNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Receipt Number (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., RCV-00123" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Record Sale
@@ -151,3 +165,4 @@ export default function RecordSaleForm({ setOpen, onSuccess }: RecordSaleFormPro
     </Form>
   );
 }
+

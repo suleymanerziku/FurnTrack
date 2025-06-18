@@ -19,13 +19,13 @@ import RecordExpenseForm from "@/components/finances/RecordExpenseForm";
 
 // Mock data - in a real app, this would come from state or server actions
 const salesData = [
-  { id: "1", product: "Oak Dining Chair", amount: 150, date: "2024-07-28" },
+  { id: "1", product: "Oak Dining Chair", amount: 150, date: "2024-07-28", receiptNumber: "SALE001" },
   { id: "2", product: "Pine Coffee Table", amount: 220, date: "2024-07-27" },
 ];
 
 const expensesData = [
   { id: "1", description: "Wood Purchase", amount: 500, date: "2024-07-28" },
-  { id: "2", description: "Varnish and Glue", amount: 75, date: "2024-07-27" },
+  { id: "2", description: "Varnish and Glue", amount: 75, date: "2024-07-27", receiptNumber: "EXP002" },
 ];
 
 const financialSummary = {
@@ -141,6 +141,7 @@ export default function FinancesPage() {
                 <div key={sale.id} className="py-2 border-b last:border-b-0">
                   <p className="font-medium">{sale.product} - <span className="text-green-600">${sale.amount.toFixed(2)}</span></p>
                   <p className="text-xs text-muted-foreground">Date: {sale.date}</p>
+                  {sale.receiptNumber && <p className="text-xs text-muted-foreground">Receipt: {sale.receiptNumber}</p>}
                 </div>
               ))}
               {salesData.length === 0 && <p className="text-muted-foreground">No sales recorded yet.</p>}
@@ -161,6 +162,7 @@ export default function FinancesPage() {
                 <div key={expense.id} className="py-2 border-b last:border-b-0">
                   <p className="font-medium">{expense.description} - <span className="text-red-600">${expense.amount.toFixed(2)}</span></p>
                   <p className="text-xs text-muted-foreground">Date: {expense.date}</p>
+                  {expense.receiptNumber && <p className="text-xs text-muted-foreground">Receipt: {expense.receiptNumber}</p>}
                 </div>
               ))}
               {expensesData.length === 0 && <p className="text-muted-foreground">No expenses recorded yet.</p>}
@@ -175,9 +177,10 @@ export default function FinancesPage() {
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">Feature Placeholder</h3>
         <p className="text-sm text-accent-foreground/70">
-          This section now allows users to input daily sales and expenses via forms. Detailed tables/lists and full data persistence will be implemented in future updates.
+          This section now allows users to input daily sales and expenses via forms, including an optional receipt number. Detailed tables/lists and full data persistence will be implemented in future updates.
         </p>
       </div>
     </div>
   );
 }
+
