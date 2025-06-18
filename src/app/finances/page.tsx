@@ -1,9 +1,23 @@
+
+"use client";
+
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DollarSign, TrendingUp, TrendingDown, PlusCircle, ListOrdered } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import RecordSaleForm from "@/components/finances/RecordSaleForm";
+import RecordExpenseForm from "@/components/finances/RecordExpenseForm";
 
-// Mock data
+// Mock data - in a real app, this would come from state or server actions
 const salesData = [
   { id: "1", product: "Oak Dining Chair", amount: 150, date: "2024-07-28" },
   { id: "2", product: "Pine Coffee Table", amount: 220, date: "2024-07-27" },
@@ -21,6 +35,19 @@ const financialSummary = {
 };
 
 export default function FinancesPage() {
+  const [activeTab, setActiveTab] = useState("sales");
+  const [isSaleFormOpen, setIsSaleFormOpen] = useState(false);
+  const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
+
+  // Placeholder for re-fetching data after form submission.
+  // In a real app, you might use router.refresh() or a state management solution.
+  const handleFormSuccess = () => {
+    console.log("Form submitted successfully. Consider re-fetching data.");
+    // e.g. router.refresh();
+    // For now, mock data won't update automatically after submission.
+  };
+
+
   return (
     <div className="space-y-6">
       <div>
@@ -60,15 +87,48 @@ export default function FinancesPage() {
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="sales" className="space-y-4">
+      <Tabs defaultValue="sales" className="space-y-4" onValueChange={setActiveTab} value={activeTab}>
         <div className="flex items-center justify-between">
           <TabsList>
             <TabsTrigger value="sales">Sales</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
           </TabsList>
-          <Button disabled>
-            <PlusCircle className="mr-2 h-4 w-4" /> Record New {/* Changes based on tab */}
-          </Button>
+          
+          {activeTab === "sales" ? (
+            <Dialog open={isSaleFormOpen} onOpenChange={setIsSaleFormOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Record New Sale
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Record New Sale</DialogTitle>
+                  <DialogDescription>
+                    Enter the details of the sale transaction. Click record when you're done.
+                  </DialogDescription>
+                </DialogHeader>
+                <RecordSaleForm setOpen={setIsSaleFormOpen} onSuccess={handleFormSuccess} />
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <Dialog open={isExpenseFormOpen} onOpenChange={setIsExpenseFormOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Record New Expense
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Record New Expense</DialogTitle>
+                  <DialogDescription>
+                    Enter the details of the expense. Click record when you're done.
+                  </DialogDescription>
+                </DialogHeader>
+                <RecordExpenseForm setOpen={setIsExpenseFormOpen} onSuccess={handleFormSuccess} />
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
         <TabsContent value="sales">
           <Card>
@@ -115,7 +175,7 @@ export default function FinancesPage() {
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">Feature Placeholder</h3>
         <p className="text-sm text-accent-foreground/70">
-          This section will allow users to input daily sales (product, amount, date) and expenses (description, amount, date). Forms for these actions and detailed tables/lists will be implemented.
+          This section now allows users to input daily sales and expenses via forms. Detailed tables/lists and full data persistence will be implemented in future updates.
         </p>
       </div>
     </div>
