@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -8,6 +9,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 export const metadata: Metadata = {
   title: 'FurnTrack',
   description: 'Furniture Manufacturing Management',
+  icons: null, // Explicitly disable default icon handling
 };
 
 export default function RootLayout({

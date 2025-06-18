@@ -1,3 +1,6 @@
+
+import { z } from 'zod';
+
 export interface Employee {
   id: string; // UUID
   name: string;
@@ -77,3 +80,17 @@ export type ActivityItem =
   | ({ type: 'task' } & AssignedTask)
   | ({ type: 'payment' } & Payment);
 
+// Finance Form Schemas and Types
+export const SaleFormInputSchema = z.object({
+  productName: z.string().min(1, "Product name is required").max(100, "Product name can be at most 100 characters."),
+  amount: z.coerce.number({invalid_type_error: "Amount must be a number."}).positive("Amount must be positive."),
+  date: z.date({ required_error: "Date is required" }),
+});
+export type SaleFormData = z.infer<typeof SaleFormInputSchema>;
+
+export const ExpenseFormInputSchema = z.object({
+  description: z.string().min(1, "Description is required").max(255, "Description can be at most 255 characters."),
+  amount: z.coerce.number({invalid_type_error: "Amount must be a number."}).positive("Amount must be positive."),
+  date: z.date({ required_error: "Date is required" }),
+});
+export type ExpenseFormData = z.infer<typeof ExpenseFormInputSchema>;

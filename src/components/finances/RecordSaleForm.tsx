@@ -23,7 +23,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { recordSale, SaleFormInputSchema, type SaleFormData } from "@/lib/actions/finance.actions";
+import { recordSale } from "@/lib/actions/finance.actions";
+import { SaleFormInputSchema, type SaleFormData } from "@/lib/types"; // Updated import
 import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
 
