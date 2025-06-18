@@ -83,12 +83,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <SidebarMenuItem key={item.label}>
                 {item.disabled ? (
                   <SidebarMenuButton
-                    isActive={false} // A disabled item is not active
+                    isActive={false}
                     tooltip={item.label}
                     disabled={true}
                     aria-disabled={true}
                     className={cn("cursor-not-allowed opacity-50")}
                   >
+                    {/* Content for disabled button */}
                     <div className="flex w-full items-center gap-2">
                       <item.icon />
                       <span>{item.label}</span>
@@ -101,8 +102,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     tooltip={item.label}
                   >
                     <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.label}</span>
+                      {/* Wrap Link children in a single div */}
+                      <div className="flex w-full items-center gap-2">
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </div>
                     </Link>
                   </SidebarMenuButton>
                 )}
@@ -112,12 +116,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </SidebarContent>
         </ScrollArea>
         <SidebarFooter className="p-4 border-t">
-           {/* User profile or app version could go here */}
            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center justify-start gap-2 w-full p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:p-0">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="https://placehold.co/40x40.png" alt="User Avatar" data-ai-hint="user avatar" />
+                  <AvatarImage src="https://placehold.co/40x40.png" alt="User Avatar" data-ai-hint="user avatar"/>
                   <AvatarFallback>FT</AvatarFallback>
                 </Avatar>
                 <span className="font-medium group-data-[collapsible=icon]:hidden">Admin User</span>
@@ -162,3 +165,5 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+    
