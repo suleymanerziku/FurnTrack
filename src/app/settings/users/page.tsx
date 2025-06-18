@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -23,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { PlusCircle, Edit, ToggleLeft, ToggleRight, Loader2, UsersRound, ShieldAlert } from "lucide-react";
+import { PlusCircle, Edit, ToggleLeft, ToggleRight, Loader2, UsersRound, ShieldAlert, ArrowLeft } from "lucide-react";
 import UserForm from "@/components/users/UserForm";
 import type { User } from "@/lib/types";
 import { getUsers, toggleUserStatus } from "@/lib/actions/user.actions";
@@ -102,6 +103,12 @@ export default function UserManagementPage() {
 
   return (
     <div className="space-y-6">
+      <Button variant="outline" size="sm" asChild className="mb-4">
+        <Link href="/settings">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Settings
+        </Link>
+      </Button>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight font-headline">User Management</h2>
@@ -194,7 +201,7 @@ export default function UserManagementPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end items-center gap-2">
+                      <div className="flex justify-end items-center gap-1 sm:gap-2"> {/* Adjusted gap for smaller screens */}
                         <Button variant="ghost" size="icon" onClick={() => handleOpenEditForm(user)} aria-label="Edit user">
                           <Edit className="h-4 w-4" />
                         </Button>
