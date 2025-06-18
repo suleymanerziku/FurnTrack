@@ -90,17 +90,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     aria-disabled={item.disabled}
                     className={cn(item.disabled && "cursor-not-allowed opacity-50")}
                   >
-                    {item.disabled ? (
-                        <div className="flex w-full items-center gap-2">
-                            <item.icon />
-                            <span>{item.label}</span>
-                        </div>
-                    ) : (
-                        <>
-                            <item.icon />
-                            <span>{item.label}</span>
-                        </>
-                    )}
+                    {/* 
+                      When item.disabled is false, asChild is true. 
+                      The child must be a single element that can accept props from Slot.
+                      Using a div structure consistent for both disabled and enabled states.
+                    */}
+                    <div className="flex w-full items-center gap-2">
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </div>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
