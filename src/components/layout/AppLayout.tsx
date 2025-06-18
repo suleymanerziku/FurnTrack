@@ -8,12 +8,13 @@ import {
   LayoutDashboard,
   Users,
   ClipboardList,
-  ListChecks, 
+  ListChecks,
   DollarSign,
   Settings as SettingsIcon,
   Wand2,
   MoreHorizontal,
   LogOut,
+  Menu, // Added Menu icon
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -27,6 +28,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarInset,
+  useSidebar, // Import useSidebar
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Logo } from './Logo';
@@ -60,6 +62,7 @@ interface NavItem {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { isMobile, toggleSidebar } = useSidebar(); // Get isMobile and toggleSidebar
 
   const getPageTitle = () => {
     if (pathname === '/settings/profile') return "Profile Settings";
@@ -84,7 +87,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <SidebarMenuItem key={item.label}>
                 {item.disabled ? (
                   <SidebarMenuButton
-                    isActive={false} 
+                    isActive={false}
                     tooltip={item.label}
                     disabled={true}
                     aria-disabled={true}
@@ -115,7 +118,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex-1" /> {/* Spacer div */}
         </SidebarContent>
         </ScrollArea>
-        <SidebarFooter className="p-2"> 
+        <SidebarFooter className="p-2">
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild={true}
@@ -162,6 +165,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       <SidebarInset className="flex flex-1 flex-col">
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-6">
+          {isMobile && (
+            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2 md:hidden">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Toggle Menu</span>
+            </Button>
+          )}
           <h1 className="text-xl font-semibold font-headline">{getPageTitle()}</h1>
           <div className="ml-auto">
             <ThemeToggle />
