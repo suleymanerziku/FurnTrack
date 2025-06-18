@@ -9,18 +9,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { AppWindow } from "lucide-react"; // Using a more generic icon for app settings
+import { Settings as SettingsIcon } from "lucide-react"; // Changed icon
 
-export default function ApplicationSettingsPage() { // Renamed component for clarity
+export default function SettingsPage() { // Renamed component
   const [currency, setCurrency] = React.useState("USD");
   const [language, setLanguage] = React.useState("en");
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(false);
   const { toast } = useToast();
 
   const handleSaveChanges = () => {
-    console.log("Application Settings saved:", { currency, language, notificationsEnabled });
+    console.log("Settings saved:", { currency, language, notificationsEnabled });
     toast({
-      title: "Application Settings Updated (Mock)",
+      title: "Settings Updated (Mock)",
       description: "Your preferences have been updated locally.",
     });
   };
@@ -28,7 +28,7 @@ export default function ApplicationSettingsPage() { // Renamed component for cla
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Application Settings</h2>
+        <h2 className="text-2xl font-bold tracking-tight font-headline">Settings</h2> {/* Changed text */}
         <p className="text-muted-foreground">
           Configure application-wide preferences and defaults.
         </p>
@@ -37,7 +37,7 @@ export default function ApplicationSettingsPage() { // Renamed component for cla
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline">
-            <AppWindow className="h-5 w-5 text-primary"/> General Settings
+            <SettingsIcon className="h-5 w-5 text-primary"/> Settings {/* Changed icon and text */}
           </CardTitle>
           <CardDescription>Manage general application settings like currency and language.</CardDescription>
         </CardHeader>

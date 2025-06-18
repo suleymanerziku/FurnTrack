@@ -10,7 +10,7 @@ import {
   ClipboardList,
   ListChecks, 
   DollarSign,
-  Settings as SettingsIcon, // Renamed to avoid conflict, will use AppSettingsIcon alias
+  Settings as SettingsIcon,
   Menu,
   MoreHorizontal,
   LogOut,
@@ -67,7 +67,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const getPageTitle = () => {
     if (pathname === '/settings/profile') return "Profile Settings";
-    if (pathname === '/settings') return "Application Settings";
+    if (pathname === '/settings') return "Settings"; // Changed text
     
     const item = navigationItems.find(navItem => 
       pathname === '/' ? navItem.href === '/' : navItem.href !== '/' && pathname.startsWith(navItem.href)
@@ -124,12 +124,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <SidebarMenuButton
               asChild={true}
               isActive={pathname === '/settings'}
-              tooltip="Application Settings"
+              tooltip="Settings" // Changed text
             >
               <Link href="/settings">
                 <div className="flex w-full items-center gap-2">
                   <AppSettingsIcon />
-                  <span>Application Settings</span>
+                  <span>Settings</span> {/* Changed text */}
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -156,12 +156,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push('/settings/profile')} className="cursor-pointer"> 
-                <Users className="mr-2 h-4 w-4" /> {/* Changed icon for Profile Settings */}
+                <Users className="mr-2 h-4 w-4" />
                 <span>Profile Settings</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
                 <AppSettingsIcon className="mr-2 h-4 w-4" />
-                <span>Application Settings</span>
+                <span>Settings</span> {/* Changed text */}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem disabled>
