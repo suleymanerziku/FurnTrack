@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation'; // Added for DropdownMenu action
+import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -13,7 +13,7 @@ import {
   Settings as SettingsIcon,
   Menu,
   MoreHorizontal,
-  Package,
+  LogOut, // Changed from Package
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -39,7 +39,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
+  // DropdownMenuLabel, // No longer used directly here for user info
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -62,7 +62,7 @@ const navigationItems: NavItem[] = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isMobile } = useSidebar();
-  const router = useRouter(); // Added for DropdownMenu action
+  const router = useRouter();
 
   const getPageTitle = () => {
     if (pathname.startsWith('/settings')) return "Settings";
@@ -141,22 +141,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" align="start" className="w-56">
-              <DropdownMenuLabel className="font-normal">
+              <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">FurnTrack Admin</p>
                   <p className="text-xs leading-none text-muted-foreground">
                     admin@furntrack.com
                   </p>
                 </div>
-              </DropdownMenuLabel>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/settings')}> 
+              <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer"> 
                 <SettingsIcon className="mr-2 h-4 w-4" />
                 <span>Profile Settings</span>
               </DropdownMenuItem>
               <DropdownMenuItem disabled>
-                <Package className="mr-2 h-4 w-4" />
-                <span>Log out (Disabled)</span>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
