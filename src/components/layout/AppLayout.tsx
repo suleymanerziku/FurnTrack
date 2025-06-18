@@ -15,7 +15,7 @@ import {
   MoreHorizontal,
   LogOut,
   Menu,
-  UsersRound, // Added UsersRound
+  // UsersRound removed as User Management is no longer a top-level item
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -50,7 +50,7 @@ const navigationItems: NavItem[] = [
   { href: '/task-types', label: 'Task Types', icon: ClipboardList },
   { href: '/work-log', label: 'Work Log', icon: ListChecks },
   { href: '/finances', label: 'Finances', icon: DollarSign },
-  { href: '/users', label: 'User Management', icon: UsersRound }, // Added User Management
+  // { href: '/users', label: 'User Management', icon: UsersRound }, // Removed from top-level
   { href: '/ai-insights', label: 'AI Insights', icon: Wand2 },
 ];
 
@@ -67,6 +67,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isMobile, toggleSidebar } = useSidebar(); 
 
   const getPageTitle = () => {
+    if (pathname === '/settings/users') return "User Management"; // Added for new path
     if (pathname === '/settings/profile') return "Profile Settings";
     if (pathname === '/settings') return "Settings";
     
@@ -81,7 +82,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar variant="sidebar" collapsible="icon" className="border-r">
         <SidebarHeader className="p-4 flex-row items-center justify-between">
           <Logo />
-          {/* SidebarTrigger is handled by the rail or mobile hamburger */}
         </SidebarHeader>
         <ScrollArea className="flex-1">
         <SidebarContent className="p-2">
@@ -124,7 +124,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild={true}
-              isActive={pathname === '/settings'}
+              isActive={pathname === '/settings' || pathname.startsWith('/settings/')}
               tooltip="Settings"
             >
               <Link href="/settings">

@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ interface UserFormProps {
 }
 
 export default function UserForm({ setOpen, onSuccess, currentUser }: UserFormProps) {
+  const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
   const isEditMode = !!currentUser;
@@ -77,6 +79,7 @@ export default function UserForm({ setOpen, onSuccess, currentUser }: UserFormPr
         toast({ title: "Success", description: result.message });
         setOpen(false);
         onSuccess(result.user);
+        router.push("/settings/users"); // Updated redirect path
       } else {
         toast({
           variant: "destructive",
