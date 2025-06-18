@@ -14,7 +14,7 @@ import {
   Menu,
   MoreHorizontal,
   LogOut,
-  Wand2, // Ensure Wand2 is imported
+  Wand2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -67,7 +67,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const getPageTitle = () => {
     if (pathname === '/settings/profile') return "Profile Settings";
-    if (pathname === '/settings') return "Settings"; // Changed from "Application Settings"
+    if (pathname === '/settings') return "Settings";
     
     const item = navigationItems.find(navItem => 
       pathname === '/' ? navItem.href === '/' : navItem.href !== '/' && pathname.startsWith(navItem.href)
@@ -119,12 +119,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex-1" /> {/* Spacer div */}
         </SidebarContent>
         </ScrollArea>
-        <SidebarFooter className="p-2"> {/* Ensure no border-t here */}
+        <SidebarFooter className="p-2"> 
           <SidebarMenuItem className="mt-auto">
             <SidebarMenuButton
               asChild={true}
               isActive={pathname === '/settings'}
-              tooltip="Settings" // Changed from "Application Settings"
+              tooltip="Settings"
             >
               <Link href="/settings">
                 <div className="flex w-full items-center gap-2">
