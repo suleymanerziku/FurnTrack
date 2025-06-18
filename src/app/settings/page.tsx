@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -9,9 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Settings as SettingsIcon } from "lucide-react"; // Changed icon
+import { Settings as SettingsIcon, UsersRound, ChevronRight } from "lucide-react"; 
 
-export default function SettingsPage() { // Renamed component
+export default function SettingsPage() { 
   const [currency, setCurrency] = React.useState("USD");
   const [language, setLanguage] = React.useState("en");
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(false);
@@ -28,7 +29,7 @@ export default function SettingsPage() { // Renamed component
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Settings</h2> {/* Changed text */}
+        <h2 className="text-2xl font-bold tracking-tight font-headline">Settings</h2> 
         <p className="text-muted-foreground">
           Configure application-wide preferences and defaults.
         </p>
@@ -37,7 +38,7 @@ export default function SettingsPage() { // Renamed component
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline">
-            <SettingsIcon className="h-5 w-5 text-primary"/> Settings {/* Changed icon and text */}
+            <SettingsIcon className="h-5 w-5 text-primary"/> General Settings
           </CardTitle>
           <CardDescription>Manage general application settings like currency and language.</CardDescription>
         </CardHeader>
@@ -77,6 +78,23 @@ export default function SettingsPage() { // Renamed component
             />
             <Label htmlFor="notifications-enabled">Enable Notifications</Label>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-headline">
+            <UsersRound className="h-5 w-5 text-primary"/> Administration
+          </CardTitle>
+          <CardDescription>Manage users and system access.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link href="/settings/users" passHref>
+            <Button variant="outline" className="w-full justify-between">
+              Manage Users
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </CardContent>
       </Card>
 
