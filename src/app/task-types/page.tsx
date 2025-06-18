@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogTrigger,
+  // DialogTrigger, // No longer needed for the main "Add" button if controlled manually
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -30,7 +30,7 @@ import { useToast } from "@/hooks/use-toast";
 
 // Mock function, replace with actual data fetching
 async function getTaskTypesData(): Promise<TaskType[]> {
-  await new Promise(resolve => setTimeout(resolve, 100)); 
+  await new Promise(resolve => setTimeout(resolve, 100));
   // Simulate fetching existing data. In a real app, this would be from a DB.
   // For now, to see edit/delete working, we need some initial data.
   // This might be [] if it's the first load and no data is persisted.
@@ -76,7 +76,7 @@ export default function TaskTypesPage() {
 
   const handleFormSuccess = (updatedOrNewTaskType: TaskType) => {
     if (editingTask) { // It was an edit
-      setTaskTypes(prevTaskTypes => 
+      setTaskTypes(prevTaskTypes =>
         prevTaskTypes.map(tt => tt.id === updatedOrNewTaskType.id ? updatedOrNewTaskType : tt)
       );
     } else { // It was an add
@@ -122,12 +122,10 @@ export default function TaskTypesPage() {
             Define and manage different types of tasks performed in production.
           </p>
         </div>
-        {/* DialogTrigger for Add form */}
-        <DialogTrigger asChild>
-            <Button onClick={handleOpenAddForm}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Task Type
-            </Button>
-        </DialogTrigger>
+        {/* Button to open Add form dialog */}
+        <Button onClick={handleOpenAddForm}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add Task Type
+        </Button>
       </div>
 
       {/* Dialog for Add/Edit Form */}
@@ -142,10 +140,10 @@ export default function TaskTypesPage() {
               {editingTask ? "Update the details for this task type." : "Enter the details for the new task type. Click save when you're done."}
             </DialogDescription>
           </DialogHeader>
-          <TaskTypeForm 
-            setOpen={setIsFormOpen} 
+          <TaskTypeForm
+            setOpen={setIsFormOpen}
             onSuccess={handleFormSuccess}
-            currentTaskType={editingTask} 
+            currentTaskType={editingTask}
           />
         </DialogContent>
       </Dialog>
