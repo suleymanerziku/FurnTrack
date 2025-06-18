@@ -43,15 +43,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-const AppSettingsIcon = SettingsIcon; // Alias for clarity
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  disabled?: boolean;
-}
-
 const navigationItems: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/employees', label: 'Employees', icon: Users },
@@ -60,6 +51,13 @@ const navigationItems: NavItem[] = [
   { href: '/finances', label: 'Finances', icon: DollarSign },
 ];
 
+interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  disabled?: boolean;
+}
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isMobile } = useSidebar();
@@ -67,7 +65,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const getPageTitle = () => {
     if (pathname === '/settings/profile') return "Profile Settings";
-    if (pathname === '/settings') return "Settings"; // Changed text
+    if (pathname === '/settings') return "Settings";
     
     const item = navigationItems.find(navItem => 
       pathname === '/' ? navItem.href === '/' : navItem.href !== '/' && pathname.startsWith(navItem.href)
@@ -124,12 +122,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <SidebarMenuButton
               asChild={true}
               isActive={pathname === '/settings'}
-              tooltip="Settings" // Changed text
+              tooltip="Settings"
             >
               <Link href="/settings">
                 <div className="flex w-full items-center gap-2">
-                  <AppSettingsIcon />
-                  <span>Settings</span> {/* Changed text */}
+                  <SettingsIcon />
+                  <span>Settings</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -158,10 +156,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenuItem onClick={() => router.push('/settings/profile')} className="cursor-pointer"> 
                 <Users className="mr-2 h-4 w-4" />
                 <span>Profile Settings</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
-                <AppSettingsIcon className="mr-2 h-4 w-4" />
-                <span>Settings</span> {/* Changed text */}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem disabled>
