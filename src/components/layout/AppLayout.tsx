@@ -14,6 +14,7 @@ import {
   Menu,
   MoreHorizontal,
   LogOut,
+  Wand2, // Added Wand2 import
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -49,6 +50,7 @@ const navigationItems: NavItem[] = [
   { href: '/task-types', label: 'Task Types', icon: ClipboardList },
   { href: '/work-log', label: 'Work Log', icon: ListChecks },
   { href: '/finances', label: 'Finances', icon: DollarSign },
+  { href: '/ai-insights', label: 'AI Insights', icon: Wand2 },
 ];
 
 interface NavItem {
@@ -151,11 +153,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     admin@furntrack.com
                   </p>
                 </div>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/settings/profile')} className="cursor-pointer"> 
-                <Users className="mr-2 h-4 w-4" />
-                <span>Profile Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem disabled>
