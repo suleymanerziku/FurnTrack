@@ -75,20 +75,20 @@ export default function WorkLogPage() { // Renamed from TaskAssignmentsPage
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight font-headline">Work Log</h2> 
           <p className="text-muted-foreground">
             Log completed work for employees and track associated payments.
           </p>
         </div>
-        <div className="space-x-2">
-          <Button variant="outline" disabled>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button variant="outline" disabled className="w-full sm:w-auto">
             <ListFilter className="mr-2 h-4 w-4" /> Filter Log
           </Button>
           <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="w-full sm:w-auto">
                 <PlusCircle className="mr-2 h-4 w-4" /> Log New Work
               </Button>
             </DialogTrigger>
@@ -121,15 +121,15 @@ export default function WorkLogPage() { // Renamed from TaskAssignmentsPage
           ) : loggedWork.length > 0 ? ( // Renamed
             <div className="space-y-3">
               {loggedWork.map(task => ( // Renamed
-                <div key={task.id} className="p-4 border rounded-lg shadow-sm flex justify-between items-start hover:bg-muted/50">
-                  <div>
+                <div key={task.id} className="p-4 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between sm:items-start hover:bg-muted/50">
+                  <div className="mb-2 sm:mb-0">
                     <h3 className="font-semibold font-headline">{task.task_name || `Task ID: ${task.task_type_id}`}</h3>
                     <p className="text-sm text-muted-foreground">Employee: {task.employee_name || `Emp. ID: ${task.employee_id}`}</p>
                     <p className="text-sm text-muted-foreground">
                       Quantity: {task.quantity_completed} | Date: {new Date(task.date_assigned).toLocaleDateString()} | Payment: ${task.total_payment.toFixed(2)}
                     </p>
                   </div>
-                  <Badge variant="default">
+                  <Badge variant="default" className="mt-2 sm:mt-0 self-start sm:self-center">
                     <CheckCircle className="mr-1 h-3 w-3" />
                     Completed
                   </Badge>
@@ -150,3 +150,4 @@ export default function WorkLogPage() { // Renamed from TaskAssignmentsPage
     </div>
   );
 }
+

@@ -44,7 +44,7 @@ export default function SettingsPage() {
           <div className="space-y-2">
             <Label htmlFor="currency">Currency</Label>
             <Select value={currency} onValueChange={setCurrency}>
-              <SelectTrigger id="currency" className="w-[180px]">
+              <SelectTrigger id="currency" className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
               <SelectContent>
@@ -58,7 +58,7 @@ export default function SettingsPage() {
           <div className="space-y-2">
             <Label htmlFor="language">Language</Label>
             <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger id="language" className="w-[180px]">
+              <SelectTrigger id="language" className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
               <SelectContent>
@@ -94,14 +94,14 @@ export default function SettingsPage() {
               type="number" 
               value={defaultTaskDeadline}
               onChange={(e) => setDefaultTaskDeadline(parseInt(e.target.value, 10) || 0)}
-              className="w-[180px]"
+              className="w-full sm:w-[180px]"
             />
           </div>
         </CardContent>
       </Card>
 
       <div className="flex justify-end">
-        <Button onClick={handleSaveChanges}>Save Changes</Button>
+        <Button onClick={handleSaveChanges} className="w-full sm:w-auto">Save Changes</Button>
       </div>
 
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
@@ -113,3 +113,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

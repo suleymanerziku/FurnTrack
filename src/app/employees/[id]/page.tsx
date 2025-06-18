@@ -25,8 +25,8 @@ export default async function EmployeeDetailPage({ params }: { params: { id: str
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+        <div className="w-full sm:w-auto">
           <Button variant="outline" size="sm" asChild className="mb-4">
             <Link href="/employees">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -36,7 +36,7 @@ export default async function EmployeeDetailPage({ params }: { params: { id: str
           <h2 className="text-3xl font-bold tracking-tight font-headline">{employee.name}</h2>
           <p className="text-muted-foreground">{employee.role || "N/A"}</p>
         </div>
-        <div className="text-right">
+        <div className="w-full sm:w-auto text-left sm:text-right mt-2 sm:mt-0">
             <p className="text-sm text-muted-foreground">Current Balance</p>
             <p className={`text-2xl font-bold font-headline ${currentBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {formatCurrency(currentBalance)}
@@ -48,7 +48,7 @@ export default async function EmployeeDetailPage({ params }: { params: { id: str
         <CardHeader>
           <CardTitle className="font-headline">Employee Information</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
+        <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2">
           <div className="flex items-start space-x-3">
             <UserCircle className="h-5 w-5 text-muted-foreground mt-1" />
             <div>
@@ -63,7 +63,7 @@ export default async function EmployeeDetailPage({ params }: { params: { id: str
               <p className="font-medium">{format(new Date(employee.start_date), "PPP")}</p>
             </div>
           </div>
-          <div className="flex items-start space-x-3 md:col-span-2">
+          <div className="flex items-start space-x-3 sm:col-span-2">
              <Briefcase className="h-5 w-5 text-muted-foreground mt-1" />
             <div>
               <p className="text-sm text-muted-foreground">Address</p>
@@ -96,7 +96,7 @@ export default async function EmployeeDetailPage({ params }: { params: { id: str
                 {transactions.map((tx) => (
                   <TableRow key={tx.id}>
                     <TableCell>{format(new Date(tx.date), "PP")}</TableCell>
-                    <TableCell className="max-w-[300px] truncate">{tx.description}</TableCell>
+                    <TableCell className="max-w-[200px] sm:max-w-[300px] truncate">{tx.description}</TableCell>
                     <TableCell>
                       <Badge variant={tx.type === 'Work Logged' ? 'default' : 'secondary'}>
                         {tx.type}
@@ -120,3 +120,4 @@ export default async function EmployeeDetailPage({ params }: { params: { id: str
     </div>
   );
 }
+

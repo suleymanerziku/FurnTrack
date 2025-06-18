@@ -115,15 +115,14 @@ export default function TaskTypesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight font-headline">Task Type Management</h2>
           <p className="text-muted-foreground">
             Define and manage different types of tasks performed in production.
           </p>
         </div>
-        {/* Button to open Add form dialog */}
-        <Button onClick={handleOpenAddForm}>
+        <Button onClick={handleOpenAddForm} className="w-full sm:w-auto">
             <PlusCircle className="mr-2 h-4 w-4" /> Add Task Type
         </Button>
       </div>
@@ -181,18 +180,18 @@ export default function TaskTypesPage() {
           ) : taskTypes.length > 0 ? (
             <div className="space-y-3">
               {taskTypes.map(task => (
-                <div key={task.id} className="p-4 border rounded-lg shadow-sm flex justify-between items-center hover:bg-muted/50">
-                  <div>
+                <div key={task.id} className="p-4 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between sm:items-center hover:bg-muted/50">
+                  <div className="mb-2 sm:mb-0">
                     <h3 className="font-semibold font-headline">{task.name}</h3>
                     <p className="text-sm text-muted-foreground">{task.description || "No description"}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-primary">${task.unit_price.toFixed(2)} / unit</p>
-                    <div className="mt-1 space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleOpenEditForm(task)}>
+                  <div className="flex flex-col items-stretch sm:items-end gap-2">
+                    <p className="font-semibold text-primary text-left sm:text-right">${task.unit_price.toFixed(2)} / unit</p>
+                    <div className="flex flex-col sm:flex-row sm:space-x-2 gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleOpenEditForm(task)} className="w-full sm:w-auto">
                         <Edit className="h-3 w-3 mr-1" /> Edit
                       </Button>
-                       <Button variant="destructive" size="sm" onClick={() => handleOpenDeleteDialog(task)}>
+                       <Button variant="destructive" size="sm" onClick={() => handleOpenDeleteDialog(task)} className="w-full sm:w-auto">
                         <Trash2 className="h-3 w-3 mr-1" /> Delete
                       </Button>
                     </div>
@@ -213,3 +212,4 @@ export default function TaskTypesPage() {
     </div>
   );
 }
+

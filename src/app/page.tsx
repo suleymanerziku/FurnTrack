@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, ListOrdered } from "lucide-react";
+import { Users } from "lucide-react";
 import FinancialSummaryCard from "@/components/dashboard/FinancialSummaryCard";
 import EmployeeBalancesCard from "@/components/dashboard/EmployeeBalancesCard";
 import RecentActivityFeed from "@/components/dashboard/RecentActivityFeed";
@@ -42,7 +42,7 @@ export default async function DashboardPage() {
   return (
     <div className="grid gap-6">
       {/* Row 1: Financials, Employee Balances, Active Employee Count */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <FinancialSummaryCard summary={financialSummary} />
         <EmployeeBalancesCard employees={employeeBalances} />
         <Card>
@@ -65,10 +65,11 @@ export default async function DashboardPage() {
       </div>
 
       {/* Row 2: Recent Activity */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-1"> {/* Changed md:grid-cols-2 to md:grid-cols-1 */}
+      <div className="grid grid-cols-1 gap-6">
         <RecentActivityFeed activities={recentActivities} />
       </div>
 
     </div>
   );
 }
+

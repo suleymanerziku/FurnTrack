@@ -62,7 +62,7 @@ export default function FinancesPage() {
           <CardTitle className="font-headline">Financial Summary</CardTitle>
           <CardDescription>Key financial metrics for the current period.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
+        <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           <div className="p-4 bg-green-500/10 rounded-lg flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-green-700 dark:text-green-400">Total Revenue</p>
@@ -88,7 +88,7 @@ export default function FinancesPage() {
       </Card>
 
       <Tabs defaultValue="sales" className="space-y-4" onValueChange={setActiveTab} value={activeTab}>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <TabsList>
             <TabsTrigger value="sales">Sales</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
@@ -97,7 +97,7 @@ export default function FinancesPage() {
           {activeTab === "sales" ? (
             <Dialog open={isSaleFormOpen} onOpenChange={setIsSaleFormOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="w-full sm:w-auto">
                   <PlusCircle className="mr-2 h-4 w-4" /> Record New Sale
                 </Button>
               </DialogTrigger>
@@ -114,7 +114,7 @@ export default function FinancesPage() {
           ) : (
             <Dialog open={isExpenseFormOpen} onOpenChange={setIsExpenseFormOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button className="w-full sm:w-auto">
                   <PlusCircle className="mr-2 h-4 w-4" /> Record New Expense
                 </Button>
               </DialogTrigger>

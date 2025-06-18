@@ -62,17 +62,17 @@ export default function EmployeesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight font-headline">Employee Management</h2>
           <p className="text-muted-foreground">
             View, add, manage employee profiles, and record withdrawals.
           </p>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Dialog open={isWithdrawalFormOpen} onOpenChange={setIsWithdrawalFormOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">
+              <Button variant="outline" className="w-full sm:w-auto">
                 <MinusCircle className="mr-2 h-4 w-4" /> Record Withdrawal
               </Button>
             </DialogTrigger>
@@ -90,7 +90,7 @@ export default function EmployeesPage() {
               />
             </DialogContent>
           </Dialog>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link href="/employees/new">
               <PlusCircle className="mr-2 h-4 w-4" /> Add Employee
             </Link>
@@ -143,3 +143,4 @@ export default function EmployeesPage() {
     </div>
   );
 }
+
