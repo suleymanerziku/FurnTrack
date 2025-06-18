@@ -150,7 +150,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/settings')} disabled> 
+              <DropdownMenuItem onClick={() => router.push('/settings')}> 
                 <SettingsIcon className="mr-2 h-4 w-4" />
                 <span>Profile Settings</span>
               </DropdownMenuItem>
