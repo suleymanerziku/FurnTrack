@@ -1,11 +1,31 @@
+
+"use client";
+
+import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SettingsPage() {
+  const [currency, setCurrency] = React.useState("USD");
+  const [language, setLanguage] = React.useState("en");
+  const [notificationsEnabled, setNotificationsEnabled] = React.useState(false);
+  const [defaultTaskDeadline, setDefaultTaskDeadline] = React.useState(7);
+  const { toast } = useToast();
+
+  const handleSaveChanges = () => {
+    // In a real app, you would save these settings to a backend or localStorage.
+    console.log("Settings saved:", { currency, language, notificationsEnabled, defaultTaskDeadline });
+    toast({
+      title: "Settings Updated (Mock)",
+      description: "Your preferences have been updated locally.",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -23,7 +43,7 @@ export default function SettingsPage() {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="currency">Currency</Label>
-            <Select defaultValue="USD" disabled>
+            <Select value={currency} onValueChange={setCurrency}>
               <SelectTrigger id="currency" className="w-[180px]">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
@@ -33,28 +53,29 @@ export default function SettingsPage() {
                 <SelectItem value="EUR">EUR (€)</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">Currency setting is currently disabled.</p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="language">Language</Label>
-            <Select defaultValue="en" disabled>
+            <Select value={language} onValueChange={setLanguage}>
               <SelectTrigger id="language" className="w-[180px]">
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="en">English</SelectItem>
-                <SelectItem value="am">Amharic</SelectItem>
+                <SelectItem value="am">Amharic (Placeholder)</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">Language selection is currently disabled.</p>
           </div>
 
           <div className="flex items-center space-x-2">
-            <Switch id="notifications-enabled" disabled />
+            <Switch 
+              id="notifications-enabled" 
+              checked={notificationsEnabled}
+              onCheckedChange={setNotificationsEnabled}
+            />
             <Label htmlFor="notifications-enabled">Enable Notifications</Label>
           </div>
-           <p className="text-xs text-muted-foreground">Notification settings are currently disabled.</p>
         </CardContent>
       </Card>
 
@@ -68,16 +89,25 @@ export default function SettingsPage() {
         <CardContent className="space-y-4">
            <div className="space-y-2">
             <Label htmlFor="default-task-deadline">Default Task Deadline (days)</Label>
-            <Input id="default-task-deadline" type="number" defaultValue="7" className="w-[180px]" disabled/>
+            <Input 
+              id="default-task-deadline" 
+              type="number" 
+              value={defaultTaskDeadline}
+              onChange={(e) => setDefaultTaskDeadline(parseInt(e.target.value, 10) || 0)}
+              className="w-[180px]"
+            />
           </div>
-          <p className="text-xs text-muted-foreground">This is a placeholder for future task-related settings.</p>
         </CardContent>
       </Card>
 
+      <div className="flex justify-end">
+        <Button onClick={handleSaveChanges}>Save Changes</Button>
+      </div>
+
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
-        <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">Feature Placeholder</h3>
+        <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">Note</h3>
         <p className="text-sm text-accent-foreground/70">
-          This settings page will be expanded to include functional controls for currency, language (if multi-language support is added), notification preferences, and other system-wide defaults.
+          Settings are currently saved locally for this session. Full persistence will be implemented in future updates.
         </p>
       </div>
     </div>
