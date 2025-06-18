@@ -81,26 +81,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {navigationItems.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href}>
+                {item.disabled ? (
                   <SidebarMenuButton
-                    asChild={!item.disabled}
-                    isActive={pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))}
+                    isActive={false} // A disabled item is not active
                     tooltip={item.label}
-                    disabled={item.disabled}
-                    aria-disabled={item.disabled}
-                    className={cn(item.disabled && "cursor-not-allowed opacity-50")}
+                    disabled={true}
+                    aria-disabled={true}
+                    className={cn("cursor-not-allowed opacity-50")}
                   >
-                    {/* 
-                      When item.disabled is false, asChild is true. 
-                      The child must be a single element that can accept props from Slot.
-                      Using a div structure consistent for both disabled and enabled states.
-                    */}
                     <div className="flex w-full items-center gap-2">
                       <item.icon />
                       <span>{item.label}</span>
                     </div>
                   </SidebarMenuButton>
-                </Link>
+                ) : (
+                  <SidebarMenuButton
+                    asChild={true}
+                    isActive={pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))}
+                    tooltip={item.label}
+                  >
+                    <Link href={item.href}>
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                )}
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
