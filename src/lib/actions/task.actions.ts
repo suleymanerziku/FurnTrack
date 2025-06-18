@@ -1,41 +1,52 @@
 
 'use server';
 
-import type { TaskTypeFormData, TaskAssignmentFormData } from '@/lib/types';
+import type { TaskTypeFormData, TaskAssignmentFormData, TaskType } from '@/lib/types';
 // import { supabase } from '@/lib/supabaseClient'; // Example for future DB integration
 // import { revalidatePath } from 'next/cache';
 
-export async function addTaskType(data: TaskTypeFormData): Promise<{ success: boolean; message: string; taskTypeId?: string }> {
-  // Simulate backend processing
+export async function addTaskType(data: TaskTypeFormData): Promise<{ success: boolean; message: string; taskType?: TaskType }> {
   await new Promise(resolve => setTimeout(resolve, 500));
+  console.log("Adding new task type:", data);
 
-  console.log("Adding new task type:", {
+  // Simulate DB insertion and getting the new object back
+  const newTaskType: TaskType = {
+    id: `tt_${Date.now()}`,
     name: data.name,
     description: data.description,
     unit_price: data.unit_price,
-  });
-
-  // In a real app:
-  // const { data: newTaskType, error } = await supabase
-  //   .from('task_types')
-  //   .insert({
-  //     name: data.name,
-  //     description: data.description,
-  //     unit_price: data.unit_price,
-  //   })
-  //   .select()
-  //   .single();
-
-  // if (error) {
-  //   console.error("Error adding task type:", error);
-  //   return { success: false, message: error.message };
-  // }
+    created_at: new Date().toISOString(),
+  };
   
   // revalidatePath('/task-types');
-  // return { success: true, message: "Task type added successfully.", taskTypeId: newTaskType.id };
+  return { success: true, message: "Task type added successfully (mock).", taskType: newTaskType };
+}
 
-  const newTaskTypeId = `tt_${Date.now()}`;
-  return { success: true, message: "Task type added successfully (mock).", taskTypeId: newTaskTypeId };
+export async function updateTaskType(id: string, data: TaskTypeFormData): Promise<{ success: boolean; message: string; taskType?: TaskType }> {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  console.log("Updating task type:", id, data);
+
+  // Simulate DB update and getting the updated object back
+  const updatedTaskType: TaskType = {
+    id: id,
+    name: data.name,
+    description: data.description,
+    unit_price: data.unit_price,
+    created_at: new Date().toISOString(), // Should retain original created_at in real DB
+  };
+
+  // revalidatePath('/task-types');
+  // revalidatePath(`/task-types/${id}`); // If you had a detail page
+  return { success: true, message: "Task type updated successfully (mock).", taskType: updatedTaskType };
+}
+
+export async function deleteTaskType(id: string): Promise<{ success: boolean; message: string }> {
+  await new Promise(resolve => setTimeout(resolve, 500));
+  console.log("Deleting task type:", id);
+
+  // Simulate DB deletion
+  // revalidatePath('/task-types');
+  return { success: true, message: "Task type deleted successfully (mock)." };
 }
 
 
@@ -49,32 +60,8 @@ export async function assignTask(data: TaskAssignmentFormData): Promise<{ succes
     quantity: data.quantity,
     date_assigned: data.date_assigned.toISOString().split('T')[0],
   });
-
-  // In a real app, you might also calculate total_payment here if not done on client
-  // const { data: taskType } = await supabase.from('task_types').select('unit_price').eq('id', data.task_type_id).single();
-  // const total_payment = taskType ? data.quantity * taskType.unit_price : 0;
-  //
-  // const { data: newAssignment, error } = await supabase
-  //   .from('assigned_tasks')
-  //   .insert({
-  //     employee_id: data.employee_id,
-  //     task_type_id: data.task_type_id,
-  //     quantity_completed: data.quantity, // Assuming quantity is for completion
-  //     date_assigned: data.date_assigned.toISOString().split('T')[0],
-  //     total_payment: total_payment, // Store the calculated payment
-  //     status: 'Pending', // Default status
-  //   })
-  //   .select()
-  //   .single();
-
-  // if (error) {
-  //   console.error("Error assigning task:", error);
-  //   return { success: false, message: error.message };
-  // }
-  
-  // revalidatePath('/task-assignments');
-  // return { success: true, message: "Task assigned successfully.", assignmentId: newAssignment.id };
   
   const newAssignmentId = `ta_${Date.now()}`;
   return { success: true, message: "Task assigned successfully (mock).", assignmentId: newAssignmentId };
 }
+

@@ -16,43 +16,67 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { TaskTypeFormInputSchema, type TaskTypeFormData } from "@/lib/types";
-import { addTaskType } from "@/lib/actions/task.actions";
+import { TaskTypeFormInputSchema, type TaskTypeFormData, type TaskType } from "@/lib/types";
+import { addTaskType, updateTaskType } from "@/lib/actions/task.actions";
 import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
 
 interface TaskTypeFormProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
-  onSuccess?: () => void; // Callback for successful submission
+  onSuccess: (taskType: TaskType) => void;
+  currentTaskType?: TaskType | null;
 }
 
-export default function TaskTypeForm({ setOpen, onSuccess }: TaskTypeFormProps) {
+export default function TaskTypeForm({ setOpen, onSuccess, currentTaskType }: TaskTypeFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const isEditMode = !!currentTaskType;
 
   const form = useForm<TaskTypeFormData>({
     resolver: zodResolver(TaskTypeFormInputSchema),
     defaultValues: {
       name: "",
       description: "",
-      unit_price: null, // Changed from undefined
+      unit_price: null,
     },
   });
+
+  React.useEffect(() => {
+    if (isEditMode && currentTaskType) {
+      form.reset({
+        name: currentTaskType.name,
+        description: currentTaskType.description || "",
+        unit_price: currentTaskType.unit_price,
+      });
+    } else {
+      form.reset({ // Reset to defaults if not editing or currentTaskType is null
+        name: "",
+        description: "",
+        unit_price: null,
+      });
+    }
+  }, [currentTaskType, form, isEditMode]);
+
 
   async function onSubmit(values: TaskTypeFormData) {
     setIsLoading(true);
     try {
-      const result = await addTaskType(values);
-      if (result.success) {
+      let result;
+      if (isEditMode && currentTaskType) {
+        result = await updateTaskType(currentTaskType.id, values);
+      } else {
+        result = await addTaskType(values);
+      }
+
+      if (result.success && result.taskType) {
         toast({ title: "Success", description: result.message });
-        form.reset();
         setOpen(false);
-        onSuccess?.(); // Call the success callback
+        onSuccess(result.taskType); 
       } else {
         toast({
           variant: "destructive",
           title: "Error",
-          description: result.message || "Failed to add task type.",
+          description: result.message || `Failed to ${isEditMode ? 'update' : 'add'} task type.`,
         });
       }
     } catch (error) {
@@ -114,9 +138,10 @@ export default function TaskTypeForm({ setOpen, onSuccess }: TaskTypeFormProps) 
         />
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Add Task Type
+          {isEditMode ? "Update Task Type" : "Add Task Type"}
         </Button>
       </form>
     </Form>
   );
 }
+
