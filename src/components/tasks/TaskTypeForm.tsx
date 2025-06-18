@@ -144,4 +144,3 @@ export default function TaskTypeForm({ setOpen, onSuccess, currentTaskType }: Ta
     </Form>
   );
 }
-

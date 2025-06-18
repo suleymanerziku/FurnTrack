@@ -25,12 +25,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import TaskTypeForm from "@/components/tasks/TaskTypeForm";
 import type { TaskType } from "@/lib/types";
-import { deleteTaskType } from "@/lib/actions/task.actions";
+import { deleteTaskType } from "@/lib/actions/task.actions"; // Assuming addTaskType and updateTaskType are also here or imported if needed
 import { useToast } from "@/hooks/use-toast";
 
 // Mock function, replace with actual data fetching
 async function getTaskTypesData(): Promise<TaskType[]> {
   await new Promise(resolve => setTimeout(resolve, 100)); 
+  // Simulate fetching existing data. In a real app, this would be from a DB.
+  // For now, to see edit/delete working, we need some initial data.
+  // This might be [] if it's the first load and no data is persisted.
+  // Let's return the example data to make the page testable.
   return [
     { id: "1", name: "Chair Making", description: "Crafting standard wooden chairs", unit_price: 50.00, created_at: new Date(Date.now() - 100000000).toISOString() },
     { id: "2", name: "Table Assembly", description: "Assembling dining tables", unit_price: 75.00, created_at: new Date(Date.now() - 200000000).toISOString() },
@@ -51,7 +55,7 @@ export default function TaskTypesPage() {
 
   const fetchTaskTypes = async () => {
     setIsLoading(true);
-    const data = await getTaskTypesData();
+    const data = await getTaskTypesData(); // This will fetch initial mock data
     setTaskTypes(data);
     setIsLoading(false);
   };
@@ -78,7 +82,7 @@ export default function TaskTypesPage() {
     } else { // It was an add
       setTaskTypes(prevTaskTypes => [updatedOrNewTaskType, ...prevTaskTypes]);
     }
-    setEditingTask(null);
+    setEditingTask(null); // Reset editing task state
   };
 
   const handleOpenDeleteDialog = (taskType: TaskType) => {
@@ -90,7 +94,9 @@ export default function TaskTypesPage() {
     if (!taskToDelete) return;
     setIsDeleting(true);
     try {
-      const result = await deleteTaskType(taskToDelete.id);
+      // In a real app, this would call a server action that interacts with a database.
+      // For now, we simulate the action and update local state.
+      const result = await deleteTaskType(taskToDelete.id); // This is a mock action
       if (result.success) {
         setTaskTypes(prevTaskTypes => prevTaskTypes.filter(tt => tt.id !== taskToDelete.id));
         toast({ title: "Success", description: result.message });
@@ -98,6 +104,7 @@ export default function TaskTypesPage() {
         toast({ variant: "destructive", title: "Error", description: result.message });
       }
     } catch (error) {
+      // Handle any unexpected errors from the action
       toast({ variant: "destructive", title: "Error", description: "Failed to delete task type." });
     } finally {
       setIsDeleting(false);
@@ -115,11 +122,15 @@ export default function TaskTypesPage() {
             Define and manage different types of tasks performed in production.
           </p>
         </div>
-        <Button onClick={handleOpenAddForm}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Task Type
-        </Button>
+        {/* DialogTrigger for Add form */}
+        <DialogTrigger asChild>
+            <Button onClick={handleOpenAddForm}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Task Type
+            </Button>
+        </DialogTrigger>
       </div>
 
+      {/* Dialog for Add/Edit Form */}
       <Dialog open={isFormOpen} onOpenChange={(isOpen) => {
           setIsFormOpen(isOpen);
           if (!isOpen) setEditingTask(null); // Reset editing task when dialog closes
@@ -139,6 +150,7 @@ export default function TaskTypesPage() {
         </DialogContent>
       </Dialog>
 
+      {/* AlertDialog for Delete Confirmation */}
       <AlertDialog open={isConfirmDeleteOpen} onOpenChange={setIsConfirmDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -203,4 +215,3 @@ export default function TaskTypesPage() {
     </div>
   );
 }
-
