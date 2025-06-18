@@ -14,12 +14,12 @@ export default function SettingsPage() {
   const [currency, setCurrency] = React.useState("USD");
   const [language, setLanguage] = React.useState("en");
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(false);
-  const [defaultTaskDeadline, setDefaultTaskDeadline] = React.useState(7);
+  // Removed: const [defaultTaskDeadline, setDefaultTaskDeadline] = React.useState(7);
   const { toast } = useToast();
 
   const handleSaveChanges = () => {
     // In a real app, you would save these settings to a backend or localStorage.
-    console.log("Settings saved:", { currency, language, notificationsEnabled, defaultTaskDeadline });
+    console.log("Settings saved:", { currency, language, notificationsEnabled }); // Removed: defaultTaskDeadline
     toast({
       title: "Settings Updated (Mock)",
       description: "Your preferences have been updated locally.",
@@ -79,26 +79,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline">Task Configuration</CardTitle>
-          <CardDescription>
-            Default settings related to tasks. Task type management is handled on the "Task Types" page.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-           <div className="space-y-2">
-            <Label htmlFor="default-task-deadline">Default Task Deadline (days)</Label>
-            <Input 
-              id="default-task-deadline" 
-              type="number" 
-              value={defaultTaskDeadline}
-              onChange={(e) => setDefaultTaskDeadline(parseInt(e.target.value, 10) || 0)}
-              className="w-full sm:w-[180px]"
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Removed Task Configuration Card */}
 
       <div className="flex justify-end">
         <Button onClick={handleSaveChanges} className="w-full sm:w-auto">Save Changes</Button>
@@ -113,4 +94,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
