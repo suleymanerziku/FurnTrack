@@ -71,12 +71,6 @@ export interface FinancialSummary {
   net_income: number;
 }
 
-// For AI Insights
-export interface AIInsightData {
-  productionData: string;
-  salesData: string;
-}
-
 // For recent activity feed
 export type ActivityItem = 
   | ({ type: 'sale' } & Sale)
@@ -136,3 +130,19 @@ export const WithdrawalFormInputSchema = z.object({
   notes: z.string().max(255, "Notes can be at most 255 characters.").optional().or(z.literal('')),
 });
 export type WithdrawalFormData = z.infer<typeof WithdrawalFormInputSchema>;
+
+// Employee Detail Page Types
+export interface EmployeeTransaction {
+  id: string;
+  date: string; // ISO date string
+  description: string;
+  amount: number; // positive for earnings, negative for withdrawals
+  type: 'Work Logged' | 'Withdrawal';
+  runningBalance: number;
+}
+
+export interface EmployeeDetailsPageData {
+  employee: Employee | null;
+  transactions: EmployeeTransaction[];
+  currentBalance: number;
+}
