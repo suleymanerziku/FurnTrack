@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Settings as SettingsIcon, UsersRound, ChevronRight } from "lucide-react"; 
+import { Settings as SettingsIcon, UsersRound, ChevronRight, ClipboardList } from "lucide-react"; 
 
 export default function SettingsPage() { 
   const [currency, setCurrency] = React.useState("USD");
@@ -95,6 +95,23 @@ export default function SettingsPage() {
           <Link href="/settings/users" passHref>
             <Button variant="outline" className="w-full justify-between">
               Manage Users
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-headline">
+            <ClipboardList className="h-5 w-5 text-primary"/> Production Settings
+          </CardTitle>
+          <CardDescription>Define and manage task types used in production.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link href="/settings/task-types" passHref>
+            <Button variant="outline" className="w-full justify-between">
+              Manage Task Types
               <ChevronRight className="h-4 w-4" />
             </Button>
           </Link>

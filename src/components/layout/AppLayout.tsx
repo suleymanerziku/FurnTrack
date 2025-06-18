@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
-  ClipboardList,
+  ClipboardList, // Will be removed from main nav
   ListChecks,
   DollarSign,
   Settings as SettingsIcon,
@@ -15,7 +15,6 @@ import {
   MoreHorizontal,
   LogOut,
   Menu,
-  // UsersRound removed as User Management is no longer a top-level item
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -47,10 +46,9 @@ import {
 const navigationItems: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/employees', label: 'Employees', icon: Users },
-  { href: '/task-types', label: 'Task Types', icon: ClipboardList },
+  // { href: '/task-types', label: 'Task Types', icon: ClipboardList }, // Removed
   { href: '/work-log', label: 'Work Log', icon: ListChecks },
   { href: '/finances', label: 'Finances', icon: DollarSign },
-  // { href: '/users', label: 'User Management', icon: UsersRound }, // Removed from top-level
   { href: '/ai-insights', label: 'AI Insights', icon: Wand2 },
 ];
 
@@ -67,8 +65,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isMobile, toggleSidebar } = useSidebar(); 
 
   const getPageTitle = () => {
-    if (pathname === '/settings/users') return "User Management"; // Added for new path
+    if (pathname === '/settings/users') return "User Management";
     if (pathname === '/settings/profile') return "Profile Settings";
+    if (pathname === '/settings/task-types') return "Task Type Management"; // Added
     if (pathname === '/settings') return "Settings";
     
     const item = navigationItems.find(navItem => 
