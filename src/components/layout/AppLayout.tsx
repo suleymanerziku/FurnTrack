@@ -7,9 +7,8 @@ import {
   LayoutDashboard,
   Users,
   ClipboardList,
-  ListChecks, // Changed to ListChecks from ClipboardCheck for "Work Log"
+  ListChecks, 
   DollarSign,
-  Sparkles,
   Settings as SettingsIcon,
   Menu,
   MoreHorizontal,
@@ -55,9 +54,9 @@ const navigationItems: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/employees', label: 'Employees', icon: Users },
   { href: '/task-types', label: 'Task Types', icon: ClipboardList },
-  { href: '/work-log', label: 'Work Log', icon: ListChecks }, // Changed from Task Assignments
+  { href: '/work-log', label: 'Work Log', icon: ListChecks },
   { href: '/finances', label: 'Finances', icon: DollarSign },
-  { href: '/ai-insights', label: 'AI Insights', icon: Sparkles },
+  // AI Insights removed
   { href: '/settings', label: 'Settings', icon: SettingsIcon },
 ];
 
@@ -83,7 +82,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <SidebarMenuItem key={item.label}>
                 {item.disabled ? (
                   <SidebarMenuButton
-                    isActive={false} // Disabled items are never active
+                    isActive={false} 
                     tooltip={item.label}
                     disabled={true}
                     aria-disabled={true}

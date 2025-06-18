@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Users, ListOrdered, BarChart3, AlertTriangle } from "lucide-react";
+import { DollarSign, Users, ListOrdered, AlertTriangle } from "lucide-react";
 import FinancialSummaryCard from "@/components/dashboard/FinancialSummaryCard";
 import EmployeeBalancesCard from "@/components/dashboard/EmployeeBalancesCard";
 import RecentActivityFeed from "@/components/dashboard/RecentActivityFeed";
@@ -40,9 +40,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="grid gap-6">
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Row 1: Financials, Employee Balances, Active Employee Count */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <FinancialSummaryCard summary={financialSummary} />
-        
+        <EmployeeBalancesCard employees={employeeBalances} />
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Employees</CardTitle>
@@ -60,56 +61,37 @@ export default async function DashboardPage() {
             </Button>
           </CardFooter>
         </Card>
+      </div>
 
-        <Card>
+      {/* Row 2: Recent Activity, Pending Actions */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <RecentActivityFeed activities={recentActivities} />
+        <Card className="border-destructive bg-destructive/10">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">AI-Powered Insights</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-destructive">Pending Actions</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-semibold font-headline">Daily Summary</div>
-            <p className="text-xs text-muted-foreground">
-              Get AI-generated summaries of production and sales.
-            </p>
+            <ul className="space-y-2 text-sm">
+              <li className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-destructive/80" /> 
+                <span>Review employee payment balances.</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <ListOrdered className="h-4 w-4 text-destructive/80" />
+                <span>Approve <strong>3</strong> new task assignments.</span>
+              </li>
+               <li className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-destructive/80" />
+                <span>Process <strong>2</strong> overdue payments.</span>
+              </li>
+            </ul>
           </CardContent>
           <CardFooter>
-            <Button asChild size="sm">
-                <Link href="/ai-insights">Generate Insights</Link>
-            </Button>
+              <Button variant="destructive" size="sm">Address Issues</Button>
           </CardFooter>
         </Card>
       </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
-        <EmployeeBalancesCard employees={employeeBalances} />
-        <RecentActivityFeed activities={recentActivities} />
-      </div>
-
-      <Card className="border-destructive bg-destructive/10">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-destructive">Pending Actions</CardTitle>
-          <AlertTriangle className="h-4 w-4 text-destructive" />
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2 text-sm">
-            <li className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-destructive/80" /> 
-              <span>Review employee payment balances.</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <ListOrdered className="h-4 w-4 text-destructive/80" />
-              <span>Approve <strong>3</strong> new task assignments.</span>
-            </li>
-             <li className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-destructive/80" />
-              <span>Process <strong>2</strong> overdue payments.</span>
-            </li>
-          </ul>
-        </CardContent>
-        <CardFooter>
-            <Button variant="destructive" size="sm">Address Issues</Button>
-        </CardFooter>
-      </Card>
 
     </div>
   );
