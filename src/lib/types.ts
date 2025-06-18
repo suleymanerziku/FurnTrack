@@ -146,3 +146,26 @@ export interface EmployeeDetailsPageData {
   transactions: EmployeeTransaction[];
   currentBalance: number;
 }
+
+// User Management Types
+export const UserRoleSchema = z.enum(["Admin", "Manager", "Staff"]);
+export type UserRole = z.infer<typeof UserRoleSchema>;
+
+export const UserStatusSchema = z.enum(["Active", "Inactive"]);
+export type UserStatus = z.infer<typeof UserStatusSchema>;
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  status: UserStatus;
+  created_at: string; // ISO timestamp string
+}
+
+export const UserFormInputSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters.").max(100),
+  email: z.string().email("Invalid email address.").max(100),
+  role: UserRoleSchema,
+});
+export type UserFormData = z.infer<typeof UserFormInputSchema>;

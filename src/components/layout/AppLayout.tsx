@@ -14,7 +14,8 @@ import {
   Wand2,
   MoreHorizontal,
   LogOut,
-  Menu, // Added Menu icon
+  Menu,
+  UsersRound, // Added UsersRound
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -28,7 +29,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarInset,
-  useSidebar, // Import useSidebar
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Logo } from './Logo';
@@ -49,6 +50,7 @@ const navigationItems: NavItem[] = [
   { href: '/task-types', label: 'Task Types', icon: ClipboardList },
   { href: '/work-log', label: 'Work Log', icon: ListChecks },
   { href: '/finances', label: 'Finances', icon: DollarSign },
+  { href: '/users', label: 'User Management', icon: UsersRound }, // Added User Management
   { href: '/ai-insights', label: 'AI Insights', icon: Wand2 },
 ];
 
@@ -62,7 +64,7 @@ interface NavItem {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isMobile, toggleSidebar } = useSidebar(); // Get isMobile and toggleSidebar
+  const { isMobile, toggleSidebar } = useSidebar(); 
 
   const getPageTitle = () => {
     if (pathname === '/settings/profile') return "Profile Settings";
@@ -77,8 +79,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen w-full">
       <Sidebar variant="sidebar" collapsible="icon" className="border-r">
-        <SidebarHeader className="p-4">
+        <SidebarHeader className="p-4 flex-row items-center justify-between">
           <Logo />
+          {/* SidebarTrigger is handled by the rail or mobile hamburger */}
         </SidebarHeader>
         <ScrollArea className="flex-1">
         <SidebarContent className="p-2">
@@ -115,7 +118,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </SidebarMenuItem>
             ))}
           </SidebarMenu>
-          <div className="flex-1" /> {/* Spacer div */}
         </SidebarContent>
         </ScrollArea>
         <SidebarFooter className="p-2">
@@ -166,7 +168,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <SidebarInset className="flex flex-1 flex-col">
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-6">
           {isMobile && (
-            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2 md:hidden">
+            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle Menu</span>
             </Button>
