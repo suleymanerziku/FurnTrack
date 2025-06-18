@@ -9,19 +9,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { AppWindow } from "lucide-react"; // Using a more generic icon for app settings
 
-export default function SettingsPage() {
+export default function ApplicationSettingsPage() { // Renamed component for clarity
   const [currency, setCurrency] = React.useState("USD");
   const [language, setLanguage] = React.useState("en");
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(false);
-  // Removed: const [defaultTaskDeadline, setDefaultTaskDeadline] = React.useState(7);
   const { toast } = useToast();
 
   const handleSaveChanges = () => {
-    // In a real app, you would save these settings to a backend or localStorage.
-    console.log("Settings saved:", { currency, language, notificationsEnabled }); // Removed: defaultTaskDeadline
+    console.log("Application Settings saved:", { currency, language, notificationsEnabled });
     toast({
-      title: "Settings Updated (Mock)",
+      title: "Application Settings Updated (Mock)",
       description: "Your preferences have been updated locally.",
     });
   };
@@ -37,8 +36,10 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">General Settings</CardTitle>
-          <CardDescription>Manage general application settings.</CardDescription>
+          <CardTitle className="flex items-center gap-2 font-headline">
+            <AppWindow className="h-5 w-5 text-primary"/> General Settings
+          </CardTitle>
+          <CardDescription>Manage general application settings like currency and language.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
@@ -78,8 +79,6 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Removed Task Configuration Card */}
 
       <div className="flex justify-end">
         <Button onClick={handleSaveChanges} className="w-full sm:w-auto">Save Changes</Button>

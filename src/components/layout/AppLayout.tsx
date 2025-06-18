@@ -10,10 +10,10 @@ import {
   ClipboardList,
   ListChecks, 
   DollarSign,
-  Settings as SettingsIcon,
+  Settings as SettingsIcon, // Renamed to avoid conflict, will use AppSettingsIcon alias
   Menu,
   MoreHorizontal,
-  LogOut, // Changed from Package
+  LogOut,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -39,10 +39,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  // DropdownMenuLabel, // No longer used directly here for user info
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
+const AppSettingsIcon = SettingsIcon; // Alias for clarity
 
 interface NavItem {
   href: string;
@@ -65,8 +66,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   const getPageTitle = () => {
-    if (pathname.startsWith('/settings')) return "Settings";
-    const item = navigationItems.find(item => pathname === '/' ? item.href === '/' : item.href !== '/' && pathname.startsWith(item.href));
+    if (pathname === '/settings/profile') return "Profile Settings";
+    if (pathname === '/settings') return "Application Settings";
+    
+    const item = navigationItems.find(navItem => 
+      pathname === '/' ? navItem.href === '/' : navItem.href !== '/' && pathname.startsWith(navItem.href)
+    );
     return item ? item.label : "FurnTrack";
   };
 
@@ -118,13 +123,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenuItem className="mt-auto">
             <SidebarMenuButton
               asChild={true}
-              isActive={pathname.startsWith('/settings')}
-              tooltip="Settings"
+              isActive={pathname === '/settings'}
+              tooltip="Application Settings"
             >
               <Link href="/settings">
                 <div className="flex w-full items-center gap-2">
-                  <SettingsIcon />
-                  <span>Settings</span>
+                  <AppSettingsIcon />
+                  <span>Application Settings</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -141,7 +146,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" align="start" className="w-56">
-              <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
+              <DropdownMenuItem onClick={() => router.push('/settings/profile')} className="cursor-pointer">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">FurnTrack Admin</p>
                   <p className="text-xs leading-none text-muted-foreground">
@@ -150,10 +155,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer"> 
-                <SettingsIcon className="mr-2 h-4 w-4" />
+              <DropdownMenuItem onClick={() => router.push('/settings/profile')} className="cursor-pointer"> 
+                <Users className="mr-2 h-4 w-4" /> {/* Changed icon for Profile Settings */}
                 <span>Profile Settings</span>
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push('/settings')} className="cursor-pointer">
+                <AppSettingsIcon className="mr-2 h-4 w-4" />
+                <span>Application Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem disabled>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
