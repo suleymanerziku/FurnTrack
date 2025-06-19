@@ -3,28 +3,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
 import { Settings as SettingsIcon, UsersRound, ChevronRight, ClipboardList } from "lucide-react"; 
 
 export default function SettingsPage() { 
-  const [currency, setCurrency] = React.useState("USD");
-  const [language, setLanguage] = React.useState("en");
-  const [notificationsEnabled, setNotificationsEnabled] = React.useState(false);
-  const { toast } = useToast();
-
-  const handleSaveChanges = () => {
-    console.log("Settings saved:", { currency, language, notificationsEnabled });
-    toast({
-      title: "Settings Updated (Mock)",
-      description: "Your preferences have been updated locally.",
-    });
-  };
 
   return (
     <div className="space-y-6">
@@ -40,48 +23,16 @@ export default function SettingsPage() {
           <CardTitle className="flex items-center gap-2 font-headline">
             <SettingsIcon className="h-5 w-5 text-primary"/> General Settings
           </CardTitle>
-          <CardDescription>Manage general application settings like currency and language.</CardDescription>
+          <CardDescription>Manage general application settings like currency, language, and notifications.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="currency">Currency</Label>
-            <Select value={currency} onValueChange={setCurrency}>
-              <SelectTrigger id="currency" className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Select currency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="USD">USD ($)</SelectItem>
-                <SelectItem value="ETB">ETB (Br)</SelectItem>
-                <SelectItem value="EUR">EUR (€)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="language">Language</Label>
-            <Select value={language} onValueChange={setLanguage}>
-              <SelectTrigger id="language" className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Select language" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="am">Amharic (Placeholder)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch 
-              id="notifications-enabled" 
-              checked={notificationsEnabled}
-              onCheckedChange={setNotificationsEnabled}
-            />
-            <Label htmlFor="notifications-enabled">Enable Notifications</Label>
-          </div>
+        <CardContent>
+          <Link href="/settings/general" passHref>
+            <Button variant="outline" className="w-full justify-between">
+              Configure General Settings
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button onClick={handleSaveChanges} className="w-full sm:w-auto">Save Changes</Button>
-        </CardFooter>
       </Card>
 
       <Card>
