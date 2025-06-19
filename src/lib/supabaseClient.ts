@@ -1,5 +1,5 @@
 
-import { createBrowserClient } from '@supabase/supabase-js';
+import * as supabaseJs from '@supabase/supabase-js';
 import type { Database } from './database.types';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -17,8 +17,8 @@ if (!supabaseAnonKey) {
 }
 
 // If we reach here, supabaseUrl and supabaseAnonKey are guaranteed to be defined (as per the checks above).
-// However, their types from process.env are string | undefined. The checks ensure they are treated as strings.
-export const supabase = createBrowserClient<Database>(
+export const supabase = supabaseJs.createBrowserClient<Database>(
   supabaseUrl as string,
   supabaseAnonKey as string
 );
+

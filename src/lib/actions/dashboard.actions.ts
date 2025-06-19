@@ -139,3 +139,4 @@ export async function getRecentActivitiesData(): Promise<ActivityItem[]> {
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 10); // Overall limit for the feed
 }
+
