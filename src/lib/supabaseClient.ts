@@ -1,5 +1,5 @@
 
-import * as supabaseJs from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -17,7 +17,11 @@ if (!supabaseAnonKey) {
 }
 
 // If we reach here, supabaseUrl and supabaseAnonKey are guaranteed to be defined (as per the checks above).
-export const supabase = supabaseJs.createBrowserClient<Database>(
+// Using createClient which is suitable for both server and client environments,
+// though for client-side with full browser features like localStorage persistence,
+// createBrowserClient (from @supabase/ssr) would typically be used in client components.
+// Given this client is used in Server Actions, createClient is more appropriate than createBrowserClient from supabase-js.
+export const supabase = createClient<Database>(
   supabaseUrl as string,
   supabaseAnonKey as string
 );
