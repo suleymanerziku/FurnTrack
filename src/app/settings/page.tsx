@@ -5,7 +5,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings as SettingsIcon, UsersRound, ChevronRight, ClipboardList } from "lucide-react"; 
+import { Settings as SettingsIcon, UsersRound, ChevronRight, ClipboardList, UsersCog } from "lucide-react"; 
 
 export default function SettingsPage() { 
 
@@ -40,12 +40,21 @@ export default function SettingsPage() {
           <CardTitle className="flex items-center gap-2 font-headline">
             <UsersRound className="h-5 w-5 text-primary"/> Administration
           </CardTitle>
-          <CardDescription>Manage users and system access.</CardDescription>
+          <CardDescription>Manage users and system roles.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-2">
           <Link href="/settings/users" passHref>
             <Button variant="outline" className="w-full justify-between">
               Manage Users
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Link href="/settings/roles" passHref>
+            <Button variant="outline" className="w-full justify-between">
+              <div className="flex items-center gap-2">
+                 <UsersCog className="h-4 w-4" /> 
+                 Manage Roles
+              </div>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </Link>
@@ -72,7 +81,7 @@ export default function SettingsPage() {
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">Note</h3>
         <p className="text-sm text-accent-foreground/70">
-          Settings are currently saved locally for this session. Full persistence will be implemented in future updates.
+          Settings are currently saved locally or use mock data. Full persistence will be implemented in future updates.
         </p>
       </div>
     </div>

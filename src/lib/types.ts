@@ -148,7 +148,7 @@ export interface EmployeeDetailsPageData {
 }
 
 // User Management Types
-export const UserRoleSchema = z.enum(["Admin", "Manager", "Staff"]);
+export const UserRoleSchema = z.enum(["Admin", "Manager", "Staff"]); // This is the existing enum for user assignment
 export type UserRole = z.infer<typeof UserRoleSchema>;
 
 export const UserStatusSchema = z.enum(["Active", "Inactive"]);
@@ -158,7 +158,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: UserRole; // Users are assigned one of the predefined roles
   status: UserStatus;
   created_at: string; // ISO timestamp string
 }
@@ -169,3 +169,22 @@ export const UserFormInputSchema = z.object({
   role: UserRoleSchema,
 });
 export type UserFormData = z.infer<typeof UserFormInputSchema>;
+
+
+// Role Management Types (New for custom role definitions)
+export const RoleStatusSchema = z.enum(["Active", "Inactive"]);
+export type RoleStatus = z.infer<typeof RoleStatusSchema>;
+
+export interface Role {
+  id: string;
+  name: string;
+  description?: string;
+  status: RoleStatus;
+  created_at: string; // ISO timestamp string
+}
+
+export const RoleFormInputSchema = z.object({
+  name: z.string().min(2, "Role name must be at least 2 characters.").max(50, "Role name can be at most 50 characters."),
+  description: z.string().max(255, "Description can be at most 255 characters.").optional().or(z.literal('')),
+});
+export type RoleFormData = z.infer<typeof RoleFormInputSchema>;
