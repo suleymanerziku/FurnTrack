@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { PlusCircle, Edit, Trash2, ToggleLeft, ToggleRight, Loader2, ArrowLeft, UsersCog, ShieldAlert } from "lucide-react";
+import { PlusCircle, Edit, Trash2, ToggleLeft, ToggleRight, Loader2, ArrowLeft, UserCog, ShieldAlert } from "lucide-react"; // Changed UsersCog to UserCog
 import RoleForm from "@/components/roles/RoleForm";
 import type { Role } from "@/lib/types";
 import { getRoles, deleteRole, toggleRoleStatus } from "@/lib/actions/role.actions";
@@ -156,7 +156,7 @@ export default function RoleManagementPage() {
         <DialogContent className="sm:max-w-[480px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-headline">
-              <UsersCog className="h-5 w-5 text-primary"/>
+              <UserCog className="h-5 w-5 text-primary"/>
               {editingRole ? "Edit Role" : "Add New Role"}
             </DialogTitle>
             <DialogDescription>
@@ -281,3 +281,7 @@ export default function RoleManagementPage() {
     </div>
   );
 }
+
+    
+
+    
