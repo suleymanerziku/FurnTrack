@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ListFilter, CheckCircle, MinusCircle } from "lucide-react"; 
+import { PlusCircle, ListFilter, CheckCircle } from "lucide-react"; 
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -15,7 +15,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import TaskAssignmentForm from "@/components/tasks/TaskAssignmentForm"; 
-import EmployeeWithdrawalForm from "@/components/employees/EmployeeWithdrawalForm";
 import type { AssignedTask, Employee, TaskType } from "@/lib/types";
 
 // Mock data fetching functions
@@ -47,7 +46,6 @@ async function getMockTaskTypesData(): Promise<TaskType[]> {
 
 export default function WorkLogPage() { 
   const [isTaskFormOpen, setIsTaskFormOpen] = React.useState(false);
-  const [isWithdrawalFormOpen, setIsWithdrawalFormOpen] = React.useState(false);
   const [loggedWork, setLoggedWork] = React.useState<AssignedTask[]>([]); 
   const [employees, setEmployees] = React.useState<Employee[]>([]);
   const [taskTypes, setTaskTypes] = React.useState<TaskType[]>([]);
@@ -74,10 +72,6 @@ export default function WorkLogPage() {
     fetchData(); 
   };
   
-  const handleWithdrawalSuccess = () => {
-    fetchData(); // Re-fetch data, potentially to update employee list if needed by form
-  };
-
 
   return (
     <div className="space-y-6">
@@ -85,7 +79,7 @@ export default function WorkLogPage() {
         <div>
           <h2 className="text-2xl font-bold tracking-tight font-headline">Work Log</h2> 
           <p className="text-muted-foreground">
-            Log completed work and record employee withdrawals.
+            Log completed work for employees.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -93,27 +87,6 @@ export default function WorkLogPage() {
             <ListFilter className="mr-2 h-4 w-4" /> Filter Log
           </Button>
           
-          <Dialog open={isWithdrawalFormOpen} onOpenChange={setIsWithdrawalFormOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="w-full sm:w-auto">
-                <MinusCircle className="mr-2 h-4 w-4" /> Record Withdrawal
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Record Employee Withdrawal</DialogTitle>
-                <DialogDescription>
-                  Select employee and enter withdrawal details. This will deduct from their balance.
-                </DialogDescription>
-              </DialogHeader>
-              <EmployeeWithdrawalForm
-                employees={employees}
-                setOpen={setIsWithdrawalFormOpen}
-                onSuccess={handleWithdrawalSuccess}
-              />
-            </DialogContent>
-          </Dialog>
-
           <Dialog open={isTaskFormOpen} onOpenChange={setIsTaskFormOpen}>
             <DialogTrigger asChild>
               <Button className="w-full sm:w-auto">
@@ -172,7 +145,7 @@ export default function WorkLogPage() {
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">System Note</h3>
         <p className="text-sm text-accent-foreground/70">
-          Logging work assumes immediate completion and calculates payment. This payment is conceptually added to the employee's balance. Employee withdrawals can also be recorded here, affecting their balances.
+          Logging work assumes immediate completion and calculates payment. This payment is conceptually added to the employee's balance. Employee withdrawals can be recorded on the "Employees" page, affecting their balances.
         </p>
       </div>
     </div>
