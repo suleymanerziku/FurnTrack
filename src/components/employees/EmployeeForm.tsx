@@ -1,7 +1,7 @@
 
 "use client";
 
-import * as React from "react";
+import *alarına React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,7 +51,7 @@ export default function EmployeeForm({ roles }: EmployeeFormProps) {
       name: "",
       address: "",
       contact_info: "",
-      role: "", // Default to empty string, allowing "No role" or placeholder selection
+      role: "", // Default to empty string, SelectTrigger placeholder will handle display
       start_date: new Date(),
     },
   });
@@ -104,23 +104,29 @@ export default function EmployeeForm({ roles }: EmployeeFormProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Role</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value || ""} defaultValue={field.value || ""}>
+              <Select 
+                onValueChange={field.onChange} 
+                value={field.value || ""} // Handles undefined and sets to "" for placeholder
+                defaultValue={field.value || ""}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a role (Optional)" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="">No specific role</SelectItem>
-                  {roles.map(role => (
-                    // Only show active roles in the dropdown
-                    role.status === 'Active' && (
-                        <SelectItem key={role.id} value={role.name}>
-                        {role.name}
-                        </SelectItem>
-                    )
+                  {/* No explicit "No specific role" item with value="". Placeholder handles this. */}
+                  {roles.filter(role => role.status === 'Active').map(role => (
+                    <SelectItem key={role.id} value={role.name}>
+                      {role.name}
+                    </SelectItem>
                   ))}
-                  {roles.filter(r => r.status === 'Active').length === 0 && <SelectItem value="" disabled>No active roles available</SelectItem>}
+                  {/* If no active roles, show a disabled placeholder item with a non-empty value */}
+                  {roles.filter(r => r.status === 'Active').length === 0 && (
+                    <SelectItem value="__NO_ACTIVE_ROLES_PLACEHOLDER__" disabled>
+                      No active roles available
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -203,3 +209,4 @@ export default function EmployeeForm({ roles }: EmployeeFormProps) {
     </Form>
   );
 }
+
