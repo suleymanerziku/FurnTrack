@@ -21,15 +21,26 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { EmployeeFormInputSchema, type EmployeeFormData } from "@/lib/types";
+import { EmployeeFormInputSchema, type EmployeeFormData, type Role } from "@/lib/types";
 import { addEmployee } from "@/lib/actions/employee.actions";
 import { useToast } from "@/hooks/use-toast";
 
-export default function EmployeeForm() {
+interface EmployeeFormProps {
+  roles: Role[];
+}
+
+export default function EmployeeForm({ roles }: EmployeeFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
@@ -40,7 +51,7 @@ export default function EmployeeForm() {
       name: "",
       address: "",
       contact_info: "",
-      role: "",
+      role: "", // Default to empty string, allowing "No role" or placeholder selection
       start_date: new Date(),
     },
   });
@@ -52,7 +63,6 @@ export default function EmployeeForm() {
       if (result.success) {
         toast({ title: "Success", description: result.message });
         form.reset();
-        // Potentially redirect to the employee list page or employee detail page
         router.push("/employees"); 
       } else {
         toast({
@@ -93,10 +103,26 @@ export default function EmployeeForm() {
           name="role"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Role (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Carpenter, Painter" {...field} />
-              </FormControl>
+              <FormLabel>Role</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value || ""} defaultValue={field.value || ""}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a role (Optional)" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="">No specific role</SelectItem>
+                  {roles.map(role => (
+                    // Only show active roles in the dropdown
+                    role.status === 'Active' && (
+                        <SelectItem key={role.id} value={role.name}>
+                        {role.name}
+                        </SelectItem>
+                    )
+                  ))}
+                  {roles.filter(r => r.status === 'Active').length === 0 && <SelectItem value="" disabled>No active roles available</SelectItem>}
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -161,7 +187,6 @@ export default function EmployeeForm() {
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
-                    // disabled={(date) => date > new Date() || date < new Date("1900-01-01")} // Allow future dates for start date
                     initialFocus
                   />
                 </PopoverContent>

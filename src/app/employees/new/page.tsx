@@ -1,8 +1,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import EmployeeForm from "@/components/employees/EmployeeForm";
+import { getRoles } from "@/lib/actions/role.actions";
+import type { Role } from "@/lib/types";
 
-export default function NewEmployeePage() {
+export default async function NewEmployeePage() {
+  const roles: Role[] = await getRoles();
+
   return (
     <div className="space-y-6">
       <div>
@@ -19,9 +23,10 @@ export default function NewEmployeePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <EmployeeForm />
+          <EmployeeForm roles={roles} />
         </CardContent>
       </Card>
     </div>
   );
 }
+
