@@ -65,7 +65,7 @@ export default function EmployeesPage() {
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Dialog open={isWithdrawalFormOpen} onOpenChange={setIsWithdrawalFormOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="w-full sm:w-auto">
+              <Button variant="destructive" className="w-full sm:w-auto">
                 <MinusCircle className="mr-2 h-4 w-4" /> Record Withdrawal
               </Button>
             </DialogTrigger>
