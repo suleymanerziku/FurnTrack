@@ -95,8 +95,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     className={cn("cursor-not-allowed opacity-50")}
                   >
                     <div className="flex w-full items-center gap-2">
-                      <item.icon />
-                      <span>{item.label}</span>
+                      <item.icon className="size-3.5 md:size-4" />
+                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                     </div>
                   </SidebarMenuButton>
                 ) : (
@@ -107,8 +107,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   >
                     <Link href={item.href}>
                        <div className="flex w-full items-center gap-2">
-                        <item.icon />
-                        <span>{item.label}</span>
+                        <item.icon className="size-3.5 md:size-4" />
+                        <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </div>
                     </Link>
                   </SidebarMenuButton>
@@ -127,8 +127,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             >
               <Link href="/settings">
                 <div className="flex w-full items-center gap-2">
-                  <SettingsIcon />
-                  <span>Settings</span>
+                  <SettingsIcon className="size-3.5 md:size-4" />
+                  <span className="group-data-[collapsible=icon]:hidden">Settings</span>
                 </div>
               </Link>
             </SidebarMenuButton>
