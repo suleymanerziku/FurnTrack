@@ -1,95 +1,208 @@
 
 'use server';
 
-import type { TaskTypeFormData, TaskAssignmentFormData, TaskType } from '@/lib/types';
-// import { supabase } from '@/lib/supabaseClient'; // Example for future DB integration
-// import { revalidatePath } from 'next/cache';
+import type { TaskTypeFormData, TaskAssignmentFormData, TaskType, AssignedTask } from '@/lib/types';
+import { supabase } from '@/lib/supabaseClient';
+import { revalidatePath } from 'next/cache';
+import { Database } from '../database.types';
 
-// Mock task types data for price lookup in assignTask
-const MOCK_TASK_TYPES_FOR_ACTIONS: Pick<TaskType, 'id' | 'unit_price'>[] = [
-  { id: "tt1", unit_price: 50.00 },
-  { id: "tt2", unit_price: 75.00 },
-  { id: "tt3", unit_price: 20.00 },
-  // Add more mock task types as needed by your forms/tests
-];
+export async function getTaskTypes(): Promise<TaskType[]> {
+  const { data, error } = await supabase
+    .from('task_types')
+    .select('*')
+    .order('name', { ascending: true });
 
+  if (error) {
+    console.error("Error fetching task types:", error);
+    return [];
+  }
+  return data || [];
+}
 
 export async function addTaskType(data: TaskTypeFormData): Promise<{ success: boolean; message: string; taskType?: TaskType }> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  console.log("Adding new task type:", data);
-
-  // Simulate DB insertion and getting the new object back
-  const newTaskType: TaskType = {
-    id: `tt_${Date.now()}`,
-    name: data.name,
-    description: data.description,
-    unit_price: data.unit_price,
-    created_at: new Date().toISOString(),
-  };
+  const { data: newTaskType, error } = await supabase
+    .from('task_types')
+    .insert({
+      name: data.name,
+      description: data.description || null,
+      unit_price: data.unit_price,
+    })
+    .select()
+    .single();
   
-  // revalidatePath('/task-types');
-  return { success: true, message: "Task type added successfully (mock).", taskType: newTaskType };
+  if (error) {
+    console.error("Error adding task type:", error);
+    return { success: false, message: error.message };
+  }
+  if (!newTaskType) {
+     return { success: false, message: "Failed to add task type, no data returned." };
+  }
+
+  revalidatePath('/settings/task-types');
+  revalidatePath('/task-assignments'); // For forms using task types
+  revalidatePath('/work-log'); // For forms using task types
+  return { success: true, message: "Task type added successfully.", taskType: newTaskType };
 }
 
 export async function updateTaskType(id: string, data: TaskTypeFormData): Promise<{ success: boolean; message: string; taskType?: TaskType }> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  console.log("Updating task type:", id, data);
+  const { data: updatedTaskType, error } = await supabase
+    .from('task_types')
+    .update({
+      name: data.name,
+      description: data.description || null,
+      unit_price: data.unit_price,
+    })
+    .eq('id', id)
+    .select()
+    .single();
 
-  // Simulate DB update and getting the updated object back
-  const updatedTaskType: TaskType = {
-    id: id,
-    name: data.name,
-    description: data.description,
-    unit_price: data.unit_price,
-    created_at: new Date().toISOString(), // Should retain original created_at in real DB
-  };
+  if (error) {
+    console.error("Error updating task type:", error);
+    return { success: false, message: error.message };
+  }
+   if (!updatedTaskType) {
+     return { success: false, message: "Failed to update task type, no data returned." };
+  }
 
-  // revalidatePath('/task-types');
-  // revalidatePath(`/task-types/${id}`); // If you had a detail page
-  return { success: true, message: "Task type updated successfully (mock).", taskType: updatedTaskType };
+  revalidatePath('/settings/task-types');
+  revalidatePath(`/settings/task-types`); // Revalidate list page
+  revalidatePath('/task-assignments'); 
+  revalidatePath('/work-log');
+  return { success: true, message: "Task type updated successfully.", taskType: updatedTaskType };
 }
 
 export async function deleteTaskType(id: string): Promise<{ success: boolean; message: string }> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  console.log("Deleting task type:", id);
+  const { error } = await supabase
+    .from('task_types')
+    .delete()
+    .eq('id', id);
 
-  // Simulate DB deletion
-  // revalidatePath('/task-types');
-  return { success: true, message: "Task type deleted successfully (mock)." };
-}
-
-
-export async function assignTask(data: TaskAssignmentFormData): Promise<{ success: boolean; message: string; assignmentId?: string; totalPayment?: number }> {
-  // Simulate backend processing
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  const taskTypeDetails = MOCK_TASK_TYPES_FOR_ACTIONS.find(tt => tt.id === data.task_type_id);
-  let totalPayment = 0;
-
-  if (taskTypeDetails) {
-    totalPayment = taskTypeDetails.unit_price * data.quantity_completed;
-  } else {
-    console.warn(`Task type ID ${data.task_type_id} not found for payment calculation. Defaulting payment to 0.`);
+  if (error) {
+    console.error("Error deleting task type:", error);
+    // Check for foreign key constraint violation (if task type is in use)
+    if (error.code === '23503') { // PostgreSQL foreign key violation code
+        return { success: false, message: "Cannot delete task type as it is currently assigned to one or more tasks. Please reassign or delete those tasks first." };
+    }
+    return { success: false, message: error.message };
   }
 
-  console.log("Logging new work (task assignment):", {
-    employee_id: data.employee_id,
-    task_type_id: data.task_type_id,
-    quantity_completed: data.quantity_completed,
-    date_assigned: data.date_assigned.toISOString().split('T')[0],
-    calculated_total_payment: totalPayment,
-    status: "Completed" // Assuming immediate completion
-  });
-  
-  // In a real app, you would:
-  // 1. Insert into 'assigned_tasks' table with total_payment and status 'Completed'.
-  // 2. Update employee's balance in 'employees' table: employee.balance += totalPayment.
-  // revalidatePath('/work-log');
-  // revalidatePath('/employees'); // If balances are shown there.
-
-  console.log(`LOG: Employee ${data.employee_id} earned ${totalPayment}. Balance should be updated.`);
-  
-  const newAssignmentId = `ta_${Date.now()}`;
-  return { success: true, message: "Work logged successfully and payment calculated (mock).", assignmentId: newAssignmentId, totalPayment };
+  revalidatePath('/settings/task-types');
+  revalidatePath('/task-assignments');
+  revalidatePath('/work-log');
+  return { success: true, message: "Task type deleted successfully." };
 }
 
+export async function assignTask(data: TaskAssignmentFormData): Promise<{ success: boolean; message: string; assignmentId?: string; totalPayment?: number }> {
+  const { data: taskTypeDetails, error: ttError } = await supabase
+    .from('task_types')
+    .select('unit_price')
+    .eq('id', data.task_type_id)
+    .single();
+
+  if (ttError || !taskTypeDetails) {
+    console.error("Error fetching task type details for payment calculation:", ttError);
+    return { success: false, message: "Could not find task type to calculate payment." };
+  }
+  
+  const totalPayment = taskTypeDetails.unit_price * data.quantity_completed;
+
+  const { data: newAssignment, error: assignmentError } = await supabase
+    .from('assigned_tasks')
+    .insert({
+      employee_id: data.employee_id,
+      task_type_id: data.task_type_id,
+      quantity_completed: data.quantity_completed,
+      date_assigned: data.date_assigned.toISOString().split('T')[0],
+      total_payment: totalPayment,
+      status: "Completed" // Assuming logging work means it's completed
+    })
+    .select()
+    .single();
+  
+  if (assignmentError) {
+    console.error("Error logging work (assigning task):", assignmentError);
+    return { success: false, message: assignmentError.message };
+  }
+  if (!newAssignment) {
+     return { success: false, message: "Failed to log work, no data returned." };
+  }
+
+  revalidatePath('/work-log');
+  revalidatePath('/task-assignments'); // If this page shows similar data
+  revalidatePath(`/employees/${data.employee_id}`); // For employee transaction history
+  revalidatePath('/employees'); // For employee list balances
+  revalidatePath('/'); // For dashboard recent activity & balances
+  
+  return { success: true, message: "Work logged successfully and payment calculated.", assignmentId: newAssignment.id, totalPayment };
+}
+
+export async function getAssignedTasks(): Promise<AssignedTask[]> {
+  const { data, error } = await supabase
+    .from('assigned_tasks')
+    .select(`
+      id,
+      employee_id,
+      task_type_id,
+      quantity_completed,
+      date_assigned,
+      total_payment,
+      status,
+      created_at,
+      employees ( name ),
+      task_types ( name )
+    `)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching assigned tasks:", error);
+    return [];
+  }
+  if (!data) return [];
+  
+  return data.map(item => ({
+    ...item,
+    employee_name: (item.employees as unknown as {name: string} | null)?.name || 'Unknown Employee',
+    task_name: (item.task_types as unknown as {name: string} | null)?.name || 'Unknown Task',
+  })) as AssignedTask[];
+}
+
+export async function getLoggedWork(filters?: { employeeId?: string | null, taskTypeId?: string | null }): Promise<AssignedTask[]> {
+  let query = supabase
+    .from('assigned_tasks')
+    .select(`
+      id,
+      employee_id,
+      task_type_id,
+      quantity_completed,
+      date_assigned,
+      total_payment,
+      status,
+      created_at,
+      employees ( name ),
+      task_types ( name )
+    `)
+    .eq('status', 'Completed') // Work Log page typically shows completed work
+    .order('date_assigned', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  if (filters?.employeeId) {
+    query = query.eq('employee_id', filters.employeeId);
+  }
+  if (filters?.taskTypeId) {
+    query = query.eq('task_type_id', filters.taskTypeId);
+  }
+  
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching logged work:", error);
+    return [];
+  }
+   if (!data) return [];
+
+  return data.map(item => ({
+    ...item,
+    employee_name: (item.employees as unknown as {name: string} | null)?.name || 'Unknown Employee',
+    task_name: (item.task_types as unknown as {name: string} | null)?.name || 'Unknown Task',
+  })) as AssignedTask[];
+}

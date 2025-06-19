@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { PlusCircle, Edit, Trash2, ToggleLeft, ToggleRight, Loader2, ArrowLeft, UserCog, ShieldAlert } from "lucide-react"; // Changed UsersCog to UserCog
+import { PlusCircle, Edit, Trash2, ToggleLeft, ToggleRight, Loader2, ArrowLeft, UserCog, ShieldAlert } from "lucide-react";
 import RoleForm from "@/components/roles/RoleForm";
 import type { Role } from "@/lib/types";
 import { getRoles, deleteRole, toggleRoleStatus } from "@/lib/actions/role.actions";
@@ -71,7 +71,7 @@ export default function RoleManagementPage() {
     setIsFormOpen(true);
   };
 
-  const handleFormSuccess = () => {
+  const handleFormSuccess = () => { // Removed role param, always refetch
     fetchRoles(); 
   };
 
@@ -177,7 +177,7 @@ export default function RoleManagementPage() {
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the role
-              "{roleToDelete?.name}".
+              "{roleToDelete?.name}". This may fail if the role is currently in use by users.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -221,6 +221,7 @@ export default function RoleManagementPage() {
           {isLoading ? (
             <div className="flex justify-center items-center py-10">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+               <p className="ml-2 text-muted-foreground">Loading roles...</p>
             </div>
           ) : roles.length > 0 ? (
             <Table>
@@ -275,13 +276,9 @@ export default function RoleManagementPage() {
        <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">System Note</h3>
         <p className="text-sm text-accent-foreground/70">
-          Roles defined here can be used to categorize users. Actual permission enforcement based on these roles would require further integration with application logic. The "Admin", "Manager", and "Staff" roles currently assignable to users are predefined.
+          Roles defined here can be used to categorize users. The "Admin", "Manager", and "Staff" roles available for user assignment are standard options. Custom roles defined here are for future expansion and are not yet automatically linked to user permissions.
         </p>
       </div>
     </div>
   );
 }
-
-    
-
-    

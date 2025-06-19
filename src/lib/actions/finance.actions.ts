@@ -1,50 +1,110 @@
 
 'use server';
-import type { SaleFormData, ExpenseFormData } from '@/lib/types';
-// import { revalidatePath } from 'next/cache'; // For actual data changes
+import type { SaleFormData, ExpenseFormData, Sale, Expense, FinancialSummary } from '@/lib/types';
+import { supabase } from '@/lib/supabaseClient';
+import { revalidatePath } from 'next/cache';
 
+export async function recordSale(data: SaleFormData): Promise<{ success: boolean; message: string; saleId?: string }> {
+  const { data: newSale, error } = await supabase
+    .from('sales')
+    .insert({
+      product_name: data.productName,
+      amount: data.amount,
+      date: data.date.toISOString().split('T')[0],
+      receipt_number: data.receiptNumber || null,
+    })
+    .select()
+    .single();
 
-export async function recordSale(data: SaleFormData) {
-  // Simulate backend processing
-  await new Promise(resolve => setTimeout(resolve, 500));
+  if (error) {
+    console.error("Error recording sale:", error);
+    return { success: false, message: error.message };
+  }
+  if (!newSale) {
+    return { success: false, message: "Failed to record sale, no data returned."};
+  }
+
+  revalidatePath('/finances');
+  revalidatePath('/'); // For dashboard financial summary
+  return { success: true, message: "Sale recorded successfully.", saleId: newSale.id };
+}
+
+export async function recordExpense(data: ExpenseFormData): Promise<{ success: boolean; message: string; expenseId?: string }> {
+   const { data: newExpense, error } = await supabase
+    .from('expenses')
+    .insert({
+      description: data.description,
+      amount: data.amount,
+      date: data.date.toISOString().split('T')[0],
+      receipt_number: data.receiptNumber || null,
+    })
+    .select()
+    .single();
   
-  console.log("Recording sale:", {
-    productName: data.productName,
-    amount: data.amount,
-    date: data.date.toISOString().split('T')[0], // Format date for logging or DB
-    receiptNumber: data.receiptNumber,
-  });
-  // In a real app, you would insert into Supabase or your database:
-  // const { error } = await supabase.from('sales').insert({ 
-  //   product_name: data.productName, 
-  //   amount: data.amount, 
-  //   date: data.date.toISOString().split('T')[0],
-  //   receipt_number: data.receiptNumber 
-  // });
-  // if (error) return { success: false, message: error.message };
-  // revalidatePath('/finances');
-  return { success: true, message: "Sale recorded successfully." };
+  if (error) {
+    console.error("Error recording expense:", error);
+    return { success: false, message: error.message };
+  }
+  if (!newExpense) {
+    return { success: false, message: "Failed to record expense, no data returned."};
+  }
+
+  revalidatePath('/finances');
+  revalidatePath('/'); // For dashboard financial summary
+  return { success: true, message: "Expense recorded successfully.", expenseId: newExpense.id };
 }
 
-export async function recordExpense(data: ExpenseFormData) {
-  // Simulate backend processing
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  console.log("Recording expense:", {
-    description: data.description,
-    amount: data.amount,
-    date: data.date.toISOString().split('T')[0], // Format date for logging or DB
-    receiptNumber: data.receiptNumber,
-  });
-  // In a real app, you would insert into Supabase or your database:
-  // const { error } = await supabase.from('expenses').insert({ 
-  //   description: data.description, 
-  //   amount: data.amount, 
-  //   date: data.date.toISOString().split('T')[0],
-  //   receipt_number: data.receiptNumber
-  // });
-  // if (error) return { success: false, message: error.message };
-  // revalidatePath('/finances');
-  return { success: true, message: "Expense recorded successfully." };
+export async function getSales(): Promise<Sale[]> {
+  const { data, error } = await supabase
+    .from('sales')
+    .select('*')
+    .order('date', { ascending: false })
+    .order('created_at', { ascending: false });
+  
+  if (error) {
+    console.error("Error fetching sales:", error);
+    return [];
+  }
+  return data || [];
 }
 
+export async function getExpenses(): Promise<Expense[]> {
+  const { data, error } = await supabase
+    .from('expenses')
+    .select('*')
+    .order('date', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching expenses:", error);
+    return [];
+  }
+  return data || [];
+}
+
+export async function getFinancialSummaryForPeriod(): Promise<FinancialSummary> {
+  // For simplicity, this calculates overall totals. 
+  // A real app would filter by a specific period (e.g., current month).
+  let totalRevenue = 0;
+  let totalExpenses = 0;
+
+  const { data: sales, error: salesError } = await supabase
+    .from('sales')
+    .select('amount');
+  
+  if (salesError) console.error("Error fetching sales for summary:", salesError);
+  else if (sales) totalRevenue = sales.reduce((sum, sale) => sum + sale.amount, 0);
+
+  const { data: expenses, error: expensesError } = await supabase
+    .from('expenses')
+    .select('amount');
+  
+  if (expensesError) console.error("Error fetching expenses for summary:", expensesError);
+  else if (expenses) totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  
+  return {
+    totalRevenue,
+    totalExpenses,
+    netIncome: totalRevenue - totalExpenses,
+  };
+}

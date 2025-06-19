@@ -5,9 +5,9 @@ import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PlusCircle, Eye, MinusCircle } from "lucide-react"; 
+import { PlusCircle, Eye, MinusCircle, Loader2 } from "lucide-react"; 
 import type { Employee } from "@/lib/types"; 
-import { getEmployeeDetailsPageData } from "@/lib/actions/employee.actions"; 
+import { getEmployeesWithBalances } from "@/lib/actions/employee.actions"; 
 import {
   Dialog,
   DialogContent,
@@ -18,21 +18,6 @@ import {
 } from "@/components/ui/dialog";
 import EmployeeWithdrawalForm from "@/components/employees/EmployeeWithdrawalForm";
 
-async function getEmployeesListData(): Promise<Employee[]> { 
-  await new Promise(resolve => setTimeout(resolve, 100));
-  const MOCK_EMPLOYEES_LIST: Employee[] = [ 
-    { id: "1", name: "Alice Smith", role: "Carpenter", start_date: "2023-01-10", pending_balance: 120.50, created_at: new Date().toISOString() },
-    { id: "2", name: "Bob Johnson", role: "Painter", start_date: "2022-11-05", pending_balance: -50.00, created_at: new Date().toISOString() },
-    { id: "3", name: "Charlie Brown", role: "Assembler", start_date: "2023-03-15", pending_balance: 210.75, created_at: new Date().toISOString() },
-  ];
-   const updatedEmployees = await Promise.all(MOCK_EMPLOYEES_LIST.map(async (emp) => {
-    const details = await getEmployeeDetailsPageData(emp.id);
-    return { ...emp, pending_balance: details.currentBalance };
-  }));
-  return updatedEmployees;
-}
-
-
 export default function EmployeesPage() {
   const [employees, setEmployees] = React.useState<Employee[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -40,8 +25,13 @@ export default function EmployeesPage() {
 
   const fetchData = async () => {
     setIsLoading(true);
-    const employeesData = await getEmployeesListData();
-    setEmployees(employeesData);
+    try {
+      const employeesData = await getEmployeesWithBalances();
+      setEmployees(employeesData);
+    } catch (error) {
+      console.error("Failed to fetch employees", error);
+      // Optionally, show a toast message here
+    }
     setIsLoading(false);
   };
 
@@ -50,7 +40,7 @@ export default function EmployeesPage() {
   }, []);
 
   const handleWithdrawalSuccess = () => {
-    fetchData(); // Re-fetch employee data to update balances
+    fetchData(); 
   };
 
   return (
@@ -77,7 +67,7 @@ export default function EmployeesPage() {
                 </DialogDescription>
               </DialogHeader>
               <EmployeeWithdrawalForm
-                employees={employees}
+                employees={employees} // Pass currently fetched employees
                 setOpen={setIsWithdrawalFormOpen}
                 onSuccess={handleWithdrawalSuccess}
               />
@@ -98,7 +88,10 @@ export default function EmployeesPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-             <p className="text-muted-foreground">Loading employees...</p>
+             <div className="flex justify-center items-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-2 text-muted-foreground">Loading employees...</p>
+            </div>
           ) : employees.length > 0 ? (
             <ul className="space-y-2">
               {employees.map(emp => (
@@ -130,10 +123,9 @@ export default function EmployeesPage() {
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">System Note</h3>
         <p className="text-sm text-accent-foreground/70">
-          Employee balances are conceptual and will be affected by work logged (earnings) and withdrawals (deductions). Transaction history and precise balance tracking are available in "View Details". Withdrawals can now be recorded from this page.
+          Employee balances are calculated based on logged work (earnings) and recorded withdrawals (deductions). Transaction history and precise balance tracking are available in "View Details".
         </p>
       </div>
     </div>
   );
 }
-

@@ -1,81 +1,151 @@
 
 'use server';
 
-import type { Role, RoleFormData, RoleStatus } from '@/lib/types';
-// import { revalidatePath } from 'next/cache'; // Uncomment when using real data
-
-let MOCK_ROLES: Role[] = [
-  { id: 'role1', name: 'Administrator', description: 'Full system access.', status: 'Active', created_at: new Date(Date.now() - 100000000).toISOString() },
-  { id: 'role2', name: 'Workshop Manager', description: 'Manages production and employee tasks.', status: 'Active', created_at: new Date(Date.now() - 200000000).toISOString() },
-  { id: 'role3', name: 'Accountant', description: 'Manages finances and sales records.', status: 'Active', created_at: new Date(Date.now() - 50000000).toISOString() },
-  { id: 'role4', name: 'Sales Associate', description: 'Records sales and customer interactions.', status: 'Inactive', created_at: new Date(Date.now() - 300000000).toISOString() },
-];
+import type { Role, RoleFormData } from '@/lib/types';
+import { supabase } from '@/lib/supabaseClient';
+import { revalidatePath } from 'next/cache';
 
 export async function getRoles(): Promise<Role[]> {
-  await new Promise(resolve => setTimeout(resolve, 200)); // Simulate network delay
-  return MOCK_ROLES.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  const { data, error } = await supabase
+    .from('roles')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Error fetching roles:", error);
+    return [];
+  }
+  return data || [];
 }
 
 export async function addRole(data: RoleFormData): Promise<{ success: boolean; message: string; role?: Role }> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  if (MOCK_ROLES.some(role => role.name.toLowerCase() === data.name.toLowerCase())) {
+  const { data: existingRole, error: selectError } = await supabase
+    .from('roles')
+    .select('id')
+    .ilike('name', data.name) // Case-insensitive check for name
+    .single();
+
+  if (selectError && selectError.code !== 'PGRST116') {
+    console.error("Error checking existing role name:", selectError);
+    return { success: false, message: "Database error checking for existing role name." };
+  }
+  if (existingRole) {
     return { success: false, message: "A role with this name already exists." };
   }
+  
+  const { data: newRole, error: insertError } = await supabase
+    .from('roles')
+    .insert({
+      name: data.name,
+      description: data.description || null,
+      status: 'Active', // Default status
+    })
+    .select()
+    .single();
+  
+  if (insertError) {
+    console.error("Error adding role:", insertError);
+    return { success: false, message: insertError.message };
+  }
+   if (!newRole) {
+    return { success: false, message: "Failed to add role, no data returned." };
+  }
 
-  const newRole: Role = {
-    id: `role_${Date.now()}`,
-    name: data.name,
-    description: data.description,
-    status: 'Active', // Default status for new roles
-    created_at: new Date().toISOString(),
-  };
-  MOCK_ROLES.unshift(newRole); 
-  // revalidatePath('/settings/roles');
-  return { success: true, message: "Role added successfully (mock).", role: newRole };
+  revalidatePath('/settings/roles');
+  return { success: true, message: "Role added successfully.", role: newRole };
 }
 
 export async function updateRole(id: string, data: RoleFormData): Promise<{ success: boolean; message: string; role?: Role }> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  const roleIndex = MOCK_ROLES.findIndex(role => role.id === id);
-  if (roleIndex === -1) {
-    return { success: false, message: "Role not found." };
+  const { data: existingRoleWithName, error: selectError } = await supabase
+    .from('roles')
+    .select('id')
+    .ilike('name', data.name)
+    .not('id', 'eq', id)
+    .single();
+    
+  if (selectError && selectError.code !== 'PGRST116') {
+    console.error("Error checking existing role name for update:", selectError);
+    return { success: false, message: "Database error checking for existing role name." };
   }
-
-  if (MOCK_ROLES.some(r => r.name.toLowerCase() === data.name.toLowerCase() && r.id !== id)) {
+  if (existingRoleWithName) {
     return { success: false, message: "Another role with this name already exists." };
   }
+
+  const { data: updatedRole, error } = await supabase
+    .from('roles')
+    .update({
+      name: data.name,
+      description: data.description || null,
+    })
+    .eq('id', id)
+    .select()
+    .single();
   
-  const updatedRole = { ...MOCK_ROLES[roleIndex], ...data };
-  MOCK_ROLES[roleIndex] = updatedRole;
-  // revalidatePath('/settings/roles');
-  return { success: true, message: "Role updated successfully (mock).", role: updatedRole };
+  if (error) {
+    console.error("Error updating role:", error);
+    return { success: false, message: error.message };
+  }
+  if (!updatedRole) {
+    return { success: false, message: "Failed to update role, no data returned." };
+  }
+
+  revalidatePath('/settings/roles');
+  return { success: true, message: "Role updated successfully.", role: updatedRole };
 }
 
 export async function deleteRole(id: string): Promise<{ success: boolean; message: string }> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // Prevent deletion of core roles if necessary (example, though these are custom roles for now)
-  // const roleToDelete = MOCK_ROLES.find(r => r.id === id);
-  // if (roleToDelete && (roleToDelete.name === "Administrator" || roleToDelete.name === "Super Admin")) {
-  //   return { success: false, message: "Cannot delete core system roles (mock)." };
-  // }
+   // Optional: Check if role is assigned to any users before deleting
+  // This would require a query to the 'users' table where role_id (if you add it) matches this id.
+  // For now, we'll proceed with direct deletion.
 
-  MOCK_ROLES = MOCK_ROLES.filter(role => role.id !== id);
-  // revalidatePath('/settings/roles');
-  return { success: true, message: "Role deleted successfully (mock)." };
+  const { error } = await supabase
+    .from('roles')
+    .delete()
+    .eq('id', id);
+  
+  if (error) {
+    console.error("Error deleting role:", error);
+    // Handle foreign key constraint if roles are linked to users table and a role is in use.
+    // Supabase error code for foreign key violation is typically '23503'
+    if (error.code === '23503') {
+        return { success: false, message: "Cannot delete role as it is currently assigned to users. Please reassign users first." };
+    }
+    return { success: false, message: error.message };
+  }
+
+  revalidatePath('/settings/roles');
+  return { success: true, message: "Role deleted successfully." };
 }
 
 export async function toggleRoleStatus(id: string): Promise<{ success: boolean; message: string; role?: Role }> {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
-  const roleIndex = MOCK_ROLES.findIndex(role => role.id === id);
-  if (roleIndex === -1) {
+  const { data: currentRole, error: fetchError } = await supabase
+    .from('roles')
+    .select('status')
+    .eq('id', id)
+    .single();
+
+  if (fetchError || !currentRole) {
+    console.error("Error fetching role for status toggle:", fetchError);
     return { success: false, message: "Role not found." };
   }
+
+  const newStatus = currentRole.status === 'Active' ? 'Inactive' : 'Active';
   
-  MOCK_ROLES[roleIndex].status = MOCK_ROLES[roleIndex].status === 'Active' ? 'Inactive' : 'Active';
-  // revalidatePath('/settings/roles');
-  return { success: true, message: `Role status toggled to ${MOCK_ROLES[roleIndex].status} (mock).`, role: MOCK_ROLES[roleIndex] };
+  const { data: updatedRole, error: updateError } = await supabase
+    .from('roles')
+    .update({ status: newStatus })
+    .eq('id', id)
+    .select()
+    .single();
+    
+  if (updateError) {
+    console.error("Error toggling role status:", updateError);
+    return { success: false, message: updateError.message };
+  }
+  if (!updatedRole) {
+    return { success: false, message: "Failed to toggle role status, no data returned." };
+  }
+  
+  revalidatePath('/settings/roles');
+  return { success: true, message: `Role status toggled to ${newStatus}.`, role: updatedRole };
 }

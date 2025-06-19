@@ -67,8 +67,7 @@ export default function UserManagementPage() {
     setIsFormOpen(true);
   };
 
-  const handleFormSuccess = (updatedOrNewUser: User) => {
-    // Re-fetch or update local state
+  const handleFormSuccess = () => { // Removed user param as we always re-fetch
     fetchUsers(); 
   };
 
@@ -84,7 +83,7 @@ export default function UserManagementPage() {
       const result = await toggleUserStatus(userToToggleStatus.id);
       if (result.success && result.user) {
         toast({ title: "Success", description: result.message });
-        fetchUsers(); // Re-fetch to update the list
+        fetchUsers(); 
       } else {
         toast({ variant: "destructive", title: "Error", description: result.message });
       }
@@ -174,6 +173,7 @@ export default function UserManagementPage() {
           {isLoading ? (
             <div className="flex justify-center items-center py-10">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+               <p className="ml-2 text-muted-foreground">Loading users...</p>
             </div>
           ) : users.length > 0 ? (
             <Table>
@@ -201,7 +201,7 @@ export default function UserManagementPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end items-center gap-1 sm:gap-2"> {/* Adjusted gap for smaller screens */}
+                      <div className="flex justify-end items-center gap-1 sm:gap-2">
                         <Button variant="ghost" size="icon" onClick={() => handleOpenEditForm(user)} aria-label="Edit user">
                           <Edit className="h-4 w-4" />
                         </Button>

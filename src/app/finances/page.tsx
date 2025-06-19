@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useState } from "react";
+import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DollarSign, TrendingUp, TrendingDown, PlusCircle, ListOrdered } from "lucide-react";
+import { DollarSign, TrendingUp, TrendingDown, PlusCircle, ListOrdered, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -16,35 +16,45 @@ import {
 } from "@/components/ui/dialog";
 import RecordSaleForm from "@/components/finances/RecordSaleForm";
 import RecordExpenseForm from "@/components/finances/RecordExpenseForm";
-
-// Mock data - in a real app, this would come from state or server actions
-const salesData = [
-  { id: "1", product: "Oak Dining Chair", amount: 150, date: "2024-07-28", receiptNumber: "SALE001" },
-  { id: "2", product: "Pine Coffee Table", amount: 220, date: "2024-07-27" },
-];
-
-const expensesData = [
-  { id: "1", description: "Wood Purchase", amount: 500, date: "2024-07-28" },
-  { id: "2", description: "Varnish and Glue", amount: 75, date: "2024-07-27", receiptNumber: "EXP002" },
-];
-
-const financialSummary = {
-  totalRevenue: 12530.50,
-  totalExpenses: 4870.20,
-  netIncome: 12530.50 - 4870.20,
-};
+import type { Sale, Expense, FinancialSummary } from "@/lib/types";
+import { getSales, getExpenses, getFinancialSummaryForPeriod } from "@/lib/actions/finance.actions";
+import { useToast } from "@/hooks/use-toast";
 
 export default function FinancesPage() {
-  const [activeTab, setActiveTab] = useState("sales");
-  const [isSaleFormOpen, setIsSaleFormOpen] = useState(false);
-  const [isExpenseFormOpen, setIsExpenseFormOpen] = useState(false);
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = React.useState("sales");
+  const [isSaleFormOpen, setIsSaleFormOpen] = React.useState(false);
+  const [isExpenseFormOpen, setIsExpenseFormOpen] = React.useState(false);
 
-  // Placeholder for re-fetching data after form submission.
-  // In a real app, you might use router.refresh() or a state management solution.
+  const [salesData, setSalesData] = React.useState<Sale[]>([]);
+  const [expensesData, setExpensesData] = React.useState<Expense[]>([]);
+  const [financialSummary, setFinancialSummary] = React.useState<FinancialSummary | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [salesRes, expensesRes, summaryRes] = await Promise.all([
+        getSales(),
+        getExpenses(),
+        getFinancialSummaryForPeriod()
+      ]);
+      setSalesData(salesRes);
+      setExpensesData(expensesRes);
+      setFinancialSummary(summaryRes);
+    } catch (error) {
+      console.error("Failed to fetch financial data", error);
+      toast({ variant: "destructive", title: "Error", description: "Could not load financial data." });
+    }
+    setIsLoading(false);
+  };
+
+  React.useEffect(() => {
+    fetchData();
+  }, []);
+
   const handleFormSuccess = () => {
-    console.log("Form submitted successfully. Consider re-fetching data.");
-    // e.g. router.refresh();
-    // For now, mock data won't update automatically after submission.
+    fetchData(); // Re-fetch all data on successful submission
   };
 
 
@@ -60,30 +70,46 @@ export default function FinancesPage() {
       <Card>
         <CardHeader>
           <CardTitle className="font-headline">Financial Summary</CardTitle>
-          <CardDescription>Key financial metrics for the current period.</CardDescription>
+          <CardDescription>Key financial metrics based on recorded data.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-          <div className="p-4 bg-green-500/10 rounded-lg flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-green-700 dark:text-green-400">Total Revenue</p>
-              <p className="text-2xl font-bold font-headline text-green-600 dark:text-green-300">${financialSummary.totalRevenue.toFixed(2)}</p>
-            </div>
-            <TrendingUp className="h-6 w-6 text-green-500" />
-          </div>
-          <div className="p-4 bg-red-500/10 rounded-lg flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-red-700 dark:text-red-400">Total Expenses</p>
-              <p className="text-2xl font-bold font-headline text-red-600 dark:text-red-300">${financialSummary.totalExpenses.toFixed(2)}</p>
-            </div>
-            <TrendingDown className="h-6 w-6 text-red-500" />
-          </div>
-          <div className="p-4 bg-primary/10 rounded-lg flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-primary">Net Income (Before Tax)</p>
-              <p className="text-2xl font-bold font-headline text-primary">${financialSummary.netIncome.toFixed(2)}</p>
-            </div>
-            <DollarSign className="h-6 w-6 text-primary" />
-          </div>
+          {isLoading || !financialSummary ? (
+            <>
+              <div className="p-4 bg-muted rounded-lg flex items-center justify-between animate-pulse">
+                <div className="space-y-2"> <div className="h-4 bg-muted-foreground/20 rounded w-24"></div> <div className="h-6 bg-muted-foreground/30 rounded w-32"></div> </div> <TrendingUp className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <div className="p-4 bg-muted rounded-lg flex items-center justify-between animate-pulse">
+                <div className="space-y-2"> <div className="h-4 bg-muted-foreground/20 rounded w-24"></div> <div className="h-6 bg-muted-foreground/30 rounded w-32"></div> </div> <TrendingDown className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <div className="p-4 bg-muted rounded-lg flex items-center justify-between animate-pulse">
+                <div className="space-y-2"> <div className="h-4 bg-muted-foreground/20 rounded w-24"></div> <div className="h-6 bg-muted-foreground/30 rounded w-32"></div> </div> <DollarSign className="h-6 w-6 text-muted-foreground" />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="p-4 bg-green-500/10 rounded-lg flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-700 dark:text-green-400">Total Revenue</p>
+                  <p className="text-2xl font-bold font-headline text-green-600 dark:text-green-300">${(financialSummary.totalRevenue || 0).toFixed(2)}</p>
+                </div>
+                <TrendingUp className="h-6 w-6 text-green-500" />
+              </div>
+              <div className="p-4 bg-red-500/10 rounded-lg flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-red-700 dark:text-red-400">Total Expenses</p>
+                  <p className="text-2xl font-bold font-headline text-red-600 dark:text-red-300">${(financialSummary.totalExpenses || 0).toFixed(2)}</p>
+                </div>
+                <TrendingDown className="h-6 w-6 text-red-500" />
+              </div>
+              <div className="p-4 bg-primary/10 rounded-lg flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-primary">Net Income (Before Tax)</p>
+                  <p className="text-2xl font-bold font-headline text-primary">${(financialSummary.netIncome || 0).toFixed(2)}</p>
+                </div>
+                <DollarSign className="h-6 w-6 text-primary" />
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -137,14 +163,21 @@ export default function FinancesPage() {
               <CardDescription>Record of all product sales.</CardDescription>
             </CardHeader>
             <CardContent>
-              {salesData.map(sale => (
-                <div key={sale.id} className="py-2 border-b last:border-b-0">
-                  <p className="font-medium">{sale.product} - <span className="text-green-600">${sale.amount.toFixed(2)}</span></p>
-                  <p className="text-xs text-muted-foreground">Date: {sale.date}</p>
-                  {sale.receiptNumber && <p className="text-xs text-muted-foreground">Receipt: {sale.receiptNumber}</p>}
+              {isLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading sales...
                 </div>
-              ))}
-              {salesData.length === 0 && <p className="text-muted-foreground">No sales recorded yet.</p>}
+              ) : salesData.length > 0 ? (
+                salesData.map(sale => (
+                  <div key={sale.id} className="py-2 border-b last:border-b-0">
+                    <p className="font-medium">{sale.product_name} - <span className="text-green-600">${sale.amount.toFixed(2)}</span></p>
+                    <p className="text-xs text-muted-foreground">Date: {new Date(sale.date).toLocaleDateString()}</p>
+                    {sale.receipt_number && <p className="text-xs text-muted-foreground">Receipt: {sale.receipt_number}</p>}
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted-foreground">No sales recorded yet.</p>
+              )}
             </CardContent>
             <CardFooter>
                 <Button variant="outline" size="sm" disabled><ListOrdered className="mr-2 h-3 w-3" /> View Full Sales Report</Button>
@@ -158,14 +191,21 @@ export default function FinancesPage() {
               <CardDescription>Record of all company expenses.</CardDescription>
             </CardHeader>
             <CardContent>
-              {expensesData.map(expense => (
-                <div key={expense.id} className="py-2 border-b last:border-b-0">
-                  <p className="font-medium">{expense.description} - <span className="text-red-600">${expense.amount.toFixed(2)}</span></p>
-                  <p className="text-xs text-muted-foreground">Date: {expense.date}</p>
-                  {expense.receiptNumber && <p className="text-xs text-muted-foreground">Receipt: {expense.receiptNumber}</p>}
+               {isLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading expenses...
                 </div>
-              ))}
-              {expensesData.length === 0 && <p className="text-muted-foreground">No expenses recorded yet.</p>}
+              ) : expensesData.length > 0 ? (
+                expensesData.map(expense => (
+                  <div key={expense.id} className="py-2 border-b last:border-b-0">
+                    <p className="font-medium">{expense.description} - <span className="text-red-600">${expense.amount.toFixed(2)}</span></p>
+                    <p className="text-xs text-muted-foreground">Date: {new Date(expense.date).toLocaleDateString()}</p>
+                    {expense.receipt_number && <p className="text-xs text-muted-foreground">Receipt: {expense.receipt_number}</p>}
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted-foreground">No expenses recorded yet.</p>
+              )}
             </CardContent>
              <CardFooter>
                 <Button variant="outline" size="sm" disabled><ListOrdered className="mr-2 h-3 w-3" /> View Full Expenses Report</Button>
@@ -175,12 +215,11 @@ export default function FinancesPage() {
       </Tabs>
 
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
-        <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">Feature Placeholder</h3>
+        <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">Data Persistence</h3>
         <p className="text-sm text-accent-foreground/70">
-          This section now allows users to input daily sales and expenses via forms, including an optional receipt number. Detailed tables/lists and full data persistence will be implemented in future updates.
+          Sales and expenses are now recorded in and fetched from the Supabase database. Full reporting features will be implemented in future updates.
         </p>
       </div>
     </div>
   );
 }
-

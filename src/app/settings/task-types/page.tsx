@@ -25,21 +25,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import TaskTypeForm from "@/components/tasks/TaskTypeForm";
 import type { TaskType } from "@/lib/types";
-import { deleteTaskType } from "@/lib/actions/task.actions"; 
+import { getTaskTypes, deleteTaskType } from "@/lib/actions/task.actions"; 
 import { useToast } from "@/hooks/use-toast";
 
-// Mock function, replace with actual data fetching
-async function getTaskTypesData(): Promise<TaskType[]> {
-  await new Promise(resolve => setTimeout(resolve, 100));
-  return [
-    { id: "1", name: "Chair Making", description: "Crafting standard wooden chairs", unit_price: 50.00, created_at: new Date(Date.now() - 100000000).toISOString() },
-    { id: "2", name: "Table Assembly", description: "Assembling dining tables", unit_price: 75.00, created_at: new Date(Date.now() - 200000000).toISOString() },
-    { id: "3", name: "Painting - Small Item", description: "Painting small furniture items", unit_price: 20.00, created_at: new Date(Date.now() - 300000000).toISOString() },
-  ];
-}
-
-
-export default function TaskTypesSettingsPage() { // Renamed component
+export default function TaskTypesSettingsPage() {
   const { toast } = useToast();
   const [taskTypes, setTaskTypes] = React.useState<TaskType[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -51,8 +40,13 @@ export default function TaskTypesSettingsPage() { // Renamed component
 
   const fetchTaskTypes = async () => {
     setIsLoading(true);
-    const data = await getTaskTypesData(); 
-    setTaskTypes(data);
+    try {
+      const data = await getTaskTypes(); 
+      setTaskTypes(data);
+    } catch (error) {
+      console.error("Failed to fetch task types", error);
+      toast({ variant: "destructive", title: "Error", description: "Could not load task types." });
+    }
     setIsLoading(false);
   };
 
@@ -70,14 +64,8 @@ export default function TaskTypesSettingsPage() { // Renamed component
     setIsFormOpen(true);
   };
 
-  const handleFormSuccess = (updatedOrNewTaskType: TaskType) => {
-    if (editingTask) { 
-      setTaskTypes(prevTaskTypes =>
-        prevTaskTypes.map(tt => tt.id === updatedOrNewTaskType.id ? updatedOrNewTaskType : tt)
-      );
-    } else { 
-      setTaskTypes(prevTaskTypes => [updatedOrNewTaskType, ...prevTaskTypes]);
-    }
+  const handleFormSuccess = () => { // Removed updatedOrNewTaskType as we will re-fetch
+    fetchTaskTypes(); // Re-fetch data to reflect changes
     setEditingTask(null); 
   };
 
@@ -92,8 +80,8 @@ export default function TaskTypesSettingsPage() { // Renamed component
     try {
       const result = await deleteTaskType(taskToDelete.id); 
       if (result.success) {
-        setTaskTypes(prevTaskTypes => prevTaskTypes.filter(tt => tt.id !== taskToDelete.id));
         toast({ title: "Success", description: result.message });
+        fetchTaskTypes(); // Re-fetch after delete
       } else {
         toast({ variant: "destructive", title: "Error", description: result.message });
       }
@@ -151,7 +139,7 @@ export default function TaskTypesSettingsPage() { // Renamed component
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the task type
-              "{taskToDelete?.name}".
+              "{taskToDelete?.name}". This may fail if the task type is currently in use.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -173,6 +161,7 @@ export default function TaskTypesSettingsPage() { // Renamed component
           {isLoading ? (
             <div className="flex justify-center items-center py-10">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
+               <p className="ml-2 text-muted-foreground">Loading task types...</p>
             </div>
           ) : taskTypes.length > 0 ? (
             <div className="space-y-3">

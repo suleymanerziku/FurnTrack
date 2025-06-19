@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ListFilter, CheckCircle } from "lucide-react";
+import { PlusCircle, ListFilter, CheckCircle, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -14,7 +14,6 @@ import {
   DialogDescription,
   DialogTrigger,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -26,76 +25,52 @@ import {
 import { Label } from "@/components/ui/label";
 import TaskAssignmentForm from "@/components/tasks/TaskAssignmentForm";
 import type { AssignedTask, Employee, TaskType } from "@/lib/types";
-
-// Mock data fetching functions
-async function getLoggedWorkData(): Promise<AssignedTask[]> {
-  await new Promise(resolve => setTimeout(resolve, 100));
-  // Ensure MOCK_ASSIGNED_TASKS is accessible or defined here if not imported
-  // For this example, let's use the structure from previous thoughts if it's not globally available.
-  return [
-    { id: "1", employee_id: "emp1", task_type_id: "tt1", employeeName: "Alice Smith", task_name: "Chair Making", quantity_completed: 5, date_assigned: "2024-07-28", status: "Completed", total_payment: 250, created_at: new Date().toISOString() },
-    { id: "2", employee_id: "emp2", task_type_id: "tt2", employeeName: "Bob Johnson", task_name: "Table Assembly", quantity_completed: 2, date_assigned: "2024-07-27", status: "Completed", total_payment: 150, created_at: new Date().toISOString() },
-    { id: "3", employee_id: "emp1", task_type_id: "tt3", employeeName: "Alice Smith", task_name: "Painting - Small Item", quantity_completed: 10, date_assigned: "2024-07-26", status: "Completed", total_payment: 200, created_at: new Date().toISOString() },
-    { id: "4", employee_id: "emp2", task_type_id: "tt1", employeeName: "Bob Johnson", task_name: "Chair Making", quantity_completed: 3, date_assigned: "2024-07-29", status: "Completed", total_payment: 150, created_at: new Date().toISOString() },
-  ];
-}
-
-async function getMockEmployeesData(): Promise<Employee[]> {
-  await new Promise(resolve => setTimeout(resolve, 50));
-  return [
-    { id: "emp1", name: "Alice Smith", role: "Carpenter", start_date: "2023-01-10", created_at: new Date().toISOString() },
-    { id: "emp2", name: "Bob Johnson", role: "Painter", start_date: "2022-11-05", created_at: new Date().toISOString() },
-  ];
-}
-
-async function getMockTaskTypesData(): Promise<TaskType[]> {
-  await new Promise(resolve => setTimeout(resolve, 50));
-  return [
-    { id: "tt1", name: "Chair Making", unit_price: 50.00, created_at: new Date().toISOString() },
-    { id: "tt2", name: "Table Assembly", unit_price: 75.00, created_at: new Date().toISOString() },
-    { id: "tt3", name: "Painting - Small Item", unit_price: 20.00, created_at: new Date().toISOString() },
-  ];
-}
+import { getLoggedWork, getTaskTypes } from "@/lib/actions/task.actions";
+import { getBasicEmployees } from "@/lib/actions/employee.actions";
 
 export default function WorkLogPage() {
   const [isTaskFormOpen, setIsTaskFormOpen] = React.useState(false);
   const [loggedWork, setLoggedWork] = React.useState<AssignedTask[]>([]);
-  const [employees, setEmployees] = React.useState<Employee[]>([]);
+  const [employees, setEmployees] = React.useState<Pick<Employee, 'id' | 'name' | 'role'>[]>([]);
   const [taskTypes, setTaskTypes] = React.useState<TaskType[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   const [isFilterDialogOpen, setIsFilterDialogOpen] = React.useState(false);
-  const [currentEmployeeFilter, setCurrentEmployeeFilter] = React.useState<string>(""); // Stores ID or "" for All
-  const [currentTaskTypeFilter, setCurrentTaskTypeFilter] = React.useState<string>(""); // Stores ID or "" for All
+  const [currentEmployeeFilter, setCurrentEmployeeFilter] = React.useState<string>("");
+  const [currentTaskTypeFilter, setCurrentTaskTypeFilter] = React.useState<string>("");
 
   const [appliedFilters, setAppliedFilters] = React.useState<{
     employeeId: string | null;
     taskTypeId: string | null;
   }>({ employeeId: null, taskTypeId: null });
 
-  const fetchData = async () => {
+  const fetchData = async (filters?: { employeeId?: string | null, taskTypeId?: string | null }) => {
     setIsLoading(true);
-    const [workData, employeesData, taskTypesData] = await Promise.all([
-      getLoggedWorkData(),
-      getMockEmployeesData(),
-      getMockTaskTypesData(),
-    ]);
-    setLoggedWork(workData);
-    setEmployees(employeesData);
-    setTaskTypes(taskTypesData);
+    try {
+      const [workData, employeesData, taskTypesData] = await Promise.all([
+        getLoggedWork(filters),
+        getBasicEmployees(),
+        getTaskTypes(),
+      ]);
+      setLoggedWork(workData);
+      setEmployees(employeesData);
+      setTaskTypes(taskTypesData);
+    } catch (error) {
+      console.error("Failed to fetch data for work log", error);
+      // Show toast or error message
+    }
     setIsLoading(false);
   };
 
   React.useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(appliedFilters);
+  }, [appliedFilters]);
 
   const handleFormSuccess = () => {
-    fetchData();
+    fetchData(appliedFilters);
   };
 
   const handleOpenFilterDialog = () => {
-    // Set dialog select states to current applied filters
     setCurrentEmployeeFilter(appliedFilters.employeeId || "");
     setCurrentTaskTypeFilter(appliedFilters.taskTypeId || "");
     setIsFilterDialogOpen(true);
@@ -116,14 +91,6 @@ export default function WorkLogPage() {
     setIsFilterDialogOpen(false);
   };
   
-  const filteredLoggedWork = React.useMemo(() => {
-    return loggedWork.filter(task => {
-      const employeeMatch = !appliedFilters.employeeId || task.employee_id === appliedFilters.employeeId;
-      const taskTypeMatch = !appliedFilters.taskTypeId || task.task_type_id === appliedFilters.taskTypeId;
-      return employeeMatch && taskTypeMatch;
-    });
-  }, [loggedWork, appliedFilters]);
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -227,16 +194,19 @@ export default function WorkLogPage() {
           <CardTitle>Completed Work Log</CardTitle>
           <CardDescription>
             {(appliedFilters.employeeId || appliedFilters.taskTypeId) 
-              ? `Filtered view. Showing ${filteredLoggedWork.length} of ${loggedWork.length} records.`
+              ? `Filtered view. Showing ${loggedWork.length} records.`
               : "Overview of all work logged and payments calculated." }
             </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-muted-foreground">Loading work log...</p>
-          ) : filteredLoggedWork.length > 0 ? (
+             <div className="flex justify-center items-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-2 text-muted-foreground">Loading work log...</p>
+            </div>
+          ) : loggedWork.length > 0 ? (
             <div className="space-y-3">
-              {filteredLoggedWork.map(task => (
+              {loggedWork.map(task => (
                 <div key={task.id} className="p-4 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between sm:items-start hover:bg-muted/50">
                   <div className="mb-2 sm:mb-0">
                     <h3 className="font-semibold font-headline">{task.task_name || `Task ID: ${task.task_type_id}`}</h3>
@@ -247,14 +217,14 @@ export default function WorkLogPage() {
                   </div>
                   <Badge variant="default" className="mt-2 sm:mt-0 self-start sm:self-center">
                     <CheckCircle className="mr-1 h-3 w-3" />
-                    Completed
+                    {task.status || "Completed"}
                   </Badge>
                 </div>
               ))}
             </div>
           ) : (
             <p className="text-muted-foreground">
-              { (appliedFilters.employeeId || appliedFilters.taskTypeId) && loggedWork.length > 0
+              { (appliedFilters.employeeId || appliedFilters.taskTypeId) && employees.length > 0 && taskTypes.length > 0 // Check if actual loggedWork might be non-zero without filters
                 ? "No work logs match the current filters."
                 : "No work logged yet."
               }
@@ -265,10 +235,9 @@ export default function WorkLogPage() {
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">System Note</h3>
         <p className="text-sm text-accent-foreground/70">
-          Logging work assumes immediate completion and calculates payment. This payment is conceptually added to the employee's balance. Employee withdrawals can be recorded on the "Employees" page, affecting their balances. Filters apply to the current view only.
+          Logging work assumes immediate completion and calculates payment, which affects employee balances. Employee withdrawals can be recorded on the "Employees" page. Filters apply to the current view only.
         </p>
       </div>
     </div>
   );
 }
-
