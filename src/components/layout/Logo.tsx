@@ -1,12 +1,13 @@
+
 "use client";
 
 import Link from 'next/link';
-import { Building2 } from 'lucide-react'; // Using a generic business icon
+import { Sofa } from 'lucide-react'; // Changed from Building2 to Sofa
 
 export function Logo() {
   return (
     <Link href="/" className="flex items-center gap-2 text-lg font-semibold font-headline text-primary">
-      <Building2 className="h-6 w-6" />
+      <Sofa className="h-6 w-6" /> {/* Changed from Building2 to Sofa */}
       <span>FurnTrack</span>
     </Link>
   );
