@@ -7,7 +7,6 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Users,
-  ClipboardList, // Will be removed from main nav
   ListChecks,
   DollarSign,
   Settings as SettingsIcon,
@@ -43,21 +42,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-const navigationItems: NavItem[] = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/employees', label: 'Employees', icon: Users },
-  // { href: '/task-types', label: 'Task Types', icon: ClipboardList }, // Removed
-  { href: '/work-log', label: 'Work Log', icon: ListChecks },
-  { href: '/finances', label: 'Finances', icon: DollarSign },
-  { href: '/ai-insights', label: 'AI Insights', icon: Wand2 },
-];
-
 interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
   disabled?: boolean;
 }
+
+const navigationItems: NavItem[] = [
+  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/finances', label: 'Finances', icon: DollarSign },
+  { href: '/work-log', label: 'Work Log', icon: ListChecks },
+  { href: '/employees', label: 'Employees', icon: Users },
+  { href: '/ai-insights', label: 'AI Insights', icon: Wand2 },
+];
+
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -67,7 +66,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const getPageTitle = () => {
     if (pathname === '/settings/users') return "User Management";
     if (pathname === '/settings/profile') return "Profile Settings";
-    if (pathname === '/settings/task-types') return "Task Type Management"; // Added
+    if (pathname === '/settings/task-types') return "Task Type Management";
     if (pathname === '/settings') return "Settings";
     
     const item = navigationItems.find(navItem => 
@@ -166,12 +165,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       <SidebarInset className="flex flex-1 flex-col">
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-6">
-          {isMobile && (
+          {isMobile ? (
             <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2">
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle Menu</span>
             </Button>
-          )}
+          ): null}
           <h1 className="text-xl font-semibold font-headline">{getPageTitle()}</h1>
           <div className="ml-auto">
             <ThemeToggle />
