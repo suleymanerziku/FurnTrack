@@ -5,6 +5,9 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from '@/components/ui/toaster';
 import AppLayout from '@/components/layout/AppLayout';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import type { Database } from '@/lib/database.types';
 
 export const metadata: Metadata = {
   title: 'FurnTrack',
@@ -12,11 +15,18 @@ export const metadata: Metadata = {
   icons: null, // Explicitly disable default icon handling
 };
 
-export default function RootLayout({
+// Ensure revalidation for dynamic data like auth session
+export const revalidate = 0;
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = cookies();
+  const supabase = createServerComponentClient<Database>({ cookies: () => cookieStore });
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -29,11 +39,15 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
-          enableSystem={false} // Changed to false
+          enableSystem={false} // Only light/dark
           disableTransitionOnChange
         >
           <SidebarProvider>
-            <AppLayout>{children}</AppLayout>
+            {/* Pass user to AppLayout. AppLayout needs to be client for router hooks, 
+                but can receive server-fetched user. Or AppLayout itself becomes server and fetches user.
+                For now, passing user. AppLayout has client features like router, toast.
+            */}
+            <AppLayout user={user}>{children}</AppLayout>
           </SidebarProvider>
           <Toaster />
         </ThemeProvider>

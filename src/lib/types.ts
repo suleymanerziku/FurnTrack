@@ -147,8 +147,8 @@ export interface EmployeeDetailsPageData {
   currentBalance: number;
 }
 
-// User Management Types
-export const UserRoleSchema = z.enum(["Admin", "Manager", "Staff"]); // This is the existing enum for user assignment
+// User Management Types (public.users table)
+export const UserRoleSchema = z.enum(["Admin", "Manager", "Staff"]);
 export type UserRole = z.infer<typeof UserRoleSchema>;
 
 export const UserStatusSchema = z.enum(["Active", "Inactive"]);
@@ -158,7 +158,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: UserRole; // Users are assigned one of the predefined roles
+  role: UserRole;
   status: UserStatus;
   created_at: string; // ISO timestamp string
 }
@@ -171,7 +171,7 @@ export const UserFormInputSchema = z.object({
 export type UserFormData = z.infer<typeof UserFormInputSchema>;
 
 
-// Role Management Types (New for custom role definitions)
+// Role Management Types (public.roles table)
 export const RoleStatusSchema = z.enum(["Active", "Inactive"]);
 export type RoleStatus = z.infer<typeof RoleStatusSchema>;
 
@@ -188,3 +188,34 @@ export const RoleFormInputSchema = z.object({
   description: z.string().max(255, "Description can be at most 255 characters.").optional().or(z.literal('')),
 });
 export type RoleFormData = z.infer<typeof RoleFormInputSchema>;
+
+// Authentication Form Schemas
+export const LoginFormSchema = z.object({
+  email: z.string().email("Invalid email address."),
+  password: z.string().min(1, "Password is required."),
+});
+export type LoginFormData = z.infer<typeof LoginFormSchema>;
+
+export const RegisterFormSchema = z.object({
+  email: z.string().email("Invalid email address."),
+  password: z.string().min(6, "Password must be at least 6 characters."),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords do not match.",
+  path: ["confirmPassword"],
+});
+export type RegisterFormData = z.infer<typeof RegisterFormSchema>;
+
+export const ForgotPasswordFormSchema = z.object({
+  email: z.string().email("Invalid email address."),
+});
+export type ForgotPasswordFormData = z.infer<typeof ForgotPasswordFormSchema>;
+
+export const ResetPasswordFormSchema = z.object({
+  password: z.string().min(6, "Password must be at least 6 characters."),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords do not match.",
+  path: ["confirmPassword"],
+});
+export type ResetPasswordFormData = z.infer<typeof ResetPasswordFormSchema>;

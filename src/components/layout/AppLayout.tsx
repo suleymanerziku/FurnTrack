@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
+import * as React from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -14,8 +15,10 @@ import {
   MoreHorizontal,
   LogOut,
   Menu,
+  LogIn,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import type { User as SupabaseAuthUser } from '@supabase/supabase-js';
 
 import { cn } from '@/lib/utils';
 import {
@@ -38,9 +41,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
+import { signOutAction } from '@/lib/actions/auth.actions'; 
+import { useToast } from '@/hooks/use-toast';
 
 interface NavItem {
   href: string;
@@ -57,22 +63,38 @@ const navigationItems: NavItem[] = [
   { href: '/ai-insights', label: 'AI Insights', icon: Wand2 },
 ];
 
+interface AppLayoutProps {
+  children: React.ReactNode;
+  user: SupabaseAuthUser | null; // Pass user from server component parent
+}
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default function AppLayout({ children, user }: AppLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { toast } = useToast();
   const { isMobile, toggleSidebar } = useSidebar(); 
 
   const getPageTitle = () => {
     if (pathname === '/settings/users') return "User Management";
     if (pathname === '/settings/profile') return "Profile Settings";
     if (pathname === '/settings/task-types') return "Task Type Management";
+    if (pathname === '/settings/roles') return "Role Management"; // Added
     if (pathname === '/settings') return "Settings";
     
     const item = navigationItems.find(navItem => 
       pathname === '/' ? navItem.href === '/' : navItem.href !== '/' && pathname.startsWith(navItem.href)
     );
     return item ? item.label : "FurnTrack";
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOutAction();
+      // Action handles redirect, but good practice to toast
+      toast({ title: "Signed Out", description: "You have been successfully signed out." });
+    } catch (error) {
+      toast({ variant: "destructive", title: "Error", description: "Failed to sign out." });
+    }
   };
 
   return (
@@ -122,7 +144,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarMenuItem className="list-none">
             <SidebarMenuButton
               asChild={true}
-              isActive={pathname === '/settings' || pathname.startsWith('/settings/')}
+              isActive={pathname.startsWith('/settings')}
               tooltip="Settings"
             >
               <Link href="/settings">
@@ -133,33 +155,55 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center justify-start gap-2 w-full p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:p-0">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="https://placehold.co/40x40.png" alt="User Avatar" data-ai-hint="user avatar"/>
-                  <AvatarFallback>FT</AvatarFallback>
-                </Avatar>
-                <span className="font-medium group-data-[collapsible=icon]:hidden">Admin User</span>
-                <MoreHorizontal className="ml-auto h-4 w-4 text-muted-foreground group-data-[collapsible=icon]:hidden" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="start" className="w-56">
-              <DropdownMenuItem onClick={() => router.push('/settings/profile')} className="cursor-pointer">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">FurnTrack Admin</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    admin@furntrack.com
+           
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center justify-start gap-2 w-full p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:p-0">
+                  <Avatar className="h-8 w-8">
+                    {/* Placeholder, ideally use user's avatar if available */}
+                    <AvatarImage src="https://placehold.co/40x40.png?text=U" alt="User Avatar" data-ai-hint="user avatar"/> 
+                    <AvatarFallback>{user.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium group-data-[collapsible=icon]:hidden truncate max-w-[100px]">{user.email}</span>
+                  <MoreHorizontal className="ml-auto h-4 w-4 text-muted-foreground group-data-[collapsible=icon]:hidden" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-56">
+                <DropdownMenuLabel>
+                  <p className="text-sm font-medium leading-none truncate">
+                    {user.email}
                   </p>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem disabled>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user.role || 'User'} {/* Assuming role might be on user object */}
+                  </p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push('/settings/profile')} className="cursor-pointer">
+                   Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <SidebarMenuItem className="list-none">
+              <SidebarMenuButton
+                asChild={true}
+                isActive={pathname === '/auth/login'}
+                tooltip="Login"
+              >
+                <Link href="/auth/login">
+                  <div className="flex w-full items-center gap-2">
+                    <LogIn className="size-3.5 md:size-4" />
+                    <span className="group-data-[collapsible=icon]:hidden">Login</span>
+                  </div>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarFooter>
       </Sidebar>
 
