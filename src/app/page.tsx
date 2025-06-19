@@ -41,27 +41,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="grid gap-6">
-      {/* Row 1: Financials, Employee Balances, Active Employee Count */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Row 1: Financials, Employee Balances */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
         <FinancialSummaryCard summary={financialSummary} />
         <EmployeeBalancesCard employees={employeeBalances} />
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Employees</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-headline">+{employeeBalances.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Currently managed employees
-            </p>
-          </CardContent>
-           <CardFooter>
-             <Button asChild size="sm" variant="outline">
-                <Link href="/employees">View All Employees</Link>
-            </Button>
-          </CardFooter>
-        </Card>
       </div>
 
       {/* Row 2: Recent Activity */}
@@ -72,4 +55,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-
