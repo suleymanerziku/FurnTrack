@@ -74,11 +74,25 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
   const { toast } = useToast();
   const { isMobile, toggleSidebar } = useSidebar(); 
 
+  const isAuthPage = pathname.startsWith('/auth/');
+
+  if (isAuthPage) {
+    // Render minimal layout for auth pages with ThemeToggle
+    return (
+      <div className="relative min-h-screen"> {/* Ensure it takes full height for positioning */}
+        <div className="absolute top-4 right-4 z-50">
+          <ThemeToggle />
+        </div>
+        {children} {/* This will be the AuthLayout content from the specific auth page */}
+      </div>
+    );
+  }
+
   const getPageTitle = () => {
     if (pathname === '/settings/users') return "User Management";
     if (pathname === '/settings/profile') return "Profile Settings";
     if (pathname === '/settings/task-types') return "Task Type Management";
-    if (pathname === '/settings/roles') return "Role Management"; // Added
+    if (pathname === '/settings/roles') return "Role Management"; 
     if (pathname === '/settings') return "Settings";
     
     const item = navigationItems.find(navItem => 
@@ -90,7 +104,6 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
   const handleSignOut = async () => {
     try {
       await signOutAction();
-      // Action handles redirect, but good practice to toast
       toast({ title: "Signed Out", description: "You have been successfully signed out." });
     } catch (error) {
       toast({ variant: "destructive", title: "Error", description: "Failed to sign out." });
@@ -161,7 +174,6 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center justify-start gap-2 w-full p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:p-0">
                   <Avatar className="h-8 w-8">
-                    {/* Placeholder, ideally use user's avatar if available */}
                     <AvatarImage src="https://placehold.co/40x40.png?text=U" alt="User Avatar" data-ai-hint="user avatar"/> 
                     <AvatarFallback>{user.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                   </Avatar>
@@ -175,7 +187,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
                     {user.email}
                   </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user.role || 'User'} {/* Assuming role might be on user object */}
+                    {user.role || 'User'} 
                   </p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
