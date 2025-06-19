@@ -119,7 +119,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </SidebarContent>
         </ScrollArea>
         <SidebarFooter className="p-2">
-          <SidebarMenuItem>
+          <SidebarMenuItem className="list-none">
             <SidebarMenuButton
               asChild={true}
               isActive={pathname === '/settings' || pathname.startsWith('/settings/')}
