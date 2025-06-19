@@ -10,8 +10,8 @@ if (!supabaseUrl || supabaseUrl === "YOUR_SUPABASE_URL" || !supabaseUrl.startsWi
   console.error(errorMsg);
   throw new Error(errorMsg);
 }
-if (!supabaseAnonKey || supabaseAnonKey === "YOUR_SUPABASE_ANON_KEY") {
-  const errorMsg = 'Supabase Anon Key is missing or is a placeholder. Ensure NEXT_PUBLIC_SUPABASE_ANON_KEY is correctly set in your .env file.';
+if (!supabaseAnonKey || supabaseAnonKey === "YOUR_SUPABASE_ANON_KEY" || supabaseAnonKey.length < 50) { // Basic check for placeholder or short key
+  const errorMsg = 'Supabase Anon Key is missing, is a placeholder, or is invalid. Ensure NEXT_PUBLIC_SUPABASE_ANON_KEY is correctly set in your .env file.';
   console.error(errorMsg);
   throw new Error(errorMsg);
 }

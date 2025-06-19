@@ -18,8 +18,8 @@ export async function middleware(req: NextRequest) {
     );
   }
 
-  if (!supabaseAnonKey || supabaseAnonKey === "YOUR_SUPABASE_ANON_KEY") {
-    console.error('Supabase Anon Key is missing or is a placeholder. Ensure NEXT_PUBLIC_SUPABASE_ANON_KEY is correctly set in your .env file.');
+  if (!supabaseAnonKey || supabaseAnonKey === "YOUR_SUPABASE_ANON_KEY" || supabaseAnonKey.length < 50) { // Basic check for placeholder or short key
+    console.error('Supabase Anon Key is missing, is a placeholder, or is invalid. Ensure NEXT_PUBLIC_SUPABASE_ANON_KEY is correctly set in your .env file.');
     return new NextResponse(
       JSON.stringify({ success: false, message: 'Application configuration error: Supabase Anon Key is invalid. Please check environment variables.' }),
       { status: 500, headers: { 'content-type': 'application/json' } }
