@@ -5,7 +5,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings as SettingsIcon, UsersRound, ChevronRight, ClipboardList, UsersCog } from "lucide-react"; 
+import { Settings as SettingsIcon, UsersRound, ChevronRight, ClipboardList, UserCog } from "lucide-react"; 
 
 export default function SettingsPage() { 
 
@@ -52,7 +52,7 @@ export default function SettingsPage() {
           <Link href="/settings/roles" passHref>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
-                 <UsersCog className="h-4 w-4" /> 
+                 <UserCog className="h-4 w-4" /> 
                  Manage Roles
               </div>
               <ChevronRight className="h-4 w-4" />
@@ -87,3 +87,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+
