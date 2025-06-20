@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import TaskAssignmentForm from "@/components/tasks/TaskAssignmentForm";
 import type { AssignedTask, Employee, TaskType } from "@/lib/types";
 import { getLoggedWork, getTaskTypes } from "@/lib/actions/task.actions";
@@ -169,19 +170,21 @@ export default function WorkLogPage() {
                 <PlusCircle className="mr-2 h-4 w-4" /> Log New Work
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[520px] flex flex-col max-h-[85vh]"> {/* Adjusted width, added flex, flex-col, max-h */}
-              <DialogHeader className="shrink-0"> {/* Header will not grow */}
+            <DialogContent className="sm:max-w-[520px] flex flex-col max-h-[85vh]">
+              <DialogHeader className="shrink-0">
                 <DialogTitle>Log New Completed Work</DialogTitle>
                 <DialogDescription>
                   Select employee, task, quantity, and date. Payment will be calculated.
                 </DialogDescription>
               </DialogHeader>
-              <TaskAssignmentForm 
-                employees={employees}
-                taskTypes={taskTypes}
-                setOpen={setIsTaskFormOpen}
-                onSuccess={handleFormSuccess}
-              />
+              <ScrollArea className="flex-grow p-4">
+                <TaskAssignmentForm 
+                  employees={employees}
+                  taskTypes={taskTypes}
+                  setOpen={setIsTaskFormOpen}
+                  onSuccess={handleFormSuccess}
+                />
+              </ScrollArea>
             </DialogContent>
           </Dialog>
         </div>
@@ -239,5 +242,3 @@ export default function WorkLogPage() {
     </div>
   );
 }
-
-    
