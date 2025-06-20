@@ -1,11 +1,12 @@
 
 "use server";
 
-import type { FinancialSummary, Employee, ActivityItem, Sale, Expense, AssignedTask, Payment } from "@/lib/types";
-import { supabase } from "@/lib/supabaseClient";
-import { Database } from '../database.types';
+import type { FinancialSummary, Employee, ActivityItem } from "@/lib/types";
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
+import type { Database } from '../database.types';
 
-async function calculateEmployeeBalance(employeeId: string): Promise<number> {
+async function calculateEmployeeBalance(employeeId: string, supabase: ReturnType<typeof createServerActionClient<Database>>): Promise<number> {
   let balance = 0;
   const { data: tasks, error: tasksError } = await supabase
     .from('assigned_tasks')
@@ -34,6 +35,8 @@ async function calculateEmployeeBalance(employeeId: string): Promise<number> {
 
 
 export async function getFinancialSummaryData(): Promise<FinancialSummary> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
   let total_income = 0;
   let total_expenses = 0;
 
@@ -53,9 +56,12 @@ export async function getFinancialSummaryData(): Promise<FinancialSummary> {
 }
 
 export async function getEmployeeBalancesData(): Promise<Employee[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: employees, error } = await supabase
     .from('employees')
-    .select('id, name, role, start_date, created_at') // Select only necessary fields for overview
+    .select('id, name, role, start_date, created_at') 
     .order('name', { ascending: true });
 
   if (error) {
@@ -66,7 +72,7 @@ export async function getEmployeeBalancesData(): Promise<Employee[]> {
 
   const employeesWithBalances = await Promise.all(
     employees.map(async (emp) => {
-      const balance = await calculateEmployeeBalance(emp.id);
+      const balance = await calculateEmployeeBalance(emp.id, supabase);
       return { ...emp, pending_balance: balance } as Employee;
     })
   );
@@ -74,10 +80,11 @@ export async function getEmployeeBalancesData(): Promise<Employee[]> {
 }
 
 export async function getRecentActivitiesData(): Promise<ActivityItem[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
   const activities: ActivityItem[] = [];
-  const limit = 5; // Number of recent items from each category
+  const limit = 5;
 
-  // Fetch recent sales
   const { data: sales, error: salesError } = await supabase
     .from('sales')
     .select('*')
@@ -86,7 +93,6 @@ export async function getRecentActivitiesData(): Promise<ActivityItem[]> {
   if (salesError) console.error("Dashboard: Error fetching recent sales", salesError);
   else if (sales) sales.forEach(s => activities.push({ ...s, type: 'sale' }));
 
-  // Fetch recent expenses
   const { data: expenses, error: expensesError } = await supabase
     .from('expenses')
     .select('*')
@@ -95,7 +101,6 @@ export async function getRecentActivitiesData(): Promise<ActivityItem[]> {
   if (expensesError) console.error("Dashboard: Error fetching recent expenses", expensesError);
   else if (expenses) expenses.forEach(e => activities.push({ ...e, type: 'expense' }));
   
-  // Fetch recent tasks (logged work)
   const { data: tasks, error: tasksError } = await supabase
     .from('assigned_tasks')
     .select('*, employees(name), task_types(name)')
@@ -115,12 +120,11 @@ export async function getRecentActivitiesData(): Promise<ActivityItem[]> {
         }));
   }
 
-  // Fetch recent payments (withdrawals)
   const { data: payments, error: paymentsError } = await supabase
     .from('payments')
     .select('*, employees(name)')
     .order('created_at', { ascending: false })
-    .eq('payment_type', 'Withdrawal') // Only withdrawals for this example
+    .eq('payment_type', 'Withdrawal')
     .limit(limit);
   
   if (paymentsError) console.error("Dashboard: Error fetching recent payments", paymentsError);
@@ -134,9 +138,7 @@ export async function getRecentActivitiesData(): Promise<ActivityItem[]> {
         }));
   }
 
-  // Sort all combined activities by creation date and take the most recent overall
   return activities
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 10); // Overall limit for the feed
+    .slice(0, 10);
 }
-

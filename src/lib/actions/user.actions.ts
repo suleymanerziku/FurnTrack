@@ -1,11 +1,16 @@
 
 'use server';
 
-import type { User, UserFormData, UserRole, UserStatus } from '@/lib/types';
-import { supabase } from '@/lib/supabaseClient';
+import type { User, UserFormData } from '@/lib/types';
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import { revalidatePath } from 'next/cache';
+import type { Database } from '../database.types';
 
 export async function getUsers(): Promise<User[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data, error } = await supabase
     .from('users')
     .select('*')
@@ -18,7 +23,10 @@ export async function getUsers(): Promise<User[]> {
   return data || [];
 }
 
-export async function getUserById(id: string): Promise<User | null> { // Changed return type
+export async function getUserById(id: string): Promise<User | null> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data, error } = await supabase
     .from('users')
     .select('*')
@@ -26,21 +34,23 @@ export async function getUserById(id: string): Promise<User | null> { // Changed
     .single();
   
   if (error) {
-    console.error(`Error fetching user by ID ${id}:`, error);
+    console.error(\`Error fetching user by ID ${id}:\`, error);
     return null;
   }
   return data;
 }
 
 export async function addUser(data: UserFormData): Promise<{ success: boolean; message: string; user?: User }> {
-  // Check if email already exists
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: existingUser, error: selectError } = await supabase
     .from('users')
     .select('id')
     .eq('email', data.email)
     .single();
 
-  if (selectError && selectError.code !== 'PGRST116') { // PGRST116: single row not found (good)
+  if (selectError && selectError.code !== 'PGRST116') { 
     console.error("Error checking existing user:", selectError);
     return { success: false, message: "Database error checking for existing user." };
   }
@@ -54,7 +64,7 @@ export async function addUser(data: UserFormData): Promise<{ success: boolean; m
       name: data.name,
       email: data.email,
       role: data.role,
-      status: 'Active', // Default status
+      status: 'Active', 
     })
     .select()
     .single();
@@ -72,13 +82,15 @@ export async function addUser(data: UserFormData): Promise<{ success: boolean; m
 }
 
 export async function updateUser(id: string, data: Partial<UserFormData>): Promise<{ success: boolean; message: string; user?: User }> {
-  // Check if email is being changed and if the new email already exists for another user
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   if (data.email) {
     const { data: existingUserWithEmail, error: selectError } = await supabase
       .from('users')
       .select('id')
       .eq('email', data.email)
-      .not('id', 'eq', id) // Exclude the current user
+      .not('id', 'eq', id) 
       .single();
 
     if (selectError && selectError.code !== 'PGRST116') {
@@ -96,7 +108,6 @@ export async function updateUser(id: string, data: Partial<UserFormData>): Promi
       name: data.name,
       email: data.email,
       role: data.role,
-      // status is handled by toggleUserStatus
     })
     .eq('id', id)
     .select()
@@ -115,7 +126,10 @@ export async function updateUser(id: string, data: Partial<UserFormData>): Promi
 }
 
 export async function toggleUserStatus(id: string): Promise<{ success: boolean; message: string; user?: User }> {
-  const currentUser = await getUserById(id);
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
+  const currentUser = await getUserById(id); 
   if (!currentUser) {
     return { success: false, message: "User not found." };
   }
@@ -138,5 +152,5 @@ export async function toggleUserStatus(id: string): Promise<{ success: boolean; 
   }
   
   revalidatePath('/settings/users');
-  return { success: true, message: `User status toggled to ${newStatus}.`, user: updatedUser };
+  return { success: true, message: \`User status toggled to ${newStatus}.\`, user: updatedUser };
 }

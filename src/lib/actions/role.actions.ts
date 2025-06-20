@@ -2,10 +2,15 @@
 'use server';
 
 import type { Role, RoleFormData } from '@/lib/types';
-import { supabase } from '@/lib/supabaseClient';
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import { revalidatePath } from 'next/cache';
+import type { Database } from '../database.types';
 
 export async function getRoles(): Promise<Role[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data, error } = await supabase
     .from('roles')
     .select('*')
@@ -19,10 +24,13 @@ export async function getRoles(): Promise<Role[]> {
 }
 
 export async function addRole(data: RoleFormData): Promise<{ success: boolean; message: string; role?: Role }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+  
   const { data: existingRole, error: selectError } = await supabase
     .from('roles')
     .select('id')
-    .ilike('name', data.name) // Case-insensitive check for name
+    .ilike('name', data.name) 
     .single();
 
   if (selectError && selectError.code !== 'PGRST116') {
@@ -38,7 +46,7 @@ export async function addRole(data: RoleFormData): Promise<{ success: boolean; m
     .insert({
       name: data.name,
       description: data.description || null,
-      status: 'Active', // Default status
+      status: 'Active', 
     })
     .select()
     .single();
@@ -56,6 +64,9 @@ export async function addRole(data: RoleFormData): Promise<{ success: boolean; m
 }
 
 export async function updateRole(id: string, data: RoleFormData): Promise<{ success: boolean; message: string; role?: Role }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: existingRoleWithName, error: selectError } = await supabase
     .from('roles')
     .select('id')
@@ -94,9 +105,8 @@ export async function updateRole(id: string, data: RoleFormData): Promise<{ succ
 }
 
 export async function deleteRole(id: string): Promise<{ success: boolean; message: string }> {
-   // Optional: Check if role is assigned to any users before deleting
-  // This would require a query to the 'users' table where role_id (if you add it) matches this id.
-  // For now, we'll proceed with direct deletion.
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
 
   const { error } = await supabase
     .from('roles')
@@ -105,8 +115,6 @@ export async function deleteRole(id: string): Promise<{ success: boolean; messag
   
   if (error) {
     console.error("Error deleting role:", error);
-    // Handle foreign key constraint if roles are linked to users table and a role is in use.
-    // Supabase error code for foreign key violation is typically '23503'
     if (error.code === '23503') {
         return { success: false, message: "Cannot delete role as it is currently assigned to users. Please reassign users first." };
     }
@@ -118,6 +126,9 @@ export async function deleteRole(id: string): Promise<{ success: boolean; messag
 }
 
 export async function toggleRoleStatus(id: string): Promise<{ success: boolean; message: string; role?: Role }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: currentRole, error: fetchError } = await supabase
     .from('roles')
     .select('status')

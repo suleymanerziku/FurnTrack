@@ -1,12 +1,16 @@
 
 'use server';
 
-import type { EmployeeFormData, WithdrawalFormData, Employee, AssignedTask, Payment, EmployeeDetailsPageData, EmployeeTransaction } from '@/lib/types';
-import { supabase } from '@/lib/supabaseClient';
+import type { EmployeeFormData, WithdrawalFormData, Employee, EmployeeDetailsPageData, EmployeeTransaction } from '@/lib/types';
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import { revalidatePath } from 'next/cache';
-import { Database } from '../database.types';
+import type { Database } from '../database.types';
 
 export async function addEmployee(data: EmployeeFormData): Promise<{ success: boolean; message: string; employeeId?: string }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: newEmployee, error } = await supabase
     .from('employees')
     .insert({
@@ -32,6 +36,9 @@ export async function addEmployee(data: EmployeeFormData): Promise<{ success: bo
 }
 
 export async function recordWithdrawal(data: WithdrawalFormData): Promise<{ success: boolean; message: string; withdrawalId?: string }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: newWithdrawal, error } = await supabase
     .from('payments')
     .insert({
@@ -58,14 +65,14 @@ export async function recordWithdrawal(data: WithdrawalFormData): Promise<{ succ
 }
 
 
-async function calculateEmployeeBalance(employeeId: string): Promise<number> {
+async function calculateEmployeeBalance(employeeId: string, supabase: ReturnType<typeof createServerActionClient<Database>>): Promise<number> {
   let balance = 0;
 
   const { data: tasks, error: tasksError } = await supabase
     .from('assigned_tasks')
     .select('total_payment')
     .eq('employee_id', employeeId)
-    .eq('status', 'Completed'); // Only count completed tasks towards earnings
+    .eq('status', 'Completed');
 
   if (tasksError) {
     console.error(`Error fetching tasks for employee ${employeeId}:`, tasksError);
@@ -82,13 +89,8 @@ async function calculateEmployeeBalance(employeeId: string): Promise<number> {
     console.error(`Error fetching payments for employee ${employeeId}:`, paymentsError);
   } else if (payments) {
     payments.forEach(payment => {
-      // Assuming 'Withdrawal' and 'Advance' are negative, others positive (though this model only uses Withdrawal as negative)
       if (payment.payment_type === 'Withdrawal' || payment.payment_type === 'Advance') {
         balance -= Math.abs(payment.amount);
-      } else {
-        // If other payment types were positive, they would be added here.
-        // For now, only withdrawals affect balance negatively.
-        // Work Logged tasks are the primary source of positive balance.
       }
     });
   }
@@ -96,6 +98,9 @@ async function calculateEmployeeBalance(employeeId: string): Promise<number> {
 }
 
 export async function getEmployeeDetailsPageData(employeeId: string): Promise<EmployeeDetailsPageData> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: employee, error: empError } = await supabase
     .from('employees')
     .select('*')
@@ -164,6 +169,9 @@ export async function getEmployeeDetailsPageData(employeeId: string): Promise<Em
 }
 
 export async function getEmployeesWithBalances(): Promise<Employee[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: employees, error } = await supabase
     .from('employees')
     .select('*')
@@ -177,7 +185,7 @@ export async function getEmployeesWithBalances(): Promise<Employee[]> {
 
   const employeesWithBalances = await Promise.all(
     employees.map(async (emp) => {
-      const balance = await calculateEmployeeBalance(emp.id);
+      const balance = await calculateEmployeeBalance(emp.id, supabase);
       return { ...emp, pending_balance: balance } as Employee;
     })
   );
@@ -186,6 +194,8 @@ export async function getEmployeesWithBalances(): Promise<Employee[]> {
 }
 
 export async function getBasicEmployees(): Promise<Pick<Employee, 'id' | 'name' | 'role'>[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
    const { data, error } = await supabase
     .from('employees')
     .select('id, name, role')

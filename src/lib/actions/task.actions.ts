@@ -2,11 +2,15 @@
 'use server';
 
 import type { TaskTypeFormData, TaskAssignmentFormData, TaskType, AssignedTask } from '@/lib/types';
-import { supabase } from '@/lib/supabaseClient';
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import { revalidatePath } from 'next/cache';
-import { Database } from '../database.types';
+import type { Database } from '../database.types';
 
 export async function getTaskTypes(): Promise<TaskType[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data, error } = await supabase
     .from('task_types')
     .select('*')
@@ -20,6 +24,9 @@ export async function getTaskTypes(): Promise<TaskType[]> {
 }
 
 export async function addTaskType(data: TaskTypeFormData): Promise<{ success: boolean; message: string; taskType?: TaskType }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: newTaskType, error } = await supabase
     .from('task_types')
     .insert({
@@ -39,12 +46,15 @@ export async function addTaskType(data: TaskTypeFormData): Promise<{ success: bo
   }
 
   revalidatePath('/settings/task-types');
-  revalidatePath('/task-assignments'); // For forms using task types
-  revalidatePath('/work-log'); // For forms using task types
+  revalidatePath('/task-assignments');
+  revalidatePath('/work-log');
   return { success: true, message: "Task type added successfully.", taskType: newTaskType };
 }
 
 export async function updateTaskType(id: string, data: TaskTypeFormData): Promise<{ success: boolean; message: string; taskType?: TaskType }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: updatedTaskType, error } = await supabase
     .from('task_types')
     .update({
@@ -65,13 +75,16 @@ export async function updateTaskType(id: string, data: TaskTypeFormData): Promis
   }
 
   revalidatePath('/settings/task-types');
-  revalidatePath(`/settings/task-types`); // Revalidate list page
+  revalidatePath(`/settings/task-types`);
   revalidatePath('/task-assignments'); 
   revalidatePath('/work-log');
   return { success: true, message: "Task type updated successfully.", taskType: updatedTaskType };
 }
 
 export async function deleteTaskType(id: string): Promise<{ success: boolean; message: string }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { error } = await supabase
     .from('task_types')
     .delete()
@@ -79,8 +92,7 @@ export async function deleteTaskType(id: string): Promise<{ success: boolean; me
 
   if (error) {
     console.error("Error deleting task type:", error);
-    // Check for foreign key constraint violation (if task type is in use)
-    if (error.code === '23503') { // PostgreSQL foreign key violation code
+    if (error.code === '23503') { 
         return { success: false, message: "Cannot delete task type as it is currently assigned to one or more tasks. Please reassign or delete those tasks first." };
     }
     return { success: false, message: error.message };
@@ -93,6 +105,9 @@ export async function deleteTaskType(id: string): Promise<{ success: boolean; me
 }
 
 export async function assignTask(data: TaskAssignmentFormData): Promise<{ success: boolean; message: string; assignmentId?: string; totalPayment?: number }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: taskTypeDetails, error: ttError } = await supabase
     .from('task_types')
     .select('unit_price')
@@ -114,7 +129,7 @@ export async function assignTask(data: TaskAssignmentFormData): Promise<{ succes
       quantity_completed: data.quantity_completed,
       date_assigned: data.date_assigned.toISOString().split('T')[0],
       total_payment: totalPayment,
-      status: "Completed" // Assuming logging work means it's completed
+      status: "Completed" 
     })
     .select()
     .single();
@@ -128,18 +143,21 @@ export async function assignTask(data: TaskAssignmentFormData): Promise<{ succes
   }
 
   revalidatePath('/work-log');
-  revalidatePath('/task-assignments'); // If this page shows similar data
-  revalidatePath(`/employees/${data.employee_id}`); // For employee transaction history
-  revalidatePath('/employees'); // For employee list balances
-  revalidatePath('/'); // For dashboard recent activity & balances
+  revalidatePath('/task-assignments'); 
+  revalidatePath(`/employees/${data.employee_id}`); 
+  revalidatePath('/employees'); 
+  revalidatePath('/'); 
   
   return { success: true, message: "Work logged successfully and payment calculated.", assignmentId: newAssignment.id, totalPayment };
 }
 
 export async function getAssignedTasks(): Promise<AssignedTask[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data, error } = await supabase
     .from('assigned_tasks')
-    .select(`
+    .select(\`
       id,
       employee_id,
       task_type_id,
@@ -150,7 +168,7 @@ export async function getAssignedTasks(): Promise<AssignedTask[]> {
       created_at,
       employees ( name ),
       task_types ( name )
-    `)
+    \`)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -167,9 +185,12 @@ export async function getAssignedTasks(): Promise<AssignedTask[]> {
 }
 
 export async function getLoggedWork(filters?: { employeeId?: string | null, taskTypeId?: string | null }): Promise<AssignedTask[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   let query = supabase
     .from('assigned_tasks')
-    .select(`
+    .select(\`
       id,
       employee_id,
       task_type_id,
@@ -180,8 +201,8 @@ export async function getLoggedWork(filters?: { employeeId?: string | null, task
       created_at,
       employees ( name ),
       task_types ( name )
-    `)
-    .eq('status', 'Completed') // Work Log page typically shows completed work
+    \`)
+    .eq('status', 'Completed') 
     .order('date_assigned', { ascending: false })
     .order('created_at', { ascending: false });
 

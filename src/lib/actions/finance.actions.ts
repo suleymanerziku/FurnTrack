@@ -1,10 +1,15 @@
 
 'use server';
 import type { SaleFormData, ExpenseFormData, Sale, Expense, FinancialSummary } from '@/lib/types';
-import { supabase } from '@/lib/supabaseClient';
+import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
+import { cookies } from "next/headers";
 import { revalidatePath } from 'next/cache';
+import type { Database } from '../database.types';
 
 export async function recordSale(data: SaleFormData): Promise<{ success: boolean; message: string; saleId?: string }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data: newSale, error } = await supabase
     .from('sales')
     .insert({
@@ -25,11 +30,14 @@ export async function recordSale(data: SaleFormData): Promise<{ success: boolean
   }
 
   revalidatePath('/finances');
-  revalidatePath('/'); // For dashboard financial summary
+  revalidatePath('/'); 
   return { success: true, message: "Sale recorded successfully.", saleId: newSale.id };
 }
 
 export async function recordExpense(data: ExpenseFormData): Promise<{ success: boolean; message: string; expenseId?: string }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
    const { data: newExpense, error } = await supabase
     .from('expenses')
     .insert({
@@ -50,11 +58,14 @@ export async function recordExpense(data: ExpenseFormData): Promise<{ success: b
   }
 
   revalidatePath('/finances');
-  revalidatePath('/'); // For dashboard financial summary
+  revalidatePath('/'); 
   return { success: true, message: "Expense recorded successfully.", expenseId: newExpense.id };
 }
 
 export async function getSales(): Promise<Sale[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data, error } = await supabase
     .from('sales')
     .select('*')
@@ -69,6 +80,9 @@ export async function getSales(): Promise<Sale[]> {
 }
 
 export async function getExpenses(): Promise<Expense[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
   const { data, error } = await supabase
     .from('expenses')
     .select('*')
@@ -83,8 +97,8 @@ export async function getExpenses(): Promise<Expense[]> {
 }
 
 export async function getFinancialSummaryForPeriod(): Promise<FinancialSummary> {
-  // For simplicity, this calculates overall totals. 
-  // A real app would filter by a specific period (e.g., current month).
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
   let totalRevenue = 0;
   let totalExpenses = 0;
 
