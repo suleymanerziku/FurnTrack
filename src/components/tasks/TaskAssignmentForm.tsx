@@ -27,6 +27,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { ScrollArea } from "@/components/ui/scroll-area"; // Import ScrollArea
 import { CalendarIcon, Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -63,7 +64,6 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
   async function onSubmit(values: TaskAssignmentFormData) {
     setIsLoading(true);
     try {
-      // Filter out tasks where quantity_completed might still be null if not touched
       const tasksToSubmit = values.tasks.filter(task => task.quantity_completed !== null && task.quantity_completed > 0);
       if (tasksToSubmit.length === 0) {
         toast({
@@ -75,7 +75,7 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
         return;
       }
       
-      const result = await assignTask({...values, tasks: tasksToSubmit as any[]}); // Cast as any if TS complains about null
+      const result = await assignTask({...values, tasks: tasksToSubmit as any[]}); 
       
       if (result.success) {
         toast({ 
@@ -175,70 +175,74 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
           )}
         />
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           <FormLabel>Tasks Completed</FormLabel>
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md">
-              <div className="flex-grow space-y-2">
-                <FormField
-                  control={form.control}
-                  name={`tasks.${index}.task_type_id`}
-                  render={({ field: taskField }) => (
-                    <FormItem>
-                      <FormLabel className="sr-only">Task Type</FormLabel>
-                      <Select onValueChange={taskField.onChange} defaultValue={taskField.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a task type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {taskTypes.map(task => (
-                            <SelectItem key={task.id} value={task.id}>
-                              {task.name} (${task.unit_price.toFixed(2)}/unit)
-                            </SelectItem>
-                          ))}
-                          {taskTypes.length === 0 && <SelectItem value="" disabled>No task types</SelectItem>}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
+          <ScrollArea className="max-h-[220px] w-full rounded-md border p-1"> {/* Added ScrollArea with max-h and padding */}
+            <div className="space-y-3 p-3"> {/* Added padding inside scroll area */}
+              {fields.map((field, index) => (
+                <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md bg-background">
+                  <div className="flex-grow space-y-2">
+                    <FormField
+                      control={form.control}
+                      name={`tasks.${index}.task_type_id`}
+                      render={({ field: taskField }) => (
+                        <FormItem>
+                          <FormLabel className="sr-only">Task Type</FormLabel>
+                          <Select onValueChange={taskField.onChange} defaultValue={taskField.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a task type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {taskTypes.map(task => (
+                                <SelectItem key={task.id} value={task.id}>
+                                  {task.name} (${task.unit_price.toFixed(2)}/unit)
+                                </SelectItem>
+                              ))}
+                              {taskTypes.length === 0 && <SelectItem value="" disabled>No task types</SelectItem>}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`tasks.${index}.quantity_completed`}
+                      render={({ field: qtyField }) => (
+                        <FormItem>
+                          <FormLabel className="sr-only">Quantity</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="e.g., 5" 
+                              {...qtyField} 
+                              value={qtyField.value === null ? '' : qtyField.value || ''}
+                              onChange={e => qtyField.onChange(parseInt(e.target.value, 10) || null)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  {fields.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => remove(index)}
+                      className="shrink-0"
+                      aria-label="Remove task"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   )}
-                />
-                <FormField
-                  control={form.control}
-                  name={`tasks.${index}.quantity_completed`}
-                  render={({ field: qtyField }) => (
-                    <FormItem>
-                      <FormLabel className="sr-only">Quantity</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="e.g., 5" 
-                          {...qtyField} 
-                          value={qtyField.value === null ? '' : qtyField.value || ''}
-                          onChange={e => qtyField.onChange(parseInt(e.target.value, 10) || null)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              {fields.length > 1 && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => remove(index)}
-                  className="shrink-0"
-                  aria-label="Remove task"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
+                </div>
+              ))}
             </div>
-          ))}
+          </ScrollArea>
            <FormMessage>{form.formState.errors.tasks?.root?.message || form.formState.errors.tasks?.message}</FormMessage>
         </div>
         
@@ -263,3 +267,4 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
     </Form>
   );
 }
+
