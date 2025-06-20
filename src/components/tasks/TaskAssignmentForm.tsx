@@ -109,9 +109,13 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4"> {/* Removed py-4, DialogContent will provide padding */}
-        
-        <ScrollArea className="max-h-[55vh] w-full pr-2"> {/* Adjusted max-h, pr-2 for scrollbar */}
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        // This form grows within DialogContent and manages its internal scrolling.
+        // pt-4 is to give space from DialogHeader which is outside this component.
+        className="flex flex-col flex-grow overflow-hidden pt-2" 
+      >
+        <ScrollArea className="flex-grow p-1 pr-3"> {/* Scrollable part for inputs */}
           <div className="space-y-6 pl-1 pr-1"> {/* Inner padding for scroll content */}
             <FormField
               control={form.control}
@@ -202,7 +206,7 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
                                     {task.name} (${task.unit_price.toFixed(2)}/unit)
                                   </SelectItem>
                                 ))}
-                                {taskTypes.length === 0 && <SelectItem value="__NO_TASK_TYPES_PLACEHOLDER__" disabled>No task types</SelectItem>}
+                                {taskTypes.length === 0 && <SelectItem value="__NO_TASK_TYPES_PLACEHOLDER__" disabled>No task types defined</SelectItem>}
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -249,8 +253,8 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
           </div>
         </ScrollArea>
         
-        {/* Buttons container - outside ScrollArea, but inside form */}
-        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:gap-2 pt-4 border-t border-border">
+        {/* Buttons container - fixed at the bottom of the form */}
+        <div className="shrink-0 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:gap-2 pt-4 mt-auto border-t"> {/* mt-auto pushes to bottom if form has height, border-t added */}
           <Button
             type="button"
             variant="outline"
@@ -272,3 +276,5 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
     </Form>
   );
 }
+
+    

@@ -127,7 +127,6 @@ export default function WorkLogPage() {
                       <SelectValue placeholder="All Employees" />
                     </SelectTrigger>
                     <SelectContent>
-                      {/* Removed: <SelectItem value="">All Employees</SelectItem> */}
                       {employees.map(emp => (
                         <SelectItem key={emp.id} value={emp.id}>
                           {emp.name}
@@ -148,7 +147,6 @@ export default function WorkLogPage() {
                       <SelectValue placeholder="All Task Types" />
                     </SelectTrigger>
                     <SelectContent>
-                      {/* Removed: <SelectItem value="">All Task Types</SelectItem> */}
                       {taskTypes.map(task => (
                         <SelectItem key={task.id} value={task.id}>
                           {task.name}
@@ -171,14 +169,14 @@ export default function WorkLogPage() {
                 <PlusCircle className="mr-2 h-4 w-4" /> Log New Work
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[480px]">
-              <DialogHeader>
+            <DialogContent className="sm:max-w-[520px] flex flex-col max-h-[85vh]"> {/* Adjusted width, added flex, flex-col, max-h */}
+              <DialogHeader className="shrink-0"> {/* Header will not grow */}
                 <DialogTitle>Log New Completed Work</DialogTitle>
                 <DialogDescription>
                   Select employee, task, quantity, and date. Payment will be calculated.
                 </DialogDescription>
               </DialogHeader>
-              <TaskAssignmentForm
+              <TaskAssignmentForm 
                 employees={employees}
                 taskTypes={taskTypes}
                 setOpen={setIsTaskFormOpen}
@@ -241,3 +239,5 @@ export default function WorkLogPage() {
     </div>
   );
 }
+
+    
