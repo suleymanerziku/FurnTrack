@@ -113,8 +113,7 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col flex-grow h-full" 
       >
-        <ScrollArea className="flex-grow pr-3 pl-1"> {/* Scrollable area for inputs */}
-          <div className="space-y-6 py-4"> {/* Inner padding for scroll content */}
+        <div className="space-y-6 py-4 pr-3 pl-1"> {/* Inputs area */}
             {/* Section for Employee and Date */}
             <div className="space-y-6">
               <FormField
@@ -236,10 +235,10 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
                     {fields.length > 1 && (
                       <Button
                         type="button"
-                        variant="destructive"
+                        variant="ghost"
                         size="icon"
                         onClick={() => remove(index)}
-                        className="shrink-0"
+                        className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
                         aria-label="Remove task"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -250,8 +249,7 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
               </div>
               <FormMessage>{form.formState.errors.tasks?.root?.message || form.formState.errors.tasks?.message}</FormMessage>
             </div>
-          </div>
-        </ScrollArea>
+        </div>
         
         {/* Buttons container - fixed at bottom */}
         <div className="shrink-0 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:gap-2 pt-4 pb-2 px-1 border-t">
