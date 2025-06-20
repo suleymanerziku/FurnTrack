@@ -34,7 +34,6 @@ import { TaskAssignmentFormInputSchema, type TaskAssignmentFormData, type Employ
 import { assignTask } from "@/lib/actions/task.actions";
 import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TaskAssignmentFormProps {
   employees: Employee[];
@@ -111,10 +110,9 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col flex-grow h-full" 
+        className="flex flex-col flex-grow h-full"
       >
-        <div className="space-y-6 py-4 pr-3 pl-1"> {/* Inputs area */}
-            {/* Section for Employee and Date */}
+        <div className="space-y-6 py-4 pr-3 pl-1">
             <div className="space-y-6">
               <FormField
                 control={form.control}
@@ -182,7 +180,6 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
               />
             </div>
 
-            {/* Section for Tasks Completed */}
             <div className="space-y-2">
               <FormLabel>Tasks Completed</FormLabel>
               <div className="space-y-3">
@@ -251,13 +248,13 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
             </div>
         </div>
         
-        {/* Buttons container - fixed at bottom */}
         <div className="shrink-0 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:gap-2 pt-4 pb-2 px-1 border-t">
           <Button
             type="button"
             variant="outline"
             onClick={() => append({ task_type_id: "", quantity_completed: null })}
             className="w-full sm:flex-1"
+            disabled={fields.length >= 3}
           >
             <PlusCircle className="mr-2 h-4 w-4" /> Add Another Task
           </Button>
