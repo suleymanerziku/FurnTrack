@@ -34,7 +34,7 @@ export async function getUserById(id: string): Promise<User | null> {
     .single();
   
   if (error) {
-    console.error(\`Error fetching user by ID ${id}:\`, error);
+    console.error(`Error fetching user by ID ${id}:`, error);
     return null;
   }
   return data;
@@ -152,5 +152,6 @@ export async function toggleUserStatus(id: string): Promise<{ success: boolean; 
   }
   
   revalidatePath('/settings/users');
-  return { success: true, message: \`User status toggled to ${newStatus}.\`, user: updatedUser };
+  return { success: true, message: `User status toggled to ${newStatus}.`, user: updatedUser };
 }
+
