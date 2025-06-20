@@ -34,3 +34,4 @@ export default function AuthLayout({ children, title, description }: AuthLayoutP
     </div>
   );
 }
+
