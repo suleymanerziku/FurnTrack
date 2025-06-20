@@ -157,7 +157,7 @@ export async function getAssignedTasks(): Promise<AssignedTask[]> {
 
   const { data, error } = await supabase
     .from('assigned_tasks')
-    .select(\`
+    .select(`
       id,
       employee_id,
       task_type_id,
@@ -168,7 +168,7 @@ export async function getAssignedTasks(): Promise<AssignedTask[]> {
       created_at,
       employees ( name ),
       task_types ( name )
-    \`)
+    `)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -190,7 +190,7 @@ export async function getLoggedWork(filters?: { employeeId?: string | null, task
 
   let query = supabase
     .from('assigned_tasks')
-    .select(\`
+    .select(`
       id,
       employee_id,
       task_type_id,
@@ -201,7 +201,7 @@ export async function getLoggedWork(filters?: { employeeId?: string | null, task
       created_at,
       employees ( name ),
       task_types ( name )
-    \`)
+    `)
     .eq('status', 'Completed') 
     .order('date_assigned', { ascending: false })
     .order('created_at', { ascending: false });
@@ -227,3 +227,4 @@ export async function getLoggedWork(filters?: { employeeId?: string | null, task
     task_name: (item.task_types as unknown as {name: string} | null)?.name || 'Unknown Task',
   })) as AssignedTask[];
 }
+
