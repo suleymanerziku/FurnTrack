@@ -34,6 +34,7 @@ import { TaskAssignmentFormInputSchema, type TaskAssignmentFormData, type Employ
 import { assignTask } from "@/lib/actions/task.actions";
 import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TaskAssignmentFormProps {
   employees: Employee[];
@@ -110,148 +111,150 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6" // Main form uses space-y for its direct children sections
+        className="flex flex-col flex-grow h-full" 
       >
-        {/* Section for Employee and Date */}
-        <div className="space-y-6">
-          <FormField
-            control={form.control}
-            name="employee_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Employee</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an employee" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {employees.map(emp => (
-                      <SelectItem key={emp.id} value={emp.id}>
-                        {emp.name} ({emp.role || 'N/A'})
-                      </SelectItem>
-                    ))}
-                    {employees.length === 0 && <SelectItem value="__NO_EMPLOYEES_PLACEHOLDER__" disabled>No employees available</SelectItem>}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="date_assigned"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Date of Work</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full pl-3 text-left font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Section for Tasks Completed */}
-        <div className="space-y-2">
-          <FormLabel>Tasks Completed</FormLabel>
-          <div className="space-y-3">
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md bg-background">
-                <div className="flex-grow space-y-2">
-                  <FormField
-                    control={form.control}
-                    name={`tasks.${index}.task_type_id`}
-                    render={({ field: taskField }) => (
-                      <FormItem>
-                        <FormLabel className="sr-only">Task Type</FormLabel>
-                        <Select onValueChange={taskField.onChange} defaultValue={taskField.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a task type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {taskTypes.map(task => (
-                              <SelectItem key={task.id} value={task.id}>
-                                {task.name} (${task.unit_price.toFixed(2)}/unit)
-                              </SelectItem>
-                            ))}
-                            {taskTypes.length === 0 && <SelectItem value="__NO_TASK_TYPES_PLACEHOLDER__" disabled>No task types defined</SelectItem>}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`tasks.${index}.quantity_completed`}
-                    render={({ field: qtyField }) => (
-                      <FormItem>
-                        <FormLabel className="sr-only">Quantity</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            placeholder="e.g., 5" 
-                            {...qtyField} 
-                            value={qtyField.value === null ? '' : qtyField.value || ''}
-                            onChange={e => qtyField.onChange(parseInt(e.target.value, 10) || null)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {fields.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => remove(index)}
-                    className="shrink-0"
-                    aria-label="Remove task"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+        <ScrollArea className="flex-grow pr-3 pl-1"> {/* Scrollable area for inputs */}
+          <div className="space-y-6 py-4"> {/* Inner padding for scroll content */}
+            {/* Section for Employee and Date */}
+            <div className="space-y-6">
+              <FormField
+                control={form.control}
+                name="employee_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Employee</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an employee" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {employees.map(emp => (
+                          <SelectItem key={emp.id} value={emp.id}>
+                            {emp.name} ({emp.role || 'N/A'})
+                          </SelectItem>
+                        ))}
+                        {employees.length === 0 && <SelectItem value="__NO_EMPLOYEES_PLACEHOLDER__" disabled>No employees available</SelectItem>}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
                 )}
+              />
+
+              <FormField
+                control={form.control}
+                name="date_assigned"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Date of Work</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Section for Tasks Completed */}
+            <div className="space-y-2">
+              <FormLabel>Tasks Completed</FormLabel>
+              <div className="space-y-3">
+                {fields.map((field, index) => (
+                  <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md bg-background/50">
+                    <FormField
+                      control={form.control}
+                      name={`tasks.${index}.task_type_id`}
+                      render={({ field: taskField }) => (
+                        <FormItem className="flex-grow">
+                          <FormLabel className="sr-only">Task Type</FormLabel>
+                          <Select onValueChange={taskField.onChange} defaultValue={taskField.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select task type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {taskTypes.map(task => (
+                                <SelectItem key={task.id} value={task.id}>
+                                  {task.name} (${task.unit_price.toFixed(2)})
+                                </SelectItem>
+                              ))}
+                              {taskTypes.length === 0 && <SelectItem value="__NO_TASK_TYPES_PLACEHOLDER__" disabled>No task types defined</SelectItem>}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`tasks.${index}.quantity_completed`}
+                      render={({ field: qtyField }) => (
+                        <FormItem className="w-28">
+                          <FormLabel className="sr-only">Quantity</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Qty" 
+                              {...qtyField} 
+                              value={qtyField.value === null ? '' : qtyField.value || ''}
+                              onChange={e => qtyField.onChange(parseInt(e.target.value, 10) || null)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {fields.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => remove(index)}
+                        className="shrink-0"
+                        aria-label="Remove task"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
+              <FormMessage>{form.formState.errors.tasks?.root?.message || form.formState.errors.tasks?.message}</FormMessage>
+            </div>
           </div>
-          <FormMessage>{form.formState.errors.tasks?.root?.message || form.formState.errors.tasks?.message}</FormMessage>
-        </div>
+        </ScrollArea>
         
-        {/* Buttons container */}
-        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:gap-2 pt-4 border-t">
+        {/* Buttons container - fixed at bottom */}
+        <div className="shrink-0 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:gap-2 pt-4 pb-2 px-1 border-t">
           <Button
             type="button"
             variant="outline"
