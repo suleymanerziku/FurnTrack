@@ -127,7 +127,7 @@ export default function WorkLogPage() {
                       <SelectValue placeholder="All Employees" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Employees</SelectItem>
+                      {/* Removed: <SelectItem value="">All Employees</SelectItem> */}
                       {employees.map(emp => (
                         <SelectItem key={emp.id} value={emp.id}>
                           {emp.name}
@@ -148,7 +148,7 @@ export default function WorkLogPage() {
                       <SelectValue placeholder="All Task Types" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Task Types</SelectItem>
+                      {/* Removed: <SelectItem value="">All Task Types</SelectItem> */}
                       {taskTypes.map(task => (
                         <SelectItem key={task.id} value={task.id}>
                           {task.name}
@@ -224,7 +224,7 @@ export default function WorkLogPage() {
             </div>
           ) : (
             <p className="text-muted-foreground">
-              { (appliedFilters.employeeId || appliedFilters.taskTypeId) && employees.length > 0 && taskTypes.length > 0 // Check if actual loggedWork might be non-zero without filters
+              { (appliedFilters.employeeId || appliedFilters.taskTypeId) && employees.length > 0 && taskTypes.length > 0
                 ? "No work logs match the current filters."
                 : "No work logged yet."
               }
