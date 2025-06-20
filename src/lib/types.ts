@@ -114,13 +114,23 @@ export const TaskTypeFormInputSchema = z.object({
 export type TaskTypeFormData = z.infer<typeof TaskTypeFormInputSchema>;
 
 // Task Assignment (Work Log) Form Schema
+const TaskEntrySchema = z.object({
+  task_type_id: z.string().min(1, "Task type is required."),
+  quantity_completed: z.coerce
+    .number({ invalid_type_error: "Quantity must be a number."})
+    .int("Quantity must be an integer.")
+    .positive("Quantity must be positive.")
+    .nullable(), // Allow null for initial state, then coerce to number
+});
+export type TaskEntryData = z.infer<typeof TaskEntrySchema>;
+
 export const TaskAssignmentFormInputSchema = z.object({
   employee_id: z.string().min(1, "Employee is required."),
-  task_type_id: z.string().min(1, "Task type is required."),
-  quantity_completed: z.coerce.number({invalid_type_error: "Quantity must be a number."}).int("Quantity must be an integer.").positive("Quantity must be positive."),
   date_assigned: z.date({ required_error: "Date assigned is required." }),
+  tasks: z.array(TaskEntrySchema).min(1, "At least one task must be added."),
 });
 export type TaskAssignmentFormData = z.infer<typeof TaskAssignmentFormInputSchema>;
+
 
 // Employee Withdrawal Form Schema
 export const WithdrawalFormInputSchema = z.object({

@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { TaskTypeFormData, TaskAssignmentFormData, TaskType, AssignedTask } from '@/lib/types';
+import type { TaskTypeFormData, TaskAssignmentFormData, TaskType, AssignedTask, TaskEntryData } from '@/lib/types';
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { revalidatePath } from 'next/cache';
@@ -104,52 +104,77 @@ export async function deleteTaskType(id: string): Promise<{ success: boolean; me
   return { success: true, message: "Task type deleted successfully." };
 }
 
-export async function assignTask(data: TaskAssignmentFormData): Promise<{ success: boolean; message: string; assignmentId?: string; totalPayment?: number }> {
+export async function assignTask(data: TaskAssignmentFormData): Promise<{ success: boolean; message: string; assignmentIds?: string[] }> {
   const cookieStore = cookies();
   const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+  const assignmentIds: string[] = [];
+  let allSucceeded = true;
+  let errors: string[] = [];
 
-  const { data: taskTypeDetails, error: ttError } = await supabase
-    .from('task_types')
-    .select('unit_price')
-    .eq('id', data.task_type_id)
-    .single();
+  for (const taskEntry of data.tasks) {
+    if (taskEntry.quantity_completed === null || taskEntry.quantity_completed <= 0) {
+        errors.push(`Invalid quantity for task type ID ${taskEntry.task_type_id}.`);
+        allSucceeded = false;
+        continue; 
+    }
+    
+    const { data: taskTypeDetails, error: ttError } = await supabase
+      .from('task_types')
+      .select('unit_price')
+      .eq('id', taskEntry.task_type_id)
+      .single();
 
-  if (ttError || !taskTypeDetails) {
-    console.error("Error fetching task type details for payment calculation:", ttError);
-    return { success: false, message: "Could not find task type to calculate payment." };
+    if (ttError || !taskTypeDetails) {
+      console.error(`Error fetching task type details for ID ${taskEntry.task_type_id}:`, ttError);
+      errors.push(`Could not find task type ID ${taskEntry.task_type_id} to calculate payment.`);
+      allSucceeded = false;
+      continue;
+    }
+    
+    const totalPayment = taskTypeDetails.unit_price * taskEntry.quantity_completed;
+
+    const { data: newAssignment, error: assignmentError } = await supabase
+      .from('assigned_tasks')
+      .insert({
+        employee_id: data.employee_id,
+        task_type_id: taskEntry.task_type_id,
+        quantity_completed: taskEntry.quantity_completed,
+        date_assigned: data.date_assigned.toISOString().split('T')[0],
+        total_payment: totalPayment,
+        status: "Completed" 
+      })
+      .select('id')
+      .single();
+    
+    if (assignmentError || !newAssignment) {
+      console.error(`Error logging work for task type ID ${taskEntry.task_type_id}:`, assignmentError);
+      errors.push(`Failed to log work for task type ID ${taskEntry.task_type_id}: ${assignmentError?.message || 'Unknown error'}`);
+      allSucceeded = false;
+    } else {
+      assignmentIds.push(newAssignment.id);
+    }
   }
-  
-  const totalPayment = taskTypeDetails.unit_price * data.quantity_completed;
 
-  const { data: newAssignment, error: assignmentError } = await supabase
-    .from('assigned_tasks')
-    .insert({
-      employee_id: data.employee_id,
-      task_type_id: data.task_type_id,
-      quantity_completed: data.quantity_completed,
-      date_assigned: data.date_assigned.toISOString().split('T')[0],
-      total_payment: totalPayment,
-      status: "Completed" 
-    })
-    .select()
-    .single();
-  
-  if (assignmentError) {
-    console.error("Error logging work (assigning task):", assignmentError);
-    return { success: false, message: assignmentError.message };
+  if (allSucceeded && assignmentIds.length > 0) {
+    revalidatePath('/work-log');
+    revalidatePath('/task-assignments'); 
+    revalidatePath(`/employees/${data.employee_id}`); 
+    revalidatePath('/employees'); 
+    revalidatePath('/'); 
+    return { success: true, message: `${assignmentIds.length} task(s) logged successfully.`, assignmentIds };
+  } else if (assignmentIds.length > 0) {
+     // Partial success
+    revalidatePath('/work-log');
+    revalidatePath('/task-assignments');
+    revalidatePath(`/employees/${data.employee_id}`);
+    revalidatePath('/employees');
+    revalidatePath('/');
+    return { success: false, message: `Partially logged work. ${assignmentIds.length} task(s) succeeded. Errors: ${errors.join(', ')}`, assignmentIds};
+  } else {
+    return { success: false, message: `Failed to log any work. Errors: ${errors.join(', ')}` };
   }
-  if (!newAssignment) {
-     return { success: false, message: "Failed to log work, no data returned." };
-  }
-
-  revalidatePath('/work-log');
-  revalidatePath('/task-assignments'); 
-  revalidatePath(`/employees/${data.employee_id}`); 
-  revalidatePath('/employees'); 
-  revalidatePath('/'); 
-  
-  return { success: true, message: "Work logged successfully and payment calculated.", assignmentId: newAssignment.id, totalPayment };
 }
+
 
 export async function getAssignedTasks(): Promise<AssignedTask[]> {
   const cookieStore = cookies();
@@ -227,4 +252,3 @@ export async function getLoggedWork(filters?: { employeeId?: string | null, task
     task_name: (item.task_types as unknown as {name: string} | null)?.name || 'Unknown Task',
   })) as AssignedTask[];
 }
-

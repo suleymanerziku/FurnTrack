@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +27,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, PlusCircle, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { TaskAssignmentFormInputSchema, type TaskAssignmentFormData, type Employee, type TaskType } from "@/lib/types";
@@ -36,8 +36,8 @@ import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
 
 interface TaskAssignmentFormProps {
-  employees: Employee[]; // For employee selection
-  taskTypes: TaskType[]; // For task type selection
+  employees: Employee[];
+  taskTypes: TaskType[];
   setOpen: Dispatch<SetStateAction<boolean>>;
   onSuccess?: () => void;
 }
@@ -50,22 +50,43 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
     resolver: zodResolver(TaskAssignmentFormInputSchema),
     defaultValues: {
       employee_id: "",
-      task_type_id: "",
-      quantity_completed: null, // Changed from quantity
       date_assigned: new Date(),
+      tasks: [{ task_type_id: "", quantity_completed: null }],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "tasks",
   });
 
   async function onSubmit(values: TaskAssignmentFormData) {
     setIsLoading(true);
     try {
-      const result = await assignTask(values);
+      // Filter out tasks where quantity_completed might still be null if not touched
+      const tasksToSubmit = values.tasks.filter(task => task.quantity_completed !== null && task.quantity_completed > 0);
+      if (tasksToSubmit.length === 0) {
+        toast({
+          variant: "destructive",
+          title: "No Tasks to Log",
+          description: "Please add at least one task with a valid quantity.",
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      const result = await assignTask({...values, tasks: tasksToSubmit as any[]}); // Cast as any if TS complains about null
+      
       if (result.success) {
         toast({ 
             title: "Success", 
-            description: result.message + (result.totalPayment ? ` Payment: $${result.totalPayment.toFixed(2)}` : '') 
+            description: result.message
         });
-        form.reset();
+        form.reset({
+          employee_id: "",
+          date_assigned: new Date(),
+          tasks: [{ task_type_id: "", quantity_completed: null }],
+        });
         setOpen(false);
         onSuccess?.();
       } else {
@@ -114,47 +135,10 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
-          name="task_type_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Task Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a task type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {taskTypes.map(task => (
-                    <SelectItem key={task.id} value={task.id}>
-                      {task.name} (${task.unit_price.toFixed(2)}/unit)
-                    </SelectItem>
-                  ))}
-                  {taskTypes.length === 0 && <SelectItem value="" disabled>No task types available</SelectItem>}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="quantity_completed" // Changed from quantity
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Quantity Completed</FormLabel> 
-              <FormControl>
-                <Input type="number" placeholder="e.g., 5" {...field} value={field.value === null ? '' : field.value} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="date_assigned" // Could be "Date of Work"
+          name="date_assigned"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Date of Work</FormLabel>
@@ -190,7 +174,88 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isLoading || employees.length === 0 || taskTypes.length === 0}>
+
+        <div className="space-y-4">
+          <FormLabel>Tasks Completed</FormLabel>
+          {fields.map((field, index) => (
+            <div key={field.id} className="flex items-end gap-2 p-3 border rounded-md">
+              <div className="flex-grow space-y-2">
+                <FormField
+                  control={form.control}
+                  name={`tasks.${index}.task_type_id`}
+                  render={({ field: taskField }) => (
+                    <FormItem>
+                      <FormLabel className="sr-only">Task Type</FormLabel>
+                      <Select onValueChange={taskField.onChange} defaultValue={taskField.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a task type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {taskTypes.map(task => (
+                            <SelectItem key={task.id} value={task.id}>
+                              {task.name} (${task.unit_price.toFixed(2)}/unit)
+                            </SelectItem>
+                          ))}
+                          {taskTypes.length === 0 && <SelectItem value="" disabled>No task types</SelectItem>}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`tasks.${index}.quantity_completed`}
+                  render={({ field: qtyField }) => (
+                    <FormItem>
+                      <FormLabel className="sr-only">Quantity</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="e.g., 5" 
+                          {...qtyField} 
+                          value={qtyField.value === null ? '' : qtyField.value || ''}
+                          onChange={e => qtyField.onChange(parseInt(e.target.value, 10) || null)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              {fields.length > 1 && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => remove(index)}
+                  className="shrink-0"
+                  aria-label="Remove task"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          ))}
+           <FormMessage>{form.formState.errors.tasks?.root?.message || form.formState.errors.tasks?.message}</FormMessage>
+        </div>
+        
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => append({ task_type_id: "", quantity_completed: null })}
+          className="w-full"
+        >
+          <PlusCircle className="mr-2 h-4 w-4" /> Add Another Task
+        </Button>
+
+        <Button 
+          type="submit" 
+          className="w-full" 
+          disabled={isLoading || employees.length === 0 || taskTypes.length === 0 || fields.length === 0}
+        >
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Log Work
         </Button>
