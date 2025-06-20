@@ -1,7 +1,7 @@
 
 "use client";
 
-import *alarına React from "react";
+import *React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,18 +32,21 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { EmployeeFormInputSchema, type EmployeeFormData, type Role } from "@/lib/types";
-import { addEmployee } from "@/lib/actions/employee.actions";
+import { EmployeeFormInputSchema, type EmployeeFormData, type Role, type Employee } from "@/lib/types";
+import { addEmployee, updateEmployee } from "@/lib/actions/employee.actions";
 import { useToast } from "@/hooks/use-toast";
 
 interface EmployeeFormProps {
   roles: Role[];
+  currentEmployee?: Employee | null;
+  onSuccess?: () => void; // Optional: for actions after successful submit if not redirecting
 }
 
-export default function EmployeeForm({ roles }: EmployeeFormProps) {
+export default function EmployeeForm({ roles, currentEmployee, onSuccess }: EmployeeFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const isEditMode = !!currentEmployee;
 
   const form = useForm<EmployeeFormData>({
     resolver: zodResolver(EmployeeFormInputSchema),
@@ -51,24 +54,56 @@ export default function EmployeeForm({ roles }: EmployeeFormProps) {
       name: "",
       address: "",
       contact_info: "",
-      role: "", // Default to empty string, SelectTrigger placeholder will handle display
+      role: "",
       start_date: new Date(),
     },
   });
 
+  React.useEffect(() => {
+    if (isEditMode && currentEmployee) {
+      form.reset({
+        name: currentEmployee.name,
+        address: currentEmployee.address || "",
+        contact_info: currentEmployee.contact_info || "",
+        role: currentEmployee.role || "",
+        start_date: new Date(currentEmployee.start_date), // Ensure date is a Date object
+      });
+    } else {
+      form.reset({ // Reset to defaults if not editing or currentEmployee is null
+        name: "",
+        address: "",
+        contact_info: "",
+        role: "",
+        start_date: new Date(),
+      });
+    }
+  }, [currentEmployee, form, isEditMode]);
+
+
   async function onSubmit(values: EmployeeFormData) {
     setIsLoading(true);
     try {
-      const result = await addEmployee(values);
+      let result;
+      if (isEditMode && currentEmployee) {
+        result = await updateEmployee(currentEmployee.id, values);
+      } else {
+        result = await addEmployee(values);
+      }
+
       if (result.success) {
         toast({ title: "Success", description: result.message });
         form.reset();
-        router.push("/employees"); 
+        if (onSuccess) {
+            onSuccess();
+        } else {
+            router.push(isEditMode ? `/settings/employees/${currentEmployee?.id}` : "/settings/employees");
+        }
+        router.refresh(); // Ensure data revalidation on the target page
       } else {
         toast({
           variant: "destructive",
           title: "Error",
-          description: result.message || "Failed to add employee.",
+          description: result.message || `Failed to ${isEditMode ? 'update' : 'add'} employee.`,
         });
       }
     } catch (error) {
@@ -106,7 +141,7 @@ export default function EmployeeForm({ roles }: EmployeeFormProps) {
               <FormLabel>Role</FormLabel>
               <Select 
                 onValueChange={field.onChange} 
-                value={field.value || ""} // Handles undefined and sets to "" for placeholder
+                value={field.value || ""} 
                 defaultValue={field.value || ""}
               >
                 <FormControl>
@@ -115,13 +150,11 @@ export default function EmployeeForm({ roles }: EmployeeFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {/* No explicit "No specific role" item with value="". Placeholder handles this. */}
                   {roles.filter(role => role.status === 'Active').map(role => (
                     <SelectItem key={role.id} value={role.name}>
                       {role.name}
                     </SelectItem>
                   ))}
-                  {/* If no active roles, show a disabled placeholder item with a non-empty value */}
                   {roles.filter(r => r.status === 'Active').length === 0 && (
                     <SelectItem value="__NO_ACTIVE_ROLES_PLACEHOLDER__" disabled>
                       No active roles available
@@ -180,7 +213,7 @@ export default function EmployeeForm({ roles }: EmployeeFormProps) {
                       )}
                     >
                       {field.value ? (
-                        format(field.value, "PPP")
+                        format(new Date(field.value), "PPP") // Ensure value is date object for format
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -203,10 +236,9 @@ export default function EmployeeForm({ roles }: EmployeeFormProps) {
         />
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Add Employee
+          {isEditMode ? "Update Employee" : "Add Employee"}
         </Button>
       </form>
     </Form>
   );
 }
-

@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import * as React from 'react';
 import {
   LayoutDashboard,
-  Users,
+  // Users, // Removed from main nav
   ListChecks,
   DollarSign,
   Settings as SettingsIcon,
@@ -59,7 +59,7 @@ const navigationItems: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/finances', label: 'Finances', icon: DollarSign },
   { href: '/work-log', label: 'Work Log', icon: ListChecks },
-  { href: '/employees', label: 'Employees', icon: Users },
+  // { href: '/employees', label: 'Employees', icon: Users }, // Moved to settings
   { href: '/ai-insights', label: 'AI Insights', icon: Wand2 },
 ];
 
@@ -93,6 +93,12 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     if (pathname === '/settings/profile') return "Profile Settings";
     if (pathname === '/settings/task-types') return "Task Type Management";
     if (pathname === '/settings/roles') return "Role Management"; 
+    if (pathname === '/settings/employees') return "Employee Management";
+    if (pathname.startsWith('/settings/employees/new')) return "Add New Employee";
+    if (pathname.match(/^\/settings\/employees\/[^/]+\/edit$/)) return "Edit Employee";
+    if (pathname.match(/^\/settings\/employees\/[^/]+$/)) return "Employee Details";
+
+
     if (pathname === '/settings') return "Settings";
     
     const item = navigationItems.find(navItem => 

@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Employee } from "@/lib/types";
@@ -52,7 +53,7 @@ export default function EmployeeBalancesCard({ employees }: EmployeeBalancesCard
       </CardContent>
       <CardFooter>
         <Button asChild className="w-full" variant="outline">
-          <Link href="/employees">Manage Employees</Link>
+          <Link href="/settings/employees">Manage Employees</Link>
         </Button>
       </CardFooter>
     </Card>
