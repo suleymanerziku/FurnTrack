@@ -48,6 +48,10 @@ const summarizeDailyProductionAndSalesFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      console.error("AI prompt did not return a valid output for summarizeDailyProductionAndSalesFlow.");
+      throw new Error("AI failed to generate a summary in the expected format.");
+    }
+    return output;
   }
 );

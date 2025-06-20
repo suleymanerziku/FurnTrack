@@ -1,4 +1,4 @@
-"use server";
+'use server';
 
 import { 
   summarizeDailyProductionAndSales,
@@ -8,13 +8,20 @@ import {
 
 export async function generateAISummary(
   input: SummarizeDailyProductionAndSalesInput
-): Promise<SummarizeDailyProductionAndSalesOutput> {
+): Promise<{ summary?: string; error?: string }> {
   try {
-    const result = await summarizeDailyProductionAndSales(input);
-    return result;
+    const result: SummarizeDailyProductionAndSalesOutput = await summarizeDailyProductionAndSales(input);
+    if (result && result.summary) {
+      return { summary: result.summary };
+    }
+    // This case should ideally be caught by the flow itself if output is not as expected
+    return { error: "AI returned an unexpected response." };
   } catch (error) {
     console.error("Error in generateAISummary server action:", error);
-    // Consider more specific error handling or re-throwing a custom error
-    throw new Error("Failed to generate AI summary.");
+    let errorMessage = "Failed to generate AI summary.";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    return { error: errorMessage };
   }
 }

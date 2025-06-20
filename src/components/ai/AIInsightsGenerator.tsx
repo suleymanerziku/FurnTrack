@@ -9,8 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Wand2 } from "lucide-react";
-import { SummarizeDailyProductionAndSalesInput } from "@/ai/flows/summarize-daily-production-and-sales"; // Assuming type is exported
-import { generateAISummary } from "@/lib/actions/ai.actions"; // Server action
+import type { SummarizeDailyProductionAndSalesInput } from "@/ai/flows/summarize-daily-production-and-sales";
+import { generateAISummary } from "@/lib/actions/ai.actions";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
@@ -36,29 +36,29 @@ export default function AIInsightsGenerator() {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     setSummary(null);
-    try {
-      const inputData: SummarizeDailyProductionAndSalesInput = {
-        productionData: data.productionData,
-        salesData: data.salesData,
-      };
-      const result = await generateAISummary(inputData);
-      if (result.summary) {
-        setSummary(result.summary);
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Error Generating Summary",
-          description: "The AI could not generate a summary. Please try again.",
-        });
-      }
-    } catch (error) {
-      console.error("Error generating AI summary:", error);
+    
+    const inputData: SummarizeDailyProductionAndSalesInput = {
+      productionData: data.productionData,
+      salesData: data.salesData,
+    };
+    const result = await generateAISummary(inputData);
+
+    if (result.summary) {
+      setSummary(result.summary);
+    } else if (result.error) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Error Generating Summary",
+        description: result.error || "The AI could not generate a summary. Please try again.",
+      });
+    } else {
+       toast({
+        variant: "destructive",
+        title: "Error Generating Summary",
         description: "An unexpected error occurred. Please try again later.",
       });
     }
+    
     setIsLoading(false);
   };
 
