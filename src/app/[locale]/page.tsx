@@ -15,9 +15,9 @@ export default async function DashboardPage() {
   ]);
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-6 max-w-7xl mx-auto">
       {/* Row 1: Financials, Employee Balances */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <FinancialSummaryCard summary={financialSummary} />
         <EmployeeBalancesCard employees={employeeBalances} />
       </div>

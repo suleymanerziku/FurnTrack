@@ -212,20 +212,20 @@ function MainLayout({ children, user }: AppLayoutProps) {
         </Sidebar>
 
         <SidebarInset className="flex flex-1 flex-col">
-            <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-6">
+            <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm px-4 sm:px-6">
             {isMobile ? (
                 <Button variant="ghost" size="icon" onClick={toggleSidebar} className="mr-2">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle Menu</span>
                 </Button>
             ): null}
-            <h1 className="text-xl font-semibold font-headline">{getPageTitle()}</h1>
+            <h1 className="text-xl font-semibold font-headline truncate">{getPageTitle()}</h1>
             <div className="ml-auto flex items-center gap-2">
                 <LanguageSwitcher />
                 <ThemeToggle />
             </div>
             </header>
-            <main className="flex-1 overflow-y-auto p-6 bg-background">
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6 bg-background">
             {children}
             </main>
         </SidebarInset>

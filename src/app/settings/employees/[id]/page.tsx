@@ -29,17 +29,17 @@ export default async function EmployeeDetailSettingsPage({ params }: { params: {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
-        <div className="w-full sm:w-auto">
+        <div className="w-full sm:w-auto flex-grow">
           <Button variant="outline" size="sm" asChild className="mb-4">
             <Link href="/settings/employees">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Employees
             </Link>
           </Button>
-          <h2 className="text-3xl font-bold tracking-tight font-headline">{employee.name}</h2>
+          <h2 className="text-3xl font-bold tracking-tight font-headline truncate">{employee.name}</h2>
           <p className="text-muted-foreground">{employee.role || "N/A"}</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center w-full sm:w-auto">
+        <div className="flex-shrink-0 flex flex-col sm:flex-row gap-2 items-start sm:items-center w-full sm:w-auto">
             <div className="w-full sm:w-auto text-left sm:text-right mt-2 sm:mt-0">
                 <p className="text-sm text-muted-foreground">Current Balance</p>
                 <p className={`text-2xl font-bold font-headline ${currentBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -102,14 +102,14 @@ export default async function EmployeeDetailSettingsPage({ params }: { params: {
                   <TableHead>Description</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
-                  <TableHead className="text-right">Running Balance</TableHead>
+                  <TableHead className="text-right hidden sm:table-cell">Running Balance</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {transactions.map((tx) => (
                   <TableRow key={tx.id}>
                     <TableCell>{format(new Date(tx.date), "PP")}</TableCell>
-                    <TableCell className="max-w-[200px] sm:max-w-[300px] truncate">{tx.description}</TableCell>
+                    <TableCell className="max-w-[150px] sm:max-w-[300px] truncate">{tx.description}</TableCell>
                     <TableCell>
                       <Badge variant={tx.type === 'Work Logged' ? 'default' : 'secondary'}>
                         {tx.type}
@@ -118,7 +118,7 @@ export default async function EmployeeDetailSettingsPage({ params }: { params: {
                     <TableCell className={`text-right font-medium ${tx.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {formatCurrency(tx.amount)}
                     </TableCell>
-                    <TableCell className={`text-right font-medium ${tx.runningBalance >= 0 ? '' : 'text-red-500'}`}>
+                    <TableCell className={`text-right font-medium hidden sm:table-cell ${tx.runningBalance >= 0 ? '' : 'text-red-500'}`}>
                       {formatCurrency(tx.runningBalance)}
                     </TableCell>
                   </TableRow>

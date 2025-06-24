@@ -105,9 +105,9 @@ export default function ReportsPage() {
             Analyze sales, production, and financial performance.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
             <Select value={period} onValueChange={(value: Period) => setPeriod(value)}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue placeholder="Select period" />
                 </SelectTrigger>
                 <SelectContent>
@@ -127,11 +127,11 @@ export default function ReportsPage() {
         </div>
       ) : (
         <Tabs defaultValue="summary" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="summary">Financial Summary</TabsTrigger>
-            <TabsTrigger value="sales">Sales Report</TabsTrigger>
-            <TabsTrigger value="production">Production Report</TabsTrigger>
-            <TabsTrigger value="employee">Employee Report</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:grid-cols-4 h-auto">
+            <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="sales">Sales</TabsTrigger>
+            <TabsTrigger value="production">Production</TabsTrigger>
+            <TabsTrigger value="employee">Employees</TabsTrigger>
           </TabsList>
           <TabsContent value="summary" className="space-y-4">
              <Card>
@@ -262,7 +262,7 @@ export default function ReportsPage() {
                                 <TableHead>Date</TableHead>
                                 <TableHead>Employee</TableHead>
                                 <TableHead>Type</TableHead>
-                                <TableHead className="max-w-xs">Description</TableHead>
+                                <TableHead className="hidden md:table-cell max-w-xs">Description</TableHead>
                                 <TableHead className="text-right">Amount ($)</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -274,7 +274,7 @@ export default function ReportsPage() {
                                     <TableCell>
                                         <Badge variant={item.type === 'Earning' ? 'default' : 'secondary'}>{item.type}</Badge>
                                     </TableCell>
-                                    <TableCell className="max-w-[200px] truncate">{item.description}</TableCell>
+                                    <TableCell className="hidden md:table-cell max-w-[200px] truncate">{item.description}</TableCell>
                                     <TableCell className="text-right">{item.amount.toFixed(2)}</TableCell>
                                 </TableRow>
                             )) : (

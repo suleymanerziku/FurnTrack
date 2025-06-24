@@ -115,7 +115,7 @@ export default function FinancesPage() {
 
       <Tabs defaultValue="sales" className="space-y-4" onValueChange={setActiveTab} value={activeTab}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:grid-cols-2">
             <TabsTrigger value="sales">Sales</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
           </TabsList>
