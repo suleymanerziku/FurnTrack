@@ -48,21 +48,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { signOutAction } from '@/lib/actions/auth.actions'; 
 import { useToast } from '@/hooks/use-toast';
+import { useI18n, useCurrentLocale } from '@/locales/client';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
-interface NavItem {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  disabled?: boolean;
-}
-
-const navigationItems: NavItem[] = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/finances', label: 'Finances', icon: DollarSign },
-  { href: '/work-log', label: 'Work Log', icon: ListChecks },
-  { href: '/reports', label: 'Reports', icon: LineChart },
-  { href: '/ai-insights', label: 'AI Insights', icon: Wand2 },
-];
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -71,10 +59,22 @@ interface AppLayoutProps {
 
 // This component contains the main layout and consumes the sidebar context.
 function MainLayout({ children, user }: AppLayoutProps) {
-    const pathname = usePathname();
+    const fullPathname = usePathname();
     const router = useRouter();
     const { toast } = useToast();
     const { isMobile, toggleSidebar } = useSidebar(); 
+    const t = useI18n();
+    const locale = useCurrentLocale();
+
+    const pathname = fullPathname.replace(new RegExp(`^/${locale}`), '') || '/';
+    
+    const navigationItems: NavItem[] = [
+      { href: '/', label: t('navigation.dashboard'), icon: LayoutDashboard },
+      { href: '/finances', label: t('navigation.finances'), icon: DollarSign },
+      { href: '/work-log', label: t('navigation.work_log'), icon: ListChecks },
+      { href: '/reports', label: t('navigation.reports'), icon: LineChart },
+      { href: '/ai-insights', label: t('navigation.ai_insights'), icon: Wand2 },
+    ];
 
     const getPageTitle = () => {
         if (pathname === '/settings/users') return "User Management";
@@ -85,11 +85,10 @@ function MainLayout({ children, user }: AppLayoutProps) {
         if (pathname.startsWith('/settings/employees/new')) return "Add New Employee";
         if (pathname.match(/^\/settings\/employees\/[^/]+\/edit$/)) return "Edit Employee";
         if (pathname.match(/^\/settings\/employees\/[^/]+$/)) return "Employee Details";
-        if (pathname === '/reports') return "Reports";
-        if (pathname === '/settings') return "Settings";
+        if (pathname === '/settings/general') return t('settings_general.title');
         
         const item = navigationItems.find(navItem => 
-        pathname === '/' ? navItem.href === '/' : navItem.href !== '/' && pathname.startsWith(navItem.href)
+            pathname === '/' ? navItem.href === '/' : navItem.href !== '/' && pathname.startsWith(navItem.href)
         );
         return item ? item.label : "FurnTrack";
     };
@@ -151,12 +150,12 @@ function MainLayout({ children, user }: AppLayoutProps) {
                 <SidebarMenuButton
                 asChild={true}
                 isActive={pathname.startsWith('/settings')}
-                tooltip="Settings"
+                tooltip={t('navigation.settings')}
                 >
                 <Link href="/settings">
                     <div className="flex w-full items-center gap-2">
                     <SettingsIcon className="size-3.5 md:size-4" />
-                    <span className="group-data-[collapsible=icon]:hidden">Settings</span>
+                    <span className="group-data-[collapsible=icon]:hidden">{t('navigation.settings')}</span>
                     </div>
                 </Link>
                 </SidebarMenuButton>
@@ -221,7 +220,8 @@ function MainLayout({ children, user }: AppLayoutProps) {
                 </Button>
             ): null}
             <h1 className="text-xl font-semibold font-headline">{getPageTitle()}</h1>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+                <LanguageSwitcher />
                 <ThemeToggle />
             </div>
             </header>

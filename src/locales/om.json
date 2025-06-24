@@ -1,0 +1,24 @@
+
+{
+  "navigation": {
+    "dashboard": "Daashboordii",
+    "finances": "Faayinaansii",
+    "work_log": "Galmee Hojii",
+    "reports": "Gabaasota",
+    "ai_insights": "AI Insights",
+    "settings": "Qunnamtii"
+  },
+  "settings_general": {
+    "title": "Qunnamtii Waliigalaa",
+    "description": "Qunnamtii app waliigalaa kan akka qarshii, afaanii fi beeksisa to'adhu.",
+    "language_label": "Afaan",
+    "save_button": "Jijjiirama Quusaa"
+  },
+  "language_switcher": {
+    "label": "Afaan jijjiiri",
+    "en": "Ingiliffa",
+    "am": "Amaariffa",
+    "om": "Oromoo",
+    "ti": "Tigiriffa"
+  }
+}

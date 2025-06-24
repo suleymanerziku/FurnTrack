@@ -1,32 +1,10 @@
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import FinancialSummaryCard from "@/components/dashboard/FinancialSummaryCard";
-import EmployeeBalancesCard from "@/components/dashboard/EmployeeBalancesCard";
-import RecentActivityFeed from "@/components/dashboard/RecentActivityFeed";
-import { getFinancialSummaryData, getEmployeeBalancesData, getRecentActivitiesData } from "@/lib/actions/dashboard.actions";
-import type { FinancialSummary, Employee, ActivityItem } from "@/lib/types";
+import { redirect } from 'next/navigation';
+import { defaultLocale } from '@/locales/i18n';
 
-export default async function DashboardPage() {
-  // Fetch data in parallel
-  const [financialSummary, employeeBalances, recentActivities] = await Promise.all([
-    getFinancialSummaryData(),
-    getEmployeeBalancesData(),
-    getRecentActivitiesData()
-  ]);
-
-  return (
-    <div className="grid gap-6">
-      {/* Row 1: Financials, Employee Balances */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
-        <FinancialSummaryCard summary={financialSummary} />
-        <EmployeeBalancesCard employees={employeeBalances} />
-      </div>
-
-      {/* Row 2: Recent Activity */}
-      <div className="grid grid-cols-1 gap-6">
-        <RecentActivityFeed activities={recentActivities} />
-      </div>
-
-    </div>
-  );
+// This page is hit when the user visits the root `/`.
+// The middleware will likely redirect them to `/{locale}` before this renders.
+// This acts as a fallback to redirect to the default language.
+export default function RootPage() {
+  redirect(`/${defaultLocale}`);
 }

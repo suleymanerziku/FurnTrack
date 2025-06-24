@@ -1,0 +1,24 @@
+
+{
+  "navigation": {
+    "dashboard": "ዳሽቦርድ",
+    "finances": "ፋይናንስ",
+    "work_log": "የሥራ መዝገብ",
+    "reports": "ሪፖርቶች",
+    "ai_insights": "AI Insights",
+    "settings": "ቅንብሮች"
+  },
+  "settings_general": {
+    "title": "አጠቃላይ ቅንብሮች",
+    "description": "እንደ መገበያያ ገንዘብ፣ ቋንቋ እና ማሳወቂያዎች ያሉ አጠቃላይ የመተግበሪያ ቅንብሮችን ያስተዳድሩ።",
+    "language_label": "ቋንቋ",
+    "save_button": "ለውጦችን አስቀምጥ"
+  },
+  "language_switcher": {
+    "label": "ቋንቋ ቀይር",
+    "en": "እንግሊዝኛ",
+    "am": "አማርኛ",
+    "om": "ኦሮምኛ",
+    "ti": "ትግርኛ"
+  }
+}

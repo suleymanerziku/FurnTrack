@@ -1,0 +1,24 @@
+
+{
+  "navigation": {
+    "dashboard": "Dashboard",
+    "finances": "Finances",
+    "work_log": "Work Log",
+    "reports": "Reports",
+    "ai_insights": "AI Insights",
+    "settings": "Settings"
+  },
+  "settings_general": {
+    "title": "General Settings",
+    "description": "Manage general application settings like currency, language, and notifications.",
+    "language_label": "Language",
+    "save_button": "Save Changes"
+  },
+  "language_switcher": {
+    "label": "Change language",
+    "en": "English",
+    "am": "Amharic",
+    "om": "Oromo",
+    "ti": "Tigrinya"
+  }
+}

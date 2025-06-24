@@ -1,0 +1,24 @@
+
+{
+  "navigation": {
+    "dashboard": "ዳሽቦርድ",
+    "finances": "ፋይናንስ",
+    "work_log": "ናይ ስራሕ መዝገብ",
+    "reports": "ሪፖርት",
+    "ai_insights": "AI Insights",
+    "settings": "ቅንብርታት"
+  },
+  "settings_general": {
+    "title": "ሓፈሻዊ ቅንብርታት",
+    "description": "ከም ባጤራ፣ ቋንቋን መተሓሳሰቢን ዝኣመሰሉ ሓፈሻዊ ናይ ኣፕሊኬሽን ቅንብርታት ኣመሓድር።",
+    "language_label": "ቋንቋ",
+    "save_button": "ለውጥታት ኣቐምጥ"
+  },
+  "language_switcher": {
+    "label": "ቋንቋ ቀይር",
+    "en": "እንግሊዝኛ",
+    "am": "ኣምሓርኛ",
+    "om": "ኦሮምኛ",
+    "ti": "ትግርኛ"
+  }
+}
