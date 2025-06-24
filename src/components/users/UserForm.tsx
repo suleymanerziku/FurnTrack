@@ -46,6 +46,8 @@ export default function UserForm({ setOpen, onSuccess, currentUser }: UserFormPr
       name: "",
       email: "",
       role: "Staff", // Default role
+      password: "",
+      confirmPassword: "",
     },
   });
 
@@ -55,12 +57,16 @@ export default function UserForm({ setOpen, onSuccess, currentUser }: UserFormPr
         name: currentUser.name,
         email: currentUser.email,
         role: currentUser.role,
+        password: "",
+        confirmPassword: "",
       });
     } else {
       form.reset({
         name: "",
         email: "",
         role: "Staff",
+        password: "",
+        confirmPassword: "",
       });
     }
   }, [currentUser, form, isEditMode]);
@@ -79,7 +85,6 @@ export default function UserForm({ setOpen, onSuccess, currentUser }: UserFormPr
         toast({ title: "Success", description: result.message });
         setOpen(false);
         onSuccess(result.user);
-        router.push("/settings/users"); // Updated redirect path
       } else {
         toast({
           variant: "destructive",
@@ -151,6 +156,38 @@ export default function UserForm({ setOpen, onSuccess, currentUser }: UserFormPr
             </FormItem>
           )}
         />
+
+        {!isEditMode && (
+          <>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Create a password (min. 6 characters)" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Confirm the password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {isEditMode ? "Update User" : "Add User"}

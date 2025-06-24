@@ -177,6 +177,16 @@ export const UserFormInputSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100),
   email: z.string().email("Invalid email address.").max(100),
   role: UserRoleSchema,
+  password: z.string().optional(),
+  confirmPassword: z.string().optional(),
+}).refine(data => {
+  if (data.password || data.confirmPassword) {
+    return data.password === data.confirmPassword;
+  }
+  return true;
+}, {
+  message: "Passwords do not match.",
+  path: ["confirmPassword"],
 });
 export type UserFormData = z.infer<typeof UserFormInputSchema>;
 
