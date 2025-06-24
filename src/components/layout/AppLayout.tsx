@@ -16,6 +16,7 @@ import {
   LogOut,
   Menu,
   LogIn,
+  LineChart,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { User as SupabaseAuthUser } from '@supabase/supabase-js';
@@ -59,6 +60,7 @@ const navigationItems: NavItem[] = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/finances', label: 'Finances', icon: DollarSign },
   { href: '/work-log', label: 'Work Log', icon: ListChecks },
+  { href: '/reports', label: 'Reports', icon: LineChart },
   // { href: '/employees', label: 'Employees', icon: Users }, // Moved to settings
   { href: '/ai-insights', label: 'AI Insights', icon: Wand2 },
 ];
@@ -97,6 +99,7 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     if (pathname.startsWith('/settings/employees/new')) return "Add New Employee";
     if (pathname.match(/^\/settings\/employees\/[^/]+\/edit$/)) return "Edit Employee";
     if (pathname.match(/^\/settings\/employees\/[^/]+$/)) return "Employee Details";
+    if (pathname === '/reports') return "Reports";
 
 
     if (pathname === '/settings') return "Settings";
