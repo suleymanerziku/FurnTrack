@@ -5,17 +5,9 @@ import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PlusCircle, Eye, MinusCircle, Loader2, Edit, Trash2, ArrowLeft } from "lucide-react"; 
+import { PlusCircle, Eye, Loader2, Edit, Trash2, ArrowLeft } from "lucide-react"; 
 import type { Employee } from "@/lib/types"; 
 import { getEmployeesWithBalances, deleteEmployee } from "@/lib/actions/employee.actions"; 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,7 +18,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import EmployeeWithdrawalForm from "@/components/employees/EmployeeWithdrawalForm";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
@@ -35,7 +26,6 @@ export default function EmployeesSettingsPage() {
   const router = useRouter();
   const [employees, setEmployees] = React.useState<Employee[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [isWithdrawalFormOpen, setIsWithdrawalFormOpen] = React.useState(false);
   
   const [employeeToDelete, setEmployeeToDelete] = React.useState<Employee | null>(null);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = React.useState(false);
@@ -57,10 +47,6 @@ export default function EmployeesSettingsPage() {
   React.useEffect(() => {
     fetchData();
   }, []);
-
-  const handleWithdrawalSuccess = () => {
-    fetchData(); 
-  };
 
   const handleOpenDeleteDialog = (employee: Employee) => {
     setEmployeeToDelete(employee);
@@ -99,30 +85,10 @@ export default function EmployeesSettingsPage() {
         <div>
           <h2 className="text-2xl font-bold tracking-tight font-headline">Employee Management</h2>
           <p className="text-muted-foreground">
-            View, add, edit, delete, and manage employee profiles and withdrawals.
+            View, add, edit, and delete employee profiles.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <Dialog open={isWithdrawalFormOpen} onOpenChange={setIsWithdrawalFormOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="w-full sm:w-auto">
-                <MinusCircle className="mr-2 h-4 w-4" /> Record Withdrawal
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Record Employee Withdrawal</DialogTitle>
-                <DialogDescription>
-                  Select employee and enter withdrawal details. This will deduct from their balance.
-                </DialogDescription>
-              </DialogHeader>
-              <EmployeeWithdrawalForm
-                employees={employees} 
-                setOpen={setIsWithdrawalFormOpen}
-                onSuccess={handleWithdrawalSuccess}
-              />
-            </DialogContent>
-          </Dialog>
           <Button asChild className="w-full sm:w-auto">
             <Link href="/settings/employees/new">
               <PlusCircle className="mr-2 h-4 w-4" /> Add Employee
@@ -200,7 +166,7 @@ export default function EmployeesSettingsPage() {
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">System Note</h3>
         <p className="text-sm text-accent-foreground/70">
-          Employee balances are calculated based on logged work (earnings) and recorded withdrawals (deductions). Transaction history and precise balance tracking are available in "View Details".
+          Employee balances are calculated based on logged work (earnings) and recorded withdrawals (deductions). Transaction history and precise balance tracking are available in "View Details". Withdrawals can now be recorded from the "Work Log" page.
         </p>
       </div>
     </div>

@@ -60,6 +60,12 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
     name: "tasks",
   });
 
+  const selectedEmployeeId = form.watch("employee_id");
+  const selectedEmployee = React.useMemo(
+    () => employees.find(emp => emp.id === selectedEmployeeId),
+    [employees, selectedEmployeeId]
+  );
+
   async function onSubmit(values: TaskAssignmentFormData) {
     setIsLoading(true);
     try {
@@ -113,7 +119,7 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
         className="flex flex-col flex-grow h-full"
       >
         <div className="space-y-6 py-4 pr-3 pl-1">
-            <div className="space-y-6">
+            <div className="space-y-4">
               <FormField
                 control={form.control}
                 name="employee_id"
@@ -139,6 +145,20 @@ export default function TaskAssignmentForm({ employees, taskTypes, setOpen, onSu
                   </FormItem>
                 )}
               />
+
+              {selectedEmployee && (
+                <div className="p-3 border rounded-lg bg-muted/50 -mt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-muted-foreground">Current Balance:</span>
+                    <span className={cn(
+                      "text-lg font-bold",
+                      (selectedEmployee.pending_balance ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                    )}>
+                      ${(selectedEmployee.pending_balance ?? 0).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               <FormField
                 control={form.control}

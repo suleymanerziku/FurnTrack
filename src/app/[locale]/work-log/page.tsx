@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ListFilter, CheckCircle, Loader2 } from "lucide-react";
+import { PlusCircle, ListFilter, CheckCircle, Loader2, MinusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -25,14 +25,18 @@ import {
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import TaskAssignmentForm from "@/components/tasks/TaskAssignmentForm";
+import EmployeeWithdrawalForm from "@/components/employees/EmployeeWithdrawalForm";
 import type { AssignedTask, Employee, TaskType } from "@/lib/types";
 import { getLoggedWork, getTaskTypes } from "@/lib/actions/task.actions";
-import { getBasicEmployees } from "@/lib/actions/employee.actions";
+import { getEmployeesWithBalances } from "@/lib/actions/employee.actions";
+import { useToast } from "@/hooks/use-toast";
 
 export default function WorkLogPage() {
+  const { toast } = useToast();
   const [isTaskFormOpen, setIsTaskFormOpen] = React.useState(false);
+  const [isWithdrawalFormOpen, setIsWithdrawalFormOpen] = React.useState(false);
   const [loggedWork, setLoggedWork] = React.useState<AssignedTask[]>([]);
-  const [employees, setEmployees] = React.useState<Pick<Employee, 'id' | 'name' | 'role'>[]>([]);
+  const [employees, setEmployees] = React.useState<Employee[]>([]);
   const [taskTypes, setTaskTypes] = React.useState<TaskType[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -50,7 +54,7 @@ export default function WorkLogPage() {
     try {
       const [workData, employeesData, taskTypesData] = await Promise.all([
         getLoggedWork(filters),
-        getBasicEmployees(),
+        getEmployeesWithBalances(),
         getTaskTypes(),
       ]);
       setLoggedWork(workData);
@@ -58,7 +62,7 @@ export default function WorkLogPage() {
       setTaskTypes(taskTypesData);
     } catch (error) {
       console.error("Failed to fetch data for work log", error);
-      // Show toast or error message
+      toast({ variant: "destructive", title: "Error", description: "Could not load data for work log." });
     }
     setIsLoading(false);
   };
@@ -96,9 +100,9 @@ export default function WorkLogPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight font-headline">Work Log</h2>
+          <h2 className="text-2xl font-bold tracking-tight font-headline">Work & Payment Log</h2>
           <p className="text-muted-foreground">
-            Log completed work for employees.
+            Log completed work for employees and record withdrawals.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -161,6 +165,27 @@ export default function WorkLogPage() {
                 <Button variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
                 <Button onClick={handleApplyFilters}>Apply Filters</Button>
               </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isWithdrawalFormOpen} onOpenChange={setIsWithdrawalFormOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="w-full sm:w-auto">
+                <MinusCircle className="mr-2 h-4 w-4" /> Record Withdrawal
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Record Employee Withdrawal</DialogTitle>
+                <DialogDescription>
+                  Select employee and enter withdrawal details. This will deduct from their balance.
+                </DialogDescription>
+              </DialogHeader>
+              <EmployeeWithdrawalForm
+                employees={employees}
+                setOpen={setIsWithdrawalFormOpen}
+                onSuccess={handleFormSuccess}
+              />
             </DialogContent>
           </Dialog>
 
@@ -236,7 +261,7 @@ export default function WorkLogPage() {
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">System Note</h3>
         <p className="text-sm text-accent-foreground/70">
-          Logging work assumes immediate completion and calculates payment, which affects employee balances. Employee withdrawals can be recorded on the "Employees" page. Filters apply to the current view only.
+          Logging work assumes immediate completion and calculates payment, which affects employee balances. Employee withdrawals can also be recorded on this page. Filters apply to the current view only.
         </p>
       </div>
     </div>
