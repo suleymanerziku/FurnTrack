@@ -4,7 +4,6 @@ import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from '@/components/ui/toaster';
 import AppLayout from '@/components/layout/AppLayout';
-import { SidebarProvider } from '@/components/ui/sidebar';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import type { Database } from '@/lib/database.types';
@@ -42,13 +41,8 @@ export default async function RootLayout({
           enableSystem={false} // Only light/dark
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            {/* Pass user to AppLayout. AppLayout needs to be client for router hooks, 
-                but can receive server-fetched user. Or AppLayout itself becomes server and fetches user.
-                For now, passing user. AppLayout has client features like router, toast.
-            */}
-            <AppLayout user={user}>{children}</AppLayout>
-          </SidebarProvider>
+          {/* AppLayout now handles conditional rendering of SidebarProvider */}
+          <AppLayout user={user}>{children}</AppLayout>
           <Toaster />
         </ThemeProvider>
       </body>
