@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, Loader2 } from "lucide-react";
-import { getChartData } from "@/lib/actions/reports.actions";
+import { getChartData, getEmployeeActivityData } from "@/lib/actions/reports.actions";
 import type { ChartDataPoint } from "@/lib/actions/reports.actions";
+import type { EmployeeActivity } from "@/lib/types";
 import ReportChart from "@/components/reports/ReportChart";
 import { exportToExcel } from "@/lib/exportUtils";
 import { useToast } from "@/hooks/use-toast";
@@ -20,14 +22,19 @@ export default function ReportsPage() {
   const { toast } = useToast();
   const [period, setPeriod] = React.useState<Period>('30d');
   const [data, setData] = React.useState<ChartDataPoint[]>([]);
+  const [employeeActivity, setEmployeeActivity] = React.useState<EmployeeActivity[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const result = await getChartData(period);
-        setData(result);
+        const [chartResult, activityResult] = await Promise.all([
+            getChartData(period),
+            getEmployeeActivityData(period)
+        ]);
+        setData(chartResult);
+        setEmployeeActivity(activityResult);
       } catch (error) {
         console.error("Failed to fetch report data", error);
         toast({
@@ -65,6 +72,29 @@ export default function ReportsPage() {
     { totalSales: 0, totalProductionCost: 0, net: 0 }
   );
   financialSummary.net = financialSummary.totalSales - financialSummary.totalProductionCost;
+  
+  const employeeChartDataSource = employeeActivity.reduce((acc, curr) => {
+    const name = curr.employee_name;
+    if (!acc[name]) {
+        acc[name] = { name, earnings: 0, withdrawals: 0 };
+    }
+    if (curr.type === 'Earning') {
+        acc[name].earnings += curr.amount;
+    } else {
+        acc[name].withdrawals += curr.amount;
+    }
+    return acc;
+  }, {} as Record<string, {name: string, earnings: number, withdrawals: number}>);
+  const employeeChartData = Object.values(employeeChartDataSource);
+  
+  const employeeActivityForExport = employeeActivity.map(item => ({
+    Date: new Date(item.date).toLocaleDateString(),
+    Employee: item.employee_name,
+    Type: item.type,
+    Description: item.description,
+    Amount: item.amount.toFixed(2)
+  }));
+
 
   return (
     <div className="space-y-6">
@@ -101,6 +131,7 @@ export default function ReportsPage() {
             <TabsTrigger value="summary">Financial Summary</TabsTrigger>
             <TabsTrigger value="sales">Sales Report</TabsTrigger>
             <TabsTrigger value="production">Production Report</TabsTrigger>
+            <TabsTrigger value="employee">Employee Report</TabsTrigger>
           </TabsList>
           <TabsContent value="summary" className="space-y-4">
              <Card>
@@ -201,6 +232,56 @@ export default function ReportsPage() {
                                     <TableCell className="text-right">{item.production}</TableCell>
                                 </TableRow>
                             ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+             </Card>
+          </TabsContent>
+           <TabsContent value="employee" className="space-y-4">
+            <div className="flex justify-end">
+                <Button variant="outline" onClick={() => handleExport(employeeActivityForExport, "employee_activity_report")}>
+                    <Download className="mr-2 h-4 w-4" /> Export to Excel
+                </Button>
+             </div>
+             <ReportChart
+                data={employeeChartData}
+                title="Employee Earnings vs. Withdrawals"
+                description="Total earnings and withdrawals per employee for the selected period."
+                categoryKey="name"
+                dataKeys={[
+                    { key: 'earnings', color: '1', type: 'bar' },
+                    { key: 'withdrawals', color: '2', type: 'bar' },
+                ]}
+             />
+             <Card>
+                <CardHeader><CardTitle>Employee Activity Log</CardTitle></CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Date</TableHead>
+                                <TableHead>Employee</TableHead>
+                                <TableHead>Type</TableHead>
+                                <TableHead className="max-w-xs">Description</TableHead>
+                                <TableHead className="text-right">Amount ($)</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {employeeActivity.length > 0 ? employeeActivity.map((item, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+                                    <TableCell>{item.employee_name}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={item.type === 'Earning' ? 'default' : 'secondary'}>{item.type}</Badge>
+                                    </TableCell>
+                                    <TableCell className="max-w-[200px] truncate">{item.description}</TableCell>
+                                    <TableCell className="text-right">{item.amount.toFixed(2)}</TableCell>
+                                </TableRow>
+                            )) : (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="text-center text-muted-foreground">No employee activity for this period.</TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>

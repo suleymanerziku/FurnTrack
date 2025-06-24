@@ -5,6 +5,7 @@ import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import type { Database } from '../database.types';
 import { sub, format, parseISO, startOfMonth } from 'date-fns';
+import type { EmployeeActivity } from '../types';
 
 type Period = '7d' | '30d' | '90d' | '12m';
 
@@ -111,4 +112,70 @@ export async function getChartData(period: Period): Promise<ChartDataPoint[]> {
   }
   
   return chartData;
+}
+
+
+export async function getEmployeeActivityData(period: Period): Promise<EmployeeActivity[]> {
+    const cookieStore = cookies();
+    const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
+    let startDate: Date;
+    switch (period) {
+        case '12m': startDate = sub(new Date(), { months: 12 }); break;
+        case '90d': startDate = sub(new Date(), { days: 90 }); break;
+        case '30d': startDate = sub(new Date(), { days: 30 }); break;
+        case '7d': default: startDate = sub(new Date(), { days: 7 }); break;
+    }
+    const formattedStartDate = format(startDate, 'yyyy-MM-dd');
+
+    const [workLogsResult, withdrawalsResult] = await Promise.all([
+        supabase.from('assigned_tasks')
+            .select('date_assigned, total_payment, employees(id, name), task_types(name)')
+            .eq('status', 'Completed')
+            .gte('date_assigned', formattedStartDate),
+        supabase.from('payments')
+            .select('date, amount, employees(id, name), notes')
+            .eq('payment_type', 'Withdrawal')
+            .gte('date', formattedStartDate)
+    ]);
+
+    if (workLogsResult.error) console.error('Error fetching work logs for report:', workLogsResult.error);
+    if (withdrawalsResult.error) console.error('Error fetching withdrawals for report:', withdrawalsResult.error);
+    
+    const activities: EmployeeActivity[] = [];
+
+    if (workLogsResult.data) {
+        (workLogsResult.data as any[]).forEach(log => {
+            const employee = log.employees as {id: string, name: string} | null;
+            const taskType = log.task_types as {name: string} | null;
+            if (employee) {
+                activities.push({
+                    date: log.date_assigned,
+                    employee_id: employee.id,
+                    employee_name: employee.name,
+                    type: 'Earning',
+                    description: `Work Logged: ${taskType?.name || 'Unknown Task'}`,
+                    amount: log.total_payment
+                });
+            }
+        });
+    }
+
+    if (withdrawalsResult.data) {
+        (withdrawalsResult.data as any[]).forEach(wd => {
+            const employee = wd.employees as {id: string, name: string} | null;
+            if (employee) {
+                activities.push({
+                    date: wd.date,
+                    employee_id: employee.id,
+                    employee_name: employee.name,
+                    type: 'Withdrawal',
+                    description: `Withdrawal: ${wd.notes || 'N/A'}`,
+                    amount: Math.abs(wd.amount)
+                });
+            }
+        });
+    }
+
+    return activities.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }

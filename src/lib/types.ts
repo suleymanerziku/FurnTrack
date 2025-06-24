@@ -229,3 +229,13 @@ export const ResetPasswordFormSchema = z.object({
   path: ["confirmPassword"],
 });
 export type ResetPasswordFormData = z.infer<typeof ResetPasswordFormSchema>;
+
+// Reports Page Types
+export interface EmployeeActivity {
+  date: string;
+  employee_id: string;
+  employee_name: string;
+  type: 'Earning' | 'Withdrawal';
+  description: string;
+  amount: number;
+}
