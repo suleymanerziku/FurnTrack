@@ -15,7 +15,7 @@ export default function AuthLayout({ children, title, description }: AuthLayoutP
       <div className="mb-8">
         <Logo />
       </div>
-      <Card className="w-full shadow-xl"> {/* Removed max-w-md */}
+      <Card className="w-full max-w-md shadow-xl">
         <CardContent className="p-6 sm:p-8">
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold tracking-tight font-headline text-primary">
@@ -34,4 +34,3 @@ export default function AuthLayout({ children, title, description }: AuthLayoutP
     </div>
   );
 }
-
