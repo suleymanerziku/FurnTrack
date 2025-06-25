@@ -25,10 +25,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import TaskAssignmentForm from "@/components/tasks/TaskAssignmentForm";
-import EmployeeWithdrawalForm from "@/components/employees/EmployeeWithdrawalForm";
+import EmployeePaymentForm from "@/components/employees/EmployeePaymentForm";
 import type { AssignedTask, Employee, TaskType, Payment } from "@/lib/types";
 import { getLoggedWork, getTaskTypes } from "@/lib/actions/task.actions";
-import { getEmployeesWithBalances, getRecentWithdrawals } from "@/lib/actions/employee.actions";
+import { getEmployeesWithBalances, getRecentPayments } from "@/lib/actions/employee.actions";
 import { useToast } from "@/hooks/use-toast";
 import EmployeeTransactionHistoryDialog from "@/components/employees/EmployeeTransactionHistoryDialog";
 import { format } from "date-fns";
@@ -36,11 +36,11 @@ import { format } from "date-fns";
 export default function WorkLogPage() {
   const { toast } = useToast();
   const [isTaskFormOpen, setIsTaskFormOpen] = React.useState(false);
-  const [isWithdrawalFormOpen, setIsWithdrawalFormOpen] = React.useState(false);
+  const [isPaymentFormOpen, setIsPaymentFormOpen] = React.useState(false);
   const [loggedWork, setLoggedWork] = React.useState<AssignedTask[]>([]);
   const [employees, setEmployees] = React.useState<Employee[]>([]);
   const [taskTypes, setTaskTypes] = React.useState<TaskType[]>([]);
-  const [recentWithdrawals, setRecentWithdrawals] = React.useState<Payment[]>([]);
+  const [recentPayments, setRecentPayments] = React.useState<Payment[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   const [isFilterDialogOpen, setIsFilterDialogOpen] = React.useState(false);
@@ -55,16 +55,16 @@ export default function WorkLogPage() {
   const fetchData = async (filters?: { employeeId?: string | null, taskTypeId?: string | null }) => {
     setIsLoading(true);
     try {
-      const [workData, employeesData, taskTypesData, withdrawalsData] = await Promise.all([
+      const [workData, employeesData, taskTypesData, paymentsData] = await Promise.all([
         getLoggedWork(filters),
         getEmployeesWithBalances(),
         getTaskTypes(),
-        getRecentWithdrawals(),
+        getRecentPayments(),
       ]);
       setLoggedWork(workData);
       setEmployees(employeesData);
       setTaskTypes(taskTypesData);
-      setRecentWithdrawals(withdrawalsData);
+      setRecentPayments(paymentsData);
     } catch (error) {
       console.error("Failed to fetch data for work log", error);
       toast({ variant: "destructive", title: "Error", description: "Could not load data for work log." });
@@ -105,9 +105,9 @@ export default function WorkLogPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight font-headline">Work & Payment Log</h2>
+          <h2 className="text-2xl font-bold tracking-tight font-headline">Work &amp; Payment Log</h2>
           <p className="text-muted-foreground">
-            Log completed work for employees and record withdrawals.
+            Log completed work for employees and record payments.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -173,22 +173,22 @@ export default function WorkLogPage() {
             </DialogContent>
           </Dialog>
 
-          <Dialog open={isWithdrawalFormOpen} onOpenChange={setIsWithdrawalFormOpen}>
+          <Dialog open={isPaymentFormOpen} onOpenChange={setIsPaymentFormOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="w-full sm:w-auto">
-                <MinusCircle className="mr-2 h-4 w-4" /> Record Withdrawal
+                <MinusCircle className="mr-2 h-4 w-4" /> Record Payment
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Record Employee Withdrawal</DialogTitle>
+                <DialogTitle>Record Employee Payment</DialogTitle>
                 <DialogDescription>
-                  Select employee and enter withdrawal details. This will deduct from their balance.
+                  Select employee and enter payment details. This will deduct from their balance.
                 </DialogDescription>
               </DialogHeader>
-              <EmployeeWithdrawalForm
+              <EmployeePaymentForm
                 employees={employees}
-                setOpen={setIsWithdrawalFormOpen}
+                setOpen={setIsPaymentFormOpen}
                 onSuccess={handleFormSuccess}
               />
             </DialogContent>
@@ -222,9 +222,9 @@ export default function WorkLogPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Recent Withdrawal Log</CardTitle>
+          <CardTitle>Recent Payment Log</CardTitle>
           <CardDescription>
-            A log of recent employee withdrawals. Click a name to see full history.
+            A log of recent employee payments. Click a name to see full history.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -241,9 +241,9 @@ export default function WorkLogPage() {
                   </div>
                 ))}
               </div>
-            ) : recentWithdrawals.length > 0 ? (
+            ) : recentPayments.length > 0 ? (
               <div className="space-y-3">
-                {recentWithdrawals.map(wd => (
+                {recentPayments.map(wd => (
                   <div key={wd.id} className="p-3 border rounded-lg shadow-sm hover:bg-muted/50 transition-colors">
                     <div className="grid grid-cols-3 gap-4 items-center">
                         <div className="col-span-2">
@@ -265,7 +265,7 @@ export default function WorkLogPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-muted-foreground py-4">No withdrawals recorded yet.</p>
+              <p className="text-center text-muted-foreground py-4">No payments recorded yet.</p>
             )}
           </ScrollArea>
         </CardContent>
@@ -289,19 +289,23 @@ export default function WorkLogPage() {
           ) : loggedWork.length > 0 ? (
             <div className="space-y-3">
               {loggedWork.map(task => (
-                <div key={task.id} className="p-4 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between sm:items-start hover:bg-muted/50">
-                  <div className="mb-2 sm:mb-0">
-                    <h3 className="font-semibold font-headline">{task.task_name || `Task ID: ${task.task_type_id}`}</h3>
-                    <p className="text-sm text-muted-foreground">Employee: {task.employee_name || `Emp. ID: ${task.employee_id}`}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Quantity: {task.quantity_completed} | Date: {new Date(task.date_assigned).toLocaleDateString()} | Payment: ${task.total_payment.toFixed(2)}
-                    </p>
-                  </div>
-                  <Badge variant="default" className="mt-2 sm:mt-0 self-start sm:self-center">
-                    <CheckCircle className="mr-1 h-3 w-3" />
-                    {task.status || "Completed"}
-                  </Badge>
-                </div>
+                <EmployeeTransactionHistoryDialog key={task.id} employeeId={task.employee_id} employeeName={task.employee_name || 'N/A'}>
+                  <DialogTrigger asChild>
+                    <button className="w-full text-left p-4 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between sm:items-start hover:bg-muted/50 transition-colors">
+                      <div className="mb-2 sm:mb-0">
+                        <h3 className="font-semibold font-headline">{task.task_name || `Task ID: ${task.task_type_id}`}</h3>
+                        <p className="text-sm text-muted-foreground">Employee: {task.employee_name || `Emp. ID: ${task.employee_id}`}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Quantity: {task.quantity_completed} | Date: {new Date(task.date_assigned).toLocaleDateString()} | Payment: ${task.total_payment.toFixed(2)}
+                        </p>
+                      </div>
+                      <Badge variant="default" className="mt-2 sm:mt-0 self-start sm:self-center">
+                        <CheckCircle className="mr-1 h-3 w-3" />
+                        {task.status || "Completed"}
+                      </Badge>
+                    </button>
+                  </DialogTrigger>
+                </EmployeeTransactionHistoryDialog>
               ))}
             </div>
           ) : (
@@ -317,7 +321,7 @@ export default function WorkLogPage() {
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">System Note</h3>
         <p className="text-sm text-accent-foreground/70">
-          Logging work assumes immediate completion and calculates payment, which affects employee balances. Employee withdrawals can also be recorded on this page. Filters apply to the current view only.
+          Logging work assumes immediate completion and calculates payment, which affects employee balances. Employee payments can also be recorded on this page. Filters apply to the current view only.
         </p>
       </div>
     </div>

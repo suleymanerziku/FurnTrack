@@ -132,14 +132,14 @@ export const TaskAssignmentFormInputSchema = z.object({
 export type TaskAssignmentFormData = z.infer<typeof TaskAssignmentFormInputSchema>;
 
 
-// Employee Withdrawal Form Schema
-export const WithdrawalFormInputSchema = z.object({
+// Employee Payment Form Schema
+export const PaymentFormInputSchema = z.object({
   employee_id: z.string().min(1, "Employee is required."),
   amount: z.coerce.number({invalid_type_error: "Amount must be a number."}).positive("Amount must be positive."),
   date: z.date({ required_error: "Date is required." }),
   notes: z.string().max(255, "Notes can be at most 255 characters.").optional().or(z.literal('')),
 });
-export type WithdrawalFormData = z.infer<typeof WithdrawalFormInputSchema>;
+export type PaymentFormData = z.infer<typeof PaymentFormInputSchema>;
 
 // Employee Detail Page Types
 export interface EmployeeTransaction {
@@ -147,7 +147,7 @@ export interface EmployeeTransaction {
   date: string; // ISO date string
   description: string;
   amount: number; // positive for earnings, negative for withdrawals
-  type: 'Work Logged' | 'Withdrawal';
+  type: 'Work Logged' | 'Payment';
   runningBalance: number;
 }
 

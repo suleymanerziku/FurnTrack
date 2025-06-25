@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { EmployeeFormData, WithdrawalFormData, Employee, EmployeeDetailsPageData, EmployeeTransaction, Payment } from '@/lib/types';
+import type { EmployeeFormData, PaymentFormData, Employee, EmployeeDetailsPageData, EmployeeTransaction, Payment } from '@/lib/types';
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { revalidatePath } from 'next/cache';
@@ -137,16 +137,16 @@ export async function deleteEmployee(id: string): Promise<{ success: boolean; me
 }
 
 
-export async function recordWithdrawal(data: WithdrawalFormData): Promise<{ success: boolean; message: string; withdrawalId?: string }> {
+export async function recordPayment(data: PaymentFormData): Promise<{ success: boolean; message: string; paymentId?: string }> {
   const cookieStore = cookies();
   const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
 
-  const { data: newWithdrawal, error } = await supabase
+  const { data: newPayment, error } = await supabase
     .from('payments')
     .insert({
       employee_id: data.employee_id,
       amount: data.amount,
-      payment_type: 'Withdrawal',
+      payment_type: 'Withdrawal', // Internally, this is still a withdrawal from their balance
       date: data.date.toISOString().split('T')[0],
       notes: data.notes || null,
     })
@@ -154,18 +154,18 @@ export async function recordWithdrawal(data: WithdrawalFormData): Promise<{ succ
     .single();
 
   if (error) {
-    console.error("Error recording withdrawal:", error);
+    console.error("Error recording payment:", error);
     return { success: false, message: error.message };
   }
-  if (!newWithdrawal) {
-    return { success: false, message: "Failed to record withdrawal, no data returned." };
+  if (!newPayment) {
+    return { success: false, message: "Failed to record payment, no data returned." };
   }
   
   revalidatePath('/work-log');
   revalidatePath('/settings/employees'); 
   revalidatePath(`/settings/employees/${data.employee_id}`);
   revalidatePath('/'); // For dashboard updates
-  return { success: true, message: "Withdrawal recorded successfully.", withdrawalId: newWithdrawal.id };
+  return { success: true, message: "Payment recorded successfully.", paymentId: newPayment.id };
 }
 
 
@@ -253,9 +253,9 @@ export async function getEmployeeDetailsPageData(employeeId: string): Promise<Em
       transactions.push({
         id: wd.id,
         date: wd.date,
-        description: `Withdrawal: ${wd.notes || 'N/A'}`,
+        description: `Payment: ${wd.notes || 'N/A'}`,
         amount: -Math.abs(wd.amount),
-        type: 'Withdrawal',
+        type: 'Payment',
         runningBalance: 0
       });
     });
@@ -316,7 +316,7 @@ export async function getBasicEmployees(): Promise<Pick<Employee, 'id' | 'name' 
   return data || [];
 }
 
-export async function getRecentWithdrawals(limit = 10): Promise<Payment[]> {
+export async function getRecentPayments(limit = 10): Promise<Payment[]> {
   const cookieStore = cookies();
   const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
 
@@ -332,7 +332,7 @@ export async function getRecentWithdrawals(limit = 10): Promise<Payment[]> {
     .limit(limit);
 
   if (error) {
-    console.error("Error fetching recent withdrawals:", error);
+    console.error("Error fetching recent payments:", error);
     return [];
   }
   if (!data) return [];
