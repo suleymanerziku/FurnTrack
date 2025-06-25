@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { User as SupabaseAuthUser } from '@supabase/supabase-js';
+import type { User as AppUser } from '@/lib/types';
 
 import { cn } from '@/lib/utils';
 import {
@@ -54,7 +55,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface AppLayoutProps {
   children: React.ReactNode;
-  user: SupabaseAuthUser | null;
+  user: (SupabaseAuthUser & Partial<AppUser>) | null;
 }
 
 // This component contains the main layout and consumes the sidebar context.
@@ -168,16 +169,16 @@ function MainLayout({ children, user }: AppLayoutProps) {
                     <Button variant="ghost" className="flex items-center justify-start gap-2 w-full p-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:p-0">
                     <Avatar className="h-8 w-8">
                         <AvatarImage src="https://placehold.co/40x40.png?text=U" alt="User Avatar" data-ai-hint="user avatar"/> 
-                        <AvatarFallback>{user.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                        <AvatarFallback>{user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                     </Avatar>
-                    <span className="font-medium group-data-[collapsible=icon]:hidden truncate max-w-[100px]">{user.email}</span>
+                    <span className="font-medium group-data-[collapsible=icon]:hidden truncate max-w-[100px]">{user.name || user.email}</span>
                     <MoreHorizontal className="ml-auto h-4 w-4 text-muted-foreground group-data-[collapsible=icon]:hidden" />
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="top" align="start" className="w-56">
-                    <DropdownMenuLabel>
+                    <DropdownMenuLabel className="cursor-pointer hover:bg-muted/50 rounded-sm" onClick={() => router.push('/settings/profile')}>
                     <p className="text-sm font-medium leading-none truncate">
-                        {user.email}
+                        {user.name || user.email}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
                         {user.role || 'User'} 

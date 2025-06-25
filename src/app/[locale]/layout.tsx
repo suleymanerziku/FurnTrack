@@ -19,7 +19,26 @@ export default async function LocaleLayout({
 }) {
   const cookieStore = cookies();
   const supabase = createServerComponentClient<Database>({ cookies: () => cookieStore });
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+
+  let user = authUser;
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('name, role')
+      .eq('id', user.id)
+      .single();
+
+    if (profile) {
+      // Combine auth user with profile data.
+      // This will overwrite the 'role' from authUser with the one from our users table.
+      user = {
+        ...user,
+        ...profile,
+      };
+    }
+  }
 
   return (
     <I18nProviderClient locale={locale}>
