@@ -34,31 +34,49 @@ export async function signUpWithPassword(formData: RegisterFormData): Promise<{ 
     return { error: "Site URL configuration error. Cannot send confirmation email." };
   }
 
-  const { data, error } = await supabase.auth.signUp({
+  // Step 1: Create the auth user
+  const { data: authData, error: authError } = await supabase.auth.signUp({
     email: formData.email,
     password: formData.password,
     options: {
       emailRedirectTo: `${siteUrl}/auth/callback`,
+      data: { // Pass name to be used in email templates if needed
+        name: formData.name,
+      }
     },
   });
 
-  if (error) {
-    console.error("Sign up error:", error.message);
-    return { error: error.message };
+  if (authError) {
+    console.error("Sign up error:", authError.message);
+    return { error: authError.message };
   }
 
-  if (data.user && data.user.identities && data.user.identities.length === 0) {
-     // This case might happen if email confirmation is required, but the user already exists but is unconfirmed.
-     // Supabase might send a "Confirmation required" email again or a "User already exists" type of error.
-     // The specific error message from Supabase should be returned.
-     console.warn("Sign up: User may already exist or email confirmation is pending:", data.user);
+  if (authData.user && authData.user.identities && authData.user.identities.length === 0) {
      return { error: "User may already exist or requires confirmation. Please check your email or try logging in." };
   }
 
-  // If email confirmation is disabled, user is logged in, redirect.
-  // If email confirmation is enabled, user needs to confirm.
-  // The message to the user should guide them accordingly.
-  // For now, we'll return a success message. The UI can then inform the user to check their email.
+  if (!authData.user) {
+      return { error: "User could not be created. Please try again."};
+  }
+
+  // Step 2: Create the corresponding user profile in the public.users table
+  const { error: profileError } = await supabase
+    .from('users')
+    .insert({
+      id: authData.user.id,
+      name: formData.name,
+      email: formData.email,
+      role: 'Staff', // Assign a default role for new sign-ups
+      status: 'Active',
+    });
+  
+  if (profileError) {
+    console.error("Error creating user profile:", profileError);
+    // Ideally, you would delete the auth user here to prevent orphaned auth users.
+    // This requires an admin client. For now, returning an error is the safest option.
+    return { error: `Auth user created, but profile creation failed: ${profileError.message}. Please contact an administrator.` };
+  }
+  
   return { error: null, success: true };
 }
 
