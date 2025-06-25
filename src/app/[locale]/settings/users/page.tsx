@@ -26,13 +26,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PlusCircle, Edit, ToggleLeft, ToggleRight, Loader2, UsersRound, ShieldAlert, ArrowLeft } from "lucide-react";
 import UserForm from "@/components/users/UserForm";
-import type { User } from "@/lib/types";
+import type { User, Role } from "@/lib/types";
 import { getUsers, toggleUserStatus } from "@/lib/actions/user.actions";
+import { getRoles } from "@/lib/actions/role.actions";
 import { useToast } from "@/hooks/use-toast";
 
 export default function UserManagementPage() {
   const { toast } = useToast();
   const [users, setUsers] = React.useState<User[]>([]);
+  const [roles, setRoles] = React.useState<Role[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [editingUser, setEditingUser] = React.useState<User | null>(null);
@@ -41,20 +43,24 @@ export default function UserManagementPage() {
   const [isConfirmToggleOpen, setIsConfirmToggleOpen] = React.useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = React.useState(false);
 
-  const fetchUsers = async () => {
+  const fetchData = async () => {
     setIsLoading(true);
     try {
-      const data = await getUsers();
-      setUsers(data);
+      const [usersData, rolesData] = await Promise.all([
+        getUsers(),
+        getRoles(),
+      ]);
+      setUsers(usersData);
+      setRoles(rolesData);
     } catch (error) {
-      toast({ variant: "destructive", title: "Error", description: "Failed to fetch users." });
+      toast({ variant: "destructive", title: "Error", description: "Failed to fetch users and roles." });
     } finally {
       setIsLoading(false);
     }
   };
 
   React.useEffect(() => {
-    fetchUsers();
+    fetchData();
   }, []);
 
   const handleOpenAddForm = () => {
@@ -67,8 +73,8 @@ export default function UserManagementPage() {
     setIsFormOpen(true);
   };
 
-  const handleFormSuccess = () => { // Removed user param as we always re-fetch
-    fetchUsers(); 
+  const handleFormSuccess = () => { 
+    fetchData(); 
   };
 
   const handleOpenToggleDialog = (user: User) => {
@@ -83,7 +89,7 @@ export default function UserManagementPage() {
       const result = await toggleUserStatus(userToToggleStatus.id);
       if (result.success && result.user) {
         toast({ title: "Success", description: result.message });
-        fetchUsers(); 
+        fetchData(); 
       } else {
         toast({ variant: "destructive", title: "Error", description: result.message });
       }
@@ -135,6 +141,7 @@ export default function UserManagementPage() {
             </DialogDescription>
           </DialogHeader>
           <UserForm
+            roles={roles}
             setOpen={setIsFormOpen}
             onSuccess={handleFormSuccess}
             currentUser={editingUser}

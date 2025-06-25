@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { UserFormInputSchema, type UserFormData, type User, UserRoleSchema } from "@/lib/types";
+import { UserFormInputSchema, type UserFormData, type User, type Role } from "@/lib/types";
 import { addUser, updateUser } from "@/lib/actions/user.actions";
 import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
@@ -32,9 +32,10 @@ interface UserFormProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
   onSuccess: (user: User) => void;
   currentUser?: User | null;
+  roles: Role[];
 }
 
-export default function UserForm({ setOpen, onSuccess, currentUser }: UserFormProps) {
+export default function UserForm({ setOpen, onSuccess, currentUser, roles }: UserFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
@@ -45,7 +46,7 @@ export default function UserForm({ setOpen, onSuccess, currentUser }: UserFormPr
     defaultValues: {
       name: "",
       email: "",
-      role: "Staff", // Default role
+      role: "", 
       password: "",
       confirmPassword: "",
     },
@@ -64,7 +65,7 @@ export default function UserForm({ setOpen, onSuccess, currentUser }: UserFormPr
       form.reset({
         name: "",
         email: "",
-        role: "Staff",
+        role: "",
         password: "",
         confirmPassword: "",
       });
@@ -138,18 +139,23 @@ export default function UserForm({ setOpen, onSuccess, currentUser }: UserFormPr
           render={({ field }) => (
             <FormItem>
               <FormLabel>Role</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value || ""}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a role" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {UserRoleSchema.options.map(roleValue => (
-                    <SelectItem key={roleValue} value={roleValue}>
-                      {roleValue}
+                  {roles.filter(role => role.status === 'Active').map(role => (
+                    <SelectItem key={role.id} value={role.name}>
+                      {role.name}
                     </SelectItem>
                   ))}
+                  {roles.filter(r => r.status === 'Active').length === 0 && (
+                      <SelectItem value="__NO_ACTIVE_ROLES__" disabled>
+                        No active roles available
+                      </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
               <FormMessage />

@@ -158,9 +158,6 @@ export interface EmployeeDetailsPageData {
 }
 
 // User Management Types (public.users table)
-export const UserRoleSchema = z.enum(["Admin", "Manager", "Staff"]);
-export type UserRole = z.infer<typeof UserRoleSchema>;
-
 export const UserStatusSchema = z.enum(["Active", "Inactive"]);
 export type UserStatus = z.infer<typeof UserStatusSchema>;
 
@@ -168,7 +165,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  role: string;
   status: UserStatus;
   created_at: string; // ISO timestamp string
 }
@@ -176,7 +173,7 @@ export interface User {
 export const UserFormInputSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters.").max(100),
   email: z.string().email("Invalid email address.").max(100),
-  role: UserRoleSchema,
+  role: z.string().min(1, "A role is required."),
   password: z.string().optional(),
   confirmPassword: z.string().optional(),
 }).refine(data => {
