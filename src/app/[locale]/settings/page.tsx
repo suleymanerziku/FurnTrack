@@ -28,7 +28,10 @@ export default function SettingsPage() {
         <CardContent>
           <Link href="/settings/general" passHref>
             <Button variant="outline" className="w-full justify-between">
-              Configure General Settings
+              <div className="flex items-center gap-2">
+                <SettingsIcon className="h-4 w-4" />
+                Configure General Settings
+              </div>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </Link>
@@ -45,7 +48,10 @@ export default function SettingsPage() {
         <CardContent className="space-y-2">
           <Link href="/settings/users" passHref>
             <Button variant="outline" className="w-full justify-between">
-              Manage Users
+              <div className="flex items-center gap-2">
+                <UsersRound className="h-4 w-4" />
+                Manage Users
+              </div>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </Link>
@@ -80,7 +86,10 @@ export default function SettingsPage() {
         <CardContent>
           <Link href="/settings/task-types" passHref>
             <Button variant="outline" className="w-full justify-between">
-              Manage Task Types
+              <div className="flex items-center gap-2">
+                <ClipboardList className="h-4 w-4" />
+                Manage Task Types
+              </div>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </Link>
