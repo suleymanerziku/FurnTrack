@@ -20,5 +20,96 @@
     "am": "አማርኛ",
     "om": "ኦሮምኛ",
     "ti": "ትግርኛ"
+  },
+  "finances_page": {
+    "title": "የገንዘብ አስተዳደር",
+    "description": "ሽያጮችን، ወጪዎችን ይከታተሉ እና አጠቃላይ የፋይናንስ ጤናን ይመልከቱ።",
+    "summary_card": {
+      "title": "የገንዘብ ማጠቃለያ",
+      "description": "በተመዘገበው መረጃ ላይ የተመሰረቱ ቁልፍ የፋይናንስ መለኪያዎች።",
+      "total_revenue": "ጠቅላላ ገቢ",
+      "total_expenses": "ጠቅላላ ወጪዎች",
+      "net_income": "የተጣራ ገቢ (ከታክስ በፊት)"
+    },
+    "sales_tab_trigger": "ሽያጮች",
+    "expenses_tab_trigger": "ወጪዎች",
+    "record_sale_button": "አዲስ ሽያጭ ይመዝግቡ",
+    "record_expense_button": "አዲስ ወጪ ይመዝግቡ",
+    "sale_dialog": {
+      "title": "አዲስ ሽያጭ ይመዝግቡ",
+      "description": "የሽያጭ ግብይቱን ዝርዝሮች ያስገቡ። ሲጨርሱ መዝገብን ጠቅ ያድርጉ።"
+    },
+    "expense_dialog": {
+      "title": "አዲስ ወጪ ይመዝግቡ",
+      "description": "የወጪውን ዝርዝሮች ያስገቡ። ሲጨርሱ መዝገብን ጠቅ ያድርጉ።"
+    },
+    "loading_sales": "ሽያጮችን በመጫን ላይ...",
+    "loading_expenses": "ወጪዎችን በመጫን ላይ...",
+    "date_label": "ቀን",
+    "receipt_label": "ደረሰኝ",
+    "sales_log_card": {
+      "title": "የሽያጭ መዝገብ",
+      "description": "የሁሉም የምርት ሽያጮች መዝገብ።",
+      "no_data": "እስካሁን የተመዘገበ ሽያጭ የለም።",
+      "report_button": "ሙሉ የሽያጭ ሪፖርት ይመልከቱ"
+    },
+    "expenses_log_card": {
+      "title": "የወጪ መዝገብ",
+      "description": "የሁሉም የኩባንያው ወጪዎች መዝገብ።",
+      "no_data": "እስካሁን የተመዘገበ ወጪ የለም።",
+      "report_button": "ሙሉ የወጪ ሪፖርት ይመልከቱ"
+    },
+    "system_note": {
+      "title": "የውሂብ ጽናት",
+      "content": "ሽያጮች እና ወጪዎች አሁን በሱፓቤዝ የውሂብ ጎታ ውስጥ ይመዘገባሉ እና ይወሰዳሉ። ሙሉ የሪፖርት ማቅረቢያ ባህሪያት ወደፊት በሚደረጉ ዝመናዎች ውስጥ ይተገበራሉ።"
+    }
+  },
+  "work_log_page": {
+    "title": "የሥራ እና ክፍያ መዝገብ",
+    "description": "ለሰራተኞች የተጠናቀቀ ስራን ይመዝግቡ እና ክፍያዎችን ይመዝግቡ።",
+    "filter_button": "መዝገብን አጣራ",
+    "record_payment_button": "ክፍያ መዝግብ",
+    "log_work_button": "አዲስ ሥራ መዝግብ",
+    "filter_dialog": {
+      "title": "የሥራ መዝገብን አጣራ",
+      "description": "የተመዘገበውን ሥራ ለማጣራት መስፈርቶችን ይምረጡ።",
+      "employee_label": "ሰራተኛ",
+      "task_type_label": "የሥራ ዓይነት",
+      "date_label": "ቀን",
+      "all_employees_placeholder": "ሁሉም ሰራተኞች",
+      "all_task_types_placeholder": "ሁሉም የሥራ ዓይነቶች",
+      "date_placeholder": "ቀን ይምረጡ",
+      "clear_button": "ማጣሪያዎችን አጽዳ",
+      "apply_button": "ማጣሪያዎችን ተግብር"
+    },
+    "payment_dialog": {
+      "title": "የሰራተኛ ክፍያ መዝግብ",
+      "description": "ሰራተኛ ይምረጡ እና የክፍያ ዝርዝሮችን ያስገቡ። ይህ ከቀሪ ሂሳባቸው ይቀንሳል።"
+    },
+    "log_work_dialog": {
+      "title": "አዲስ የተጠናቀቀ ሥራ መዝግብ",
+      "description": "ሰራተኛ، ተግባር، ብዛት እና ቀን ይምረጡ። ክፍያ ይሰላል።"
+    },
+    "payment_log": {
+      "title": "የቅርብ ጊዜ የክፍያ መዝገብ",
+      "description": "የቅርብ ጊዜ የሰራተኞች ክፍያዎች መዝገብ። ሙሉ ታሪክ ለማየት ካርድ ላይ ጠቅ ያድርጉ።",
+      "no_data": "እስካሁን የተመዘገቡ ክፍያዎች የሉም።"
+    },
+    "work_log": {
+      "title": "የተጠናቀቀ የሥራ መዝገብ",
+      "loading": "የሥራ መዝገብ በመጫን ላይ...",
+      "description_filtered": "የተጣራ እይታ። {count} መዝገቦችን በማሳየት ላይ።",
+      "description_default": "የተመዘገቡ ሁሉም ሥራዎች እና የተሰሉ ክፍያዎች አጠቃላይ እይታ።",
+      "no_data_filtered": "የአሁኑን ማጣሪያዎች የሚያሟላ የሥራ መዝገብ የለም።",
+      "no_data": "እስካሁን የተመዘገበ ሥራ የለም።",
+      "employee_label": "ሰራተኛ",
+      "quantity_label": "ብዛት",
+      "date_label": "ቀን",
+      "payment_label": "ክፍያ"
+    },
+    "system_note": {
+      "title": "የስርዓት ማስታወሻ",
+      "content": "ሥራን መመዝገብ ፈጣን ማጠናቀቅን ያስባል እና ክፍያን ያሰላል፣ ይህም የሰራተኛ ቀሪ ሂሳብን ይነካል። የሰራተኛ ክፍያዎችም በዚህ ገጽ ላይ ሊመዘገቡ ይችላሉ። ማጣሪያዎች ለአሁኑ እይታ ብቻ ይተገበራሉ።"
+    }
   }
 }

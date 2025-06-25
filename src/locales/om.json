@@ -20,5 +20,96 @@
     "am": "Amaariffa",
     "om": "Oromoo",
     "ti": "Tigiriffa"
+  },
+  "finances_page": {
+    "title": "Bulchiinsa Faayinaansii",
+    "description": "Gurgurtaa, baasiiwwan hordofi, fi haala faayinaansii waliigalaa ilaali.",
+    "summary_card": {
+      "title": "Cuunfaa Faayinaansii",
+      "description": "Ulaagaalee faayinaansii murteessoo ragaa galmaa'e irratti hundaa'uun.",
+      "total_revenue": "Galii Waliigalaa",
+      "total_expenses": "Baasii Waliigalaa",
+      "net_income": "Galii Qulqulluu (Gibira Dura)"
+    },
+    "sales_tab_trigger": "Gurgurtaa",
+    "expenses_tab_trigger": "Baasiiwwan",
+    "record_sale_button": "Gurgurtaa Haaraa Galmeessi",
+    "record_expense_button": "Baasii Haaraa Galmeessi",
+    "sale_dialog": {
+      "title": "Gurgurtaa Haaraa Galmeessi",
+      "description": "Tartiiba gurgurtaa sanaa galchi. Yoo xumurte galmeessi cuqaasi."
+    },
+    "expense_dialog": {
+      "title": "Baasii Haaraa Galmeessi",
+      "description": "Tartiiba baasii sanaa galchi. Yoo xumurte galmeessi cuqaasi."
+    },
+    "loading_sales": "Gurgurtaawwan Fidaa jira...",
+    "loading_expenses": "Baasiiwwan Fidaa jira...",
+    "date_label": "Guyyaa",
+    "receipt_label": "Nagahee",
+    "sales_log_card": {
+      "title": "Galmee Gurgurtaa",
+      "description": "Galmee gurgurtaa oomishaa hunda.",
+      "no_data": "Gurgurtaan tokkollee hin galmoofne.",
+      "report_button": "Gabaasa Gurgurtaa Guutuu Ilaali"
+    },
+    "expenses_log_card": {
+      "title": "Galmee Baasiiwwanii",
+      "description": "Galmee baasiiwwan dhaabbatichaa hunda.",
+      "no_data": "Baasiin tokkollee hin galmoofne.",
+      "report_button": "Gabaasa Baasii Guutuu Ilaali"
+    },
+    "system_note": {
+      "title": "Ragaa Kuusuu",
+      "content": "Gurgurtaawwaniifi baasiiwwan amma kuusaa ragaa Supabase keessatti galmaa'anii kan irraa fudhatamanidha. Amaloonni gabaasaa guutuun fuulduratti kan hojiirra oolan ta'a."
+    }
+  },
+  "work_log_page": {
+    "title": "Galmee Hojii & Kaffaltii",
+    "description": "Hojii hojjettootaaf xumurame galmeessi fi kaffaltiiwwan galmeessi.",
+    "filter_button": "Galmee Calaqqisi",
+    "record_payment_button": "Kaffaltii Galmeessi",
+    "log_work_button": "Hojii Haaraa Galmeessi",
+    "filter_dialog": {
+      "title": "Galmee Hojii Calaqqisi",
+      "description": "Hojii galmaa'e calaqqisuuf ulaagaalee filadhu.",
+      "employee_label": "Hojjetaa",
+      "task_type_label": "Gosa Hojii",
+      "date_label": "Guyyaa",
+      "all_employees_placeholder": "Hojjettoota Hunda",
+      "all_task_types_placeholder": "Gosoota Hojii Hunda",
+      "date_placeholder": "Guyyaa filadhu",
+      "clear_button": "Calaqqiiwwan Haqii",
+      "apply_button": "Calaqqiiwwan Hojiirra Oolchi"
+    },
+    "payment_dialog": {
+      "title": "Kaffaltii Hojjetaa Galmeessi",
+      "description": "Hojjetaa filadhuutii tarree kaffaltii galchi. Kun haf-tee isaanii irraa hir'ifama."
+    },
+    "log_work_dialog": {
+      "title": "Hojii Haaraa Xumurame Galmeessi",
+      "description": "Hojjetaa, hojii, baay'ina, fi guyyaa filadhu. Kaffaltiin ni shallagama."
+    },
+    "payment_log": {
+      "title": "Galmee Kaffaltii Dhiheenyaa",
+      "description": "Galmee kaffaltii hojjettoota dhiheenyaa. Seenaa guutuu arguuf kaardii cuqaasi.",
+      "no_data": "Kaffaltiin tokkollee hin galmoofne."
+    },
+    "work_log": {
+      "title": "Galmee Hojii Xumurame",
+      "loading": "Galmee hojii fidaa jira...",
+      "description_filtered": "Ilaalcha calaqqifame. Galmee {count} agarsiisaa jira.",
+      "description_default": "Ibsa waliigalaa hojii galmaa'ee fi kaffaltiiwwan shallagaman hunda.",
+      "no_data_filtered": "Galmeen hojii calaqqiiwwan amma jiran wajjin walsimu hin jiru.",
+      "no_data": "Hojiin tokkollee hin galmoofne.",
+      "employee_label": "Hojjetaa",
+      "quantity_label": "Baay'ina",
+      "date_label": "Guyyaa",
+      "payment_label": "Kaffaltii"
+    },
+    "system_note": {
+      "title": "Yaadannoo Sirnaa",
+      "content": "Hojii galmeessuun xummura battalaa fudhachuun kaffaltii shallaga, kunis haf-tee hojjettootaa tuqa. Kaffaltiin hojjettootaas fuula kanarratti galmaa'uu danda'a. Calaqqiiwwan ilaalcha ammaaf qofa hojjiirra oolu."
+    }
   }
 }

@@ -20,5 +20,96 @@
     "am": "Amharic",
     "om": "Oromo",
     "ti": "Tigrinya"
+  },
+  "finances_page": {
+    "title": "Financial Management",
+    "description": "Track sales, expenses, and view overall financial health.",
+    "summary_card": {
+      "title": "Financial Summary",
+      "description": "Key financial metrics based on recorded data.",
+      "total_revenue": "Total Revenue",
+      "total_expenses": "Total Expenses",
+      "net_income": "Net Income (Before Tax)"
+    },
+    "sales_tab_trigger": "Sales",
+    "expenses_tab_trigger": "Expenses",
+    "record_sale_button": "Record New Sale",
+    "record_expense_button": "Record New Expense",
+    "sale_dialog": {
+      "title": "Record New Sale",
+      "description": "Enter the details of the sale transaction. Click record when you're done."
+    },
+    "expense_dialog": {
+      "title": "Record New Expense",
+      "description": "Enter the details of the expense. Click record when you're done."
+    },
+    "loading_sales": "Loading sales...",
+    "loading_expenses": "Loading expenses...",
+    "date_label": "Date",
+    "receipt_label": "Receipt",
+    "sales_log_card": {
+      "title": "Sales Log",
+      "description": "Record of all product sales.",
+      "no_data": "No sales recorded yet.",
+      "report_button": "View Full Sales Report"
+    },
+    "expenses_log_card": {
+      "title": "Expenses Log",
+      "description": "Record of all company expenses.",
+      "no_data": "No expenses recorded yet.",
+      "report_button": "View Full Expenses Report"
+    },
+    "system_note": {
+      "title": "Data Persistence",
+      "content": "Sales and expenses are now recorded in and fetched from the Supabase database. Full reporting features will be implemented in future updates."
+    }
+  },
+  "work_log_page": {
+    "title": "Work & Payment Log",
+    "description": "Log completed work for employees and record payments.",
+    "filter_button": "Filter Log",
+    "record_payment_button": "Record Payment",
+    "log_work_button": "Log New Work",
+    "filter_dialog": {
+      "title": "Filter Work Log",
+      "description": "Select criteria to filter the logged work.",
+      "employee_label": "Employee",
+      "task_type_label": "Task Type",
+      "date_label": "Date",
+      "all_employees_placeholder": "All Employees",
+      "all_task_types_placeholder": "All Task Types",
+      "date_placeholder": "Pick a date",
+      "clear_button": "Clear Filters",
+      "apply_button": "Apply Filters"
+    },
+    "payment_dialog": {
+      "title": "Record Employee Payment",
+      "description": "Select employee and enter payment details. This will deduct from their balance."
+    },
+    "log_work_dialog": {
+      "title": "Log New Completed Work",
+      "description": "Select employee, task, quantity, and date. Payment will be calculated."
+    },
+    "payment_log": {
+      "title": "Recent Payment Log",
+      "description": "A log of recent employee payments. Click a card to see full history.",
+      "no_data": "No payments recorded yet."
+    },
+    "work_log": {
+      "title": "Completed Work Log",
+      "loading": "Loading work log...",
+      "description_filtered": "Filtered view. Showing {count} records.",
+      "description_default": "Overview of all work logged and payments calculated.",
+      "no_data_filtered": "No work logs match the current filters.",
+      "no_data": "No work logged yet.",
+      "employee_label": "Employee",
+      "quantity_label": "Quantity",
+      "date_label": "Date",
+      "payment_label": "Payment"
+    },
+    "system_note": {
+      "title": "System Note",
+      "content": "Logging work assumes immediate completion and calculates payment, which affects employee balances. Employee payments can also be recorded on this page. Filters apply to the current view only."
+    }
   }
 }

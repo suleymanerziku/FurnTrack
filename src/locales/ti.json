@@ -20,5 +20,96 @@
     "am": "ኣምሓርኛ",
     "om": "ኦሮምኛ",
     "ti": "ትግርኛ"
+  },
+  "finances_page": {
+    "title": "ፋይናንሳዊ ኣመራርሓ",
+    "description": "መሸጣ፣ ወጻኢታት ተኸታተል፣ ከምኡ'ውን ሓፈሻዊ ፋይናንሳዊ ጥዕና ርአ።",
+    "summary_card": {
+      "title": "ፋይናንሳዊ መጠቃለሊ",
+      "description": " ቀንዲ ፋይናንሳዊ መዐቀኒታት ኣብ ዝተመዝገበ ዳታ ተመርኲስካ።",
+      "total_revenue": "ጠቕላላ እቶት",
+      "total_expenses": "ጠቕላላ ወጻኢታት",
+      "net_income": "ጽሩይ እቶት (ቅድሚ ታክስ)"
+    },
+    "sales_tab_trigger": "መሸጣታት",
+    "expenses_tab_trigger": "ወጻኢታት",
+    "record_sale_button": "ሓድሽ መሸጣ መዝግብ",
+    "record_expense_button": "ሓድሽ ወጻኢ መዝግብ",
+    "sale_dialog": {
+      "title": "ሓድሽ መሸጣ መዝግብ",
+      "description": "ዝርዝር ናይቲ መሸጣ ኣታዊ ግበር። ምስ ወዳእካ መዝገብ ጠውቕ።"
+    },
+    "expense_dialog": {
+      "title": "ሓድሽ ወጻኢ መዝግብ",
+      "description": "ዝርዝር ናይቲ ወጻኢ ኣታዊ ግበር። ምስ ወዳእካ መዝገብ ጠውቕ።"
+    },
+    "loading_sales": "መሸጣታት ይጽዕን ኣሎ...",
+    "loading_expenses": "ወጻኢታት ይጽዕን ኣሎ...",
+    "date_label": "ዕለት",
+    "receipt_label": "መReceipt",
+    "sales_log_card": {
+      "title": "ናይ መሸጣ መዝገብ",
+      "description": "መዝገብ ናይ ኩሉ መሸጣ ፍርያት።",
+      "no_data": "ክሳብ ሕጂ ዝተመዝገበ መሸጣ የለን።",
+      "report_button": "ሙሉእ ናይ መሸጣ ጸብጻብ ርአ"
+    },
+    "expenses_log_card": {
+      "title": "ናይ ወጻኢታት መዝገብ",
+      "description": "መዝገብ ናይ ኩሉ ወጻኢታት ኩባንያ።",
+      "no_data": "ክሳብ ሕጂ ዝተመዝገበ ወጻኢ የለን።",
+      "report_button": "ሙሉእ ናይ ወጻኢታት ጸብጻብ ርአ"
+    },
+    "system_note": {
+      "title": "ቀዋምነት ዳታ",
+      "content": "መሸጣታትን ወጻኢታትን ሕጂ ኣብ ዳታቤዝ ሱፓቤዝ ተመዝጊቦምን ተሰሒቦምን ኣለዉ። ምሉእ ናይ ጸብጻብ ባህርያት ኣብ መጻኢ ዝመጽእ ዕደሳታት ክትግበሩ እዮም።"
+    }
+  },
+  "work_log_page": {
+    "title": "ናይ ስራሕን ክፍሊትን መዝገብ",
+    "description": "ንሰራሕተኛታት ዝተዛዘመ ስራሕ መዝግብን ክፍሊታት መዝግብን።",
+    "filter_button": "መዝገብ ኣጽርዮ",
+    "record_payment_button": "ክፍሊት መዝግብ",
+    "log_work_button": "ሓድሽ ስራሕ መዝግብ",
+    "filter_dialog": {
+      "title": "ናይ ስራሕ መዝገብ ኣጽርዮ",
+      "description": "ነቲ ዝተመዝገበ ስራሕ ንምጽራይ መዐቀኒታት ምረጽ።",
+      "employee_label": "ሰራሕተኛ",
+      "task_type_label": "ዓይነት ዕማም",
+      "date_label": "ዕለት",
+      "all_employees_placeholder": "ኩሎም ሰራሕተኛታት",
+      "all_task_types_placeholder": "ኩሎም ዓይነታት ዕማማት",
+      "date_placeholder": "ዕለት ምረጽ",
+      "clear_button": "መጽረይቲ ኣጽሪ",
+      "apply_button": "መጽረይቲ ተግብር"
+    },
+    "payment_dialog": {
+      "title": "ናይ ሰራሕተኛ ክፍሊት መዝግብ",
+      "description": "ሰራሕተኛ ምረጽ እሞ ዝርዝር ክፍሊት ኣታዊ ግበር። እዚ ካብቲ ዝተረፈ ገንዘቦም ክጎድል እዩ።"
+    },
+    "log_work_dialog": {
+      "title": "ሓድሽ ዝተዛዘመ ስራሕ መዝግብ",
+      "description": "ሰራሕተኛ፣ ዕማም፣ ብዝሒን ዕለትን ምረጽ። ክፍሊት ክሕሰብ እዩ።"
+    },
+    "payment_log": {
+      "title": "ናይ ቀረባ ግዜ ናይ ክፍሊት መዝገብ",
+      "description": "ናይ ቀረባ ግዜ ናይ ሰራሕተኛታት ክፍሊታት መዝገብ። ምሉእ ታሪኽ ንምርኣይ ኣብ ካርድ ጠውቕ።",
+      "no_data": "ክሳብ ሕጂ ዝተመዝገበ ክፍሊት የለን።"
+    },
+    "work_log": {
+      "title": "ዝተዛዘመ ናይ ስራሕ መዝገብ",
+      "loading": "ናይ ስራሕ መዝገብ ይጽዕን ኣሎ...",
+      "description_filtered": "ዝተጻረየ ምርኣይ። {count} መዝገባት የርኢ ኣሎ።",
+      "description_default": "ሓፈሻዊ ትርኢት ናይ ኩሉ ዝተመዝገበ ስራሕን ዝተሓሰበ ክፍሊታትን።",
+      "no_data_filtered": " ምስቲ ዘሎ መጽረይቲ ዝሰማማዕ ናይ ስራሕ መዝገብ የለን።",
+      "no_data": "ክሳብ ሕጂ ዝተመዝገበ ስራሕ የለን።",
+      "employee_label": "ሰራሕተኛ",
+      "quantity_label": "ብዝሒ",
+      "date_label": "ዕለት",
+      "payment_label": "ክፍሊት"
+    },
+    "system_note": {
+      "title": "ናይ ስርዓት መዘኻኸሪ",
+      "content": "ስራሕ ምምዝጋብ ብኡ ንብኡ ምዝዛም ገይሩ ይወስድን ክፍሊት ይሕሰብን፣ እዚ ድማ ኣብ ሚዛን ሰራሕተኛታት ጽልዋ ይገብር። ክፍሊታት ሰራሕተኛታት ኣብዚ ገጽ እዚ ክምዝገቡ ይኽእሉ እዮም። መጽረይቲታት ነቲ ዘሎ ትርኢት ጥራይ እዮም ዝምልከቱ።"
+    }
   }
 }

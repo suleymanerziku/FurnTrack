@@ -39,9 +39,11 @@ import { useToast } from "@/hooks/use-toast";
 import EmployeeTransactionHistoryDialog from "@/components/employees/EmployeeTransactionHistoryDialog";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/locales/client";
 
 export default function WorkLogPage() {
   const { toast } = useToast();
+  const t = useI18n();
   const [isTaskFormOpen, setIsTaskFormOpen] = React.useState(false);
   const [isPaymentFormOpen, setIsPaymentFormOpen] = React.useState(false);
   const [loggedWork, setLoggedWork] = React.useState<AssignedTask[]>([]);
@@ -119,36 +121,36 @@ export default function WorkLogPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight font-headline">Work &amp; Payment Log</h2>
+          <h2 className="text-2xl font-bold tracking-tight font-headline">{t('work_log_page.title')}</h2>
           <p className="text-muted-foreground">
-            Log completed work for employees and record payments.
+            {t('work_log_page.description')}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Dialog open={isFilterDialogOpen} onOpenChange={setIsFilterDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="w-full sm:w-auto" onClick={handleOpenFilterDialog}>
-                <ListFilter className="mr-2 h-4 w-4" /> Filter Log
+                <ListFilter className="mr-2 h-4 w-4" /> {t('work_log_page.filter_button')}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Filter Work Log</DialogTitle>
+                <DialogTitle>{t('work_log_page.filter_dialog.title')}</DialogTitle>
                 <DialogDescription>
-                  Select criteria to filter the logged work.
+                  {t('work_log_page.filter_dialog.description')}
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="filter-employee" className="text-right col-span-1">
-                    Employee
+                    {t('work_log_page.filter_dialog.employee_label')}
                   </Label>
                   <Select
                     value={currentEmployeeFilter}
                     onValueChange={setCurrentEmployeeFilter}
                   >
                     <SelectTrigger id="filter-employee" className="col-span-3">
-                      <SelectValue placeholder="All Employees" />
+                      <SelectValue placeholder={t('work_log_page.filter_dialog.all_employees_placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {employees.map(emp => (
@@ -161,14 +163,14 @@ export default function WorkLogPage() {
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="filter-task-type" className="text-right col-span-1">
-                    Task Type
+                    {t('work_log_page.filter_dialog.task_type_label')}
                   </Label>
                   <Select
                     value={currentTaskTypeFilter}
                     onValueChange={setCurrentTaskTypeFilter}
                   >
                     <SelectTrigger id="filter-task-type" className="col-span-3">
-                      <SelectValue placeholder="All Task Types" />
+                      <SelectValue placeholder={t('work_log_page.filter_dialog.all_task_types_placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {taskTypes.map(task => (
@@ -181,7 +183,7 @@ export default function WorkLogPage() {
                 </div>
                  <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="filter-date" className="text-right">
-                    Date
+                    {t('work_log_page.filter_dialog.date_label')}
                   </Label>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -193,7 +195,7 @@ export default function WorkLogPage() {
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {currentDateFilter ? format(currentDateFilter, "PPP") : <span>Pick a date</span>}
+                        {currentDateFilter ? format(currentDateFilter, "PPP") : <span>{t('work_log_page.filter_dialog.date_placeholder')}</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
@@ -208,23 +210,23 @@ export default function WorkLogPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={handleClearFilters}>Clear Filters</Button>
-                <Button onClick={handleApplyFilters}>Apply Filters</Button>
+                <Button variant="outline" onClick={handleClearFilters}>{t('work_log_page.filter_dialog.clear_button')}</Button>
+                <Button onClick={handleApplyFilters}>{t('work_log_page.filter_dialog.apply_button')}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
 
           <Dialog open={isPaymentFormOpen} onOpenChange={setIsPaymentFormOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="w-full sm:w-auto">
-                <MinusCircle className="mr-2 h-4 w-4" /> Record Payment
+              <Button className="w-full sm:w-auto border border-destructive/30 text-destructive bg-destructive/10 hover:bg-destructive/20 hover:text-destructive">
+                <MinusCircle className="mr-2 h-4 w-4" /> {t('work_log_page.record_payment_button')}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Record Employee Payment</DialogTitle>
+                <DialogTitle>{t('work_log_page.payment_dialog.title')}</DialogTitle>
                 <DialogDescription>
-                  Select employee and enter payment details. This will deduct from their balance.
+                  {t('work_log_page.payment_dialog.description')}
                 </DialogDescription>
               </DialogHeader>
               <EmployeePaymentForm
@@ -238,14 +240,14 @@ export default function WorkLogPage() {
           <Dialog open={isTaskFormOpen} onOpenChange={setIsTaskFormOpen}>
             <DialogTrigger asChild>
               <Button className="w-full sm:w-auto">
-                <PlusCircle className="mr-2 h-4 w-4" /> Log New Work
+                <PlusCircle className="mr-2 h-4 w-4" /> {t('work_log_page.log_work_button')}
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[520px] flex flex-col max-h-[85vh]">
               <DialogHeader className="shrink-0">
-                <DialogTitle>Log New Completed Work</DialogTitle>
+                <DialogTitle>{t('work_log_page.log_work_dialog.title')}</DialogTitle>
                 <DialogDescription>
-                  Select employee, task, quantity, and date. Payment will be calculated.
+                  {t('work_log_page.log_work_dialog.description')}
                 </DialogDescription>
               </DialogHeader>
               <ScrollArea className="flex-grow p-4">
@@ -263,9 +265,9 @@ export default function WorkLogPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Recent Payment Log</CardTitle>
+          <CardTitle>{t('work_log_page.payment_log.title')}</CardTitle>
           <CardDescription>
-            A log of recent employee payments. Click a card to see full history.
+            {t('work_log_page.payment_log.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -308,7 +310,7 @@ export default function WorkLogPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-muted-foreground py-4">No payments recorded yet.</p>
+              <p className="text-center text-muted-foreground py-4">{t('work_log_page.payment_log.no_data')}</p>
             )}
           </ScrollArea>
         </CardContent>
@@ -316,18 +318,18 @@ export default function WorkLogPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Completed Work Log</CardTitle>
+          <CardTitle>{t('work_log_page.work_log.title')}</CardTitle>
           <CardDescription>
             {isAnyFilterActive 
-              ? `Filtered view. Showing ${loggedWork.length} records.`
-              : "Overview of all work logged and payments calculated." }
+              ? t('work_log_page.work_log.description_filtered', { count: loggedWork.length })
+              : t('work_log_page.work_log.description_default') }
             </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
              <div className="flex justify-center items-center py-10">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="ml-2 text-muted-foreground">Loading work log...</p>
+                <p className="ml-2 text-muted-foreground">{t('work_log_page.work_log.loading')}</p>
             </div>
           ) : loggedWork.length > 0 ? (
             <div className="space-y-3">
@@ -337,9 +339,9 @@ export default function WorkLogPage() {
                     <button className="w-full text-left p-4 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between sm:items-start hover:bg-muted/50 transition-colors">
                       <div className="mb-2 sm:mb-0">
                         <h3 className="font-semibold font-headline">{task.task_name || `Task ID: ${task.task_type_id}`}</h3>
-                        <p className="text-sm text-muted-foreground">Employee: {task.employee_name || `Emp. ID: ${task.employee_id}`}</p>
+                        <p className="text-sm text-muted-foreground">{t('work_log_page.work_log.employee_label')}: {task.employee_name || `Emp. ID: ${task.employee_id}`}</p>
                         <p className="text-sm text-muted-foreground">
-                          Quantity: {task.quantity_completed} | Date: {new Date(task.date_assigned).toLocaleDateString()} | Payment: ${task.total_payment.toFixed(2)}
+                          {t('work_log_page.work_log.quantity_label')}: {task.quantity_completed} | {t('work_log_page.work_log.date_label')}: {new Date(task.date_assigned).toLocaleDateString()} | {t('work_log_page.work_log.payment_label')}: ${task.total_payment.toFixed(2)}
                         </p>
                       </div>
                       <Badge variant="default" className="mt-2 sm:mt-0 self-start sm:self-center">
@@ -354,20 +356,19 @@ export default function WorkLogPage() {
           ) : (
             <p className="text-muted-foreground">
               { isAnyFilterActive && employees.length > 0 && taskTypes.length > 0
-                ? "No work logs match the current filters."
-                : "No work logged yet."
+                ? t('work_log_page.work_log.no_data_filtered')
+                : t('work_log_page.work_log.no_data')
               }
             </p>
           )}
         </CardContent>
       </Card>
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
-        <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">System Note</h3>
+        <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">{t('work_log_page.system_note.title')}</h3>
         <p className="text-sm text-accent-foreground/70">
-          Logging work assumes immediate completion and calculates payment, which affects employee balances. Employee payments can also be recorded on this page. Filters apply to the current view only.
+          {t('work_log_page.system_note.content')}
         </p>
       </div>
     </div>
   );
 }
-

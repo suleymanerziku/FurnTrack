@@ -19,9 +19,11 @@ import RecordExpenseForm from "@/components/finances/RecordExpenseForm";
 import type { Sale, Expense, FinancialSummary } from "@/lib/types";
 import { getSales, getExpenses, getFinancialSummaryForPeriod } from "@/lib/actions/finance.actions";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/locales/client";
 
 export default function FinancesPage() {
   const { toast } = useToast();
+  const t = useI18n();
   const [activeTab, setActiveTab] = React.useState("sales");
   const [isSaleFormOpen, setIsSaleFormOpen] = React.useState(false);
   const [isExpenseFormOpen, setIsExpenseFormOpen] = React.useState(false);
@@ -61,16 +63,16 @@ export default function FinancesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Financial Management</h2>
+        <h2 className="text-2xl font-bold tracking-tight font-headline">{t('finances_page.title')}</h2>
         <p className="text-muted-foreground">
-          Track sales, expenses, and view overall financial health.
+          {t('finances_page.description')}
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Financial Summary</CardTitle>
-          <CardDescription>Key financial metrics based on recorded data.</CardDescription>
+          <CardTitle className="font-headline">{t('finances_page.summary_card.title')}</CardTitle>
+          <CardDescription>{t('finances_page.summary_card.description')}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {isLoading || !financialSummary ? (
@@ -89,21 +91,21 @@ export default function FinancesPage() {
             <>
               <div className="p-4 bg-green-500/10 rounded-lg flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-green-700 dark:text-green-400">Total Revenue</p>
+                  <p className="text-sm font-medium text-green-700 dark:text-green-400">{t('finances_page.summary_card.total_revenue')}</p>
                   <p className="text-2xl font-bold font-headline text-green-600 dark:text-green-300">${(financialSummary.totalRevenue || 0).toFixed(2)}</p>
                 </div>
                 <TrendingUp className="h-6 w-6 text-green-500" />
               </div>
               <div className="p-4 bg-red-500/10 rounded-lg flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-red-700 dark:text-red-400">Total Expenses</p>
+                  <p className="text-sm font-medium text-red-700 dark:text-red-400">{t('finances_page.summary_card.total_expenses')}</p>
                   <p className="text-2xl font-bold font-headline text-red-600 dark:text-red-300">${(financialSummary.totalExpenses || 0).toFixed(2)}</p>
                 </div>
                 <TrendingDown className="h-6 w-6 text-red-500" />
               </div>
               <div className="p-4 bg-primary/10 rounded-lg flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-primary">Net Income (Before Tax)</p>
+                  <p className="text-sm font-medium text-primary">{t('finances_page.summary_card.net_income')}</p>
                   <p className="text-2xl font-bold font-headline text-primary">${(financialSummary.netIncome || 0).toFixed(2)}</p>
                 </div>
                 <DollarSign className="h-6 w-6 text-primary" />
@@ -116,23 +118,21 @@ export default function FinancesPage() {
       <Tabs defaultValue="sales" className="space-y-4" onValueChange={setActiveTab} value={activeTab}>
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:grid-cols-2">
-            <TabsTrigger value="sales">Sales</TabsTrigger>
-            <TabsTrigger value="expenses">Expenses</TabsTrigger>
+            <TabsTrigger value="sales">{t('finances_page.sales_tab_trigger')}</TabsTrigger>
+            <TabsTrigger value="expenses">{t('finances_page.expenses_tab_trigger')}</TabsTrigger>
           </TabsList>
           
           {activeTab === "sales" ? (
             <Dialog open={isSaleFormOpen} onOpenChange={setIsSaleFormOpen}>
               <DialogTrigger asChild>
                 <Button className="w-full sm:w-auto">
-                  <PlusCircle className="mr-2 h-4 w-4" /> Record New Sale
+                  <PlusCircle className="mr-2 h-4 w-4" /> {t('finances_page.record_sale_button')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                  <DialogTitle>Record New Sale</DialogTitle>
-                  <DialogDescription>
-                    Enter the details of the sale transaction. Click record when you're done.
-                  </DialogDescription>
+                  <DialogTitle>{t('finances_page.sale_dialog.title')}</DialogTitle>
+                  <DialogDescription>{t('finances_page.sale_dialog.description')}</DialogDescription>
                 </DialogHeader>
                 <RecordSaleForm setOpen={setIsSaleFormOpen} onSuccess={handleFormSuccess} />
               </DialogContent>
@@ -141,15 +141,13 @@ export default function FinancesPage() {
             <Dialog open={isExpenseFormOpen} onOpenChange={setIsExpenseFormOpen}>
               <DialogTrigger asChild>
                 <Button className="w-full sm:w-auto">
-                  <PlusCircle className="mr-2 h-4 w-4" /> Record New Expense
+                  <PlusCircle className="mr-2 h-4 w-4" /> {t('finances_page.record_expense_button')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                  <DialogTitle>Record New Expense</DialogTitle>
-                  <DialogDescription>
-                    Enter the details of the expense. Click record when you're done.
-                  </DialogDescription>
+                  <DialogTitle>{t('finances_page.expense_dialog.title')}</DialogTitle>
+                  <DialogDescription>{t('finances_page.expense_dialog.description')}</DialogDescription>
                 </DialogHeader>
                 <RecordExpenseForm setOpen={setIsExpenseFormOpen} onSuccess={handleFormSuccess} />
               </DialogContent>
@@ -159,65 +157,65 @@ export default function FinancesPage() {
         <TabsContent value="sales">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Sales Log</CardTitle>
-              <CardDescription>Record of all product sales.</CardDescription>
+              <CardTitle className="font-headline">{t('finances_page.sales_log_card.title')}</CardTitle>
+              <CardDescription>{t('finances_page.sales_log_card.description')}</CardDescription>
             </CardHeader>
             <CardContent>
               {isLoading ? (
                 <div className="flex items-center justify-center py-4">
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading sales...
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" /> {t('finances_page.loading_sales')}
                 </div>
               ) : salesData.length > 0 ? (
                 salesData.map(sale => (
                   <div key={sale.id} className="py-2 border-b last:border-b-0">
                     <p className="font-medium">{sale.product_name} - <span className="text-green-600">${sale.amount.toFixed(2)}</span></p>
-                    <p className="text-xs text-muted-foreground">Date: {new Date(sale.date).toLocaleDateString()}</p>
-                    {sale.receipt_number && <p className="text-xs text-muted-foreground">Receipt: {sale.receipt_number}</p>}
+                    <p className="text-xs text-muted-foreground">{t('finances_page.date_label')}: {new Date(sale.date).toLocaleDateString()}</p>
+                    {sale.receipt_number && <p className="text-xs text-muted-foreground">{t('finances_page.receipt_label')}: {sale.receipt_number}</p>}
                   </div>
                 ))
               ) : (
-                <p className="text-muted-foreground">No sales recorded yet.</p>
+                <p className="text-muted-foreground">{t('finances_page.sales_log_card.no_data')}</p>
               )}
             </CardContent>
             <CardFooter>
-                <Button variant="outline" size="sm" disabled><ListOrdered className="mr-2 h-3 w-3" /> View Full Sales Report</Button>
+                <Button variant="outline" size="sm" disabled><ListOrdered className="mr-2 h-3 w-3" /> {t('finances_page.sales_log_card.report_button')}</Button>
             </CardFooter>
           </Card>
         </TabsContent>
         <TabsContent value="expenses">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Expenses Log</CardTitle>
-              <CardDescription>Record of all company expenses.</CardDescription>
+              <CardTitle className="font-headline">{t('finances_page.expenses_log_card.title')}</CardTitle>
+              <CardDescription>{t('finances_page.expenses_log_card.description')}</CardDescription>
             </CardHeader>
             <CardContent>
                {isLoading ? (
                 <div className="flex items-center justify-center py-4">
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Loading expenses...
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" /> {t('finances_page.loading_expenses')}
                 </div>
               ) : expensesData.length > 0 ? (
                 expensesData.map(expense => (
                   <div key={expense.id} className="py-2 border-b last:border-b-0">
                     <p className="font-medium">{expense.description} - <span className="text-red-600">${expense.amount.toFixed(2)}</span></p>
-                    <p className="text-xs text-muted-foreground">Date: {new Date(expense.date).toLocaleDateString()}</p>
-                    {expense.receipt_number && <p className="text-xs text-muted-foreground">Receipt: {expense.receipt_number}</p>}
+                    <p className="text-xs text-muted-foreground">{t('finances_page.date_label')}: {new Date(expense.date).toLocaleDateString()}</p>
+                    {expense.receipt_number && <p className="text-xs text-muted-foreground">{t('finances_page.receipt_label')}: {expense.receipt_number}</p>}
                   </div>
                 ))
               ) : (
-                <p className="text-muted-foreground">No expenses recorded yet.</p>
+                <p className="text-muted-foreground">{t('finances_page.expenses_log_card.no_data')}</p>
               )}
             </CardContent>
              <CardFooter>
-                <Button variant="outline" size="sm" disabled><ListOrdered className="mr-2 h-3 w-3" /> View Full Expenses Report</Button>
+                <Button variant="outline" size="sm" disabled><ListOrdered className="mr-2 h-3 w-3" /> {t('finances_page.expenses_log_card.report_button')}</Button>
             </CardFooter>
           </Card>
         </TabsContent>
       </Tabs>
 
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
-        <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">Data Persistence</h3>
+        <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">{t('finances_page.system_note.title')}</h3>
         <p className="text-sm text-accent-foreground/70">
-          Sales and expenses are now recorded in and fetched from the Supabase database. Full reporting features will be implemented in future updates.
+          {t('finances_page.system_note.content')}
         </p>
       </div>
     </div>
