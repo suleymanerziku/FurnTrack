@@ -116,12 +116,6 @@ export default function LoginForm() {
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Log In
         </Button>
-        <div className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link href="/auth/register" className="font-medium text-primary hover:underline">
-            Sign up
-          </Link>
-        </div>
       </form>
     </Form>
   );
