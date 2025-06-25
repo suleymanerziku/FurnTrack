@@ -77,6 +77,7 @@ function MainLayout({ children, user }: AppLayoutProps) {
     ];
 
     const getPageTitle = () => {
+        if (pathname === '/settings') return t('navigation.settings');
         if (pathname === '/settings/users') return "User Management";
         if (pathname === '/settings/profile') return "Profile Settings";
         if (pathname === '/settings/task-types') return "Task Type Management";
