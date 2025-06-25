@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ListFilter, CheckCircle, Loader2, MinusCircle } from "lucide-react";
+import { PlusCircle, ListFilter, CheckCircle, Loader2, MinusCircle, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -30,6 +30,8 @@ import type { AssignedTask, Employee, TaskType } from "@/lib/types";
 import { getLoggedWork, getTaskTypes } from "@/lib/actions/task.actions";
 import { getEmployeesWithBalances } from "@/lib/actions/employee.actions";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export default function WorkLogPage() {
   const { toast } = useToast();
@@ -214,6 +216,58 @@ export default function WorkLogPage() {
           </Dialog>
         </div>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Employee Balances</CardTitle>
+          <CardDescription>
+            A summary of employee balances. Click on an employee to view their detailed transaction history.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="h-[240px] pr-4">
+            {isLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="p-4 border rounded-lg flex justify-between items-center animate-pulse">
+                    <div className="space-y-2">
+                      <div className="h-4 bg-muted-foreground/20 rounded w-24"></div>
+                      <div className="h-3 bg-muted-foreground/20 rounded w-32"></div>
+                    </div>
+                    <div className="h-6 bg-muted-foreground/30 rounded w-20"></div>
+                  </div>
+                ))}
+              </div>
+            ) : employees.length > 0 ? (
+              <div className="space-y-3">
+                {employees.map(emp => (
+                  <Link key={emp.id} href={`/settings/employees/${emp.id}`} legacyBehavior>
+                    <a className="block p-4 border rounded-lg shadow-sm hover:bg-muted/50 transition-colors">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h3 className="font-semibold font-headline">{emp.name}</h3>
+                          <p className="text-sm text-muted-foreground">{emp.role || 'N/A'}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className={`text-sm font-semibold ${(emp.pending_balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            Balance: ${(emp.pending_balance || 0).toFixed(2)}
+                          </p>
+                          <div className="flex items-center justify-end text-xs text-muted-foreground mt-1">
+                            <span>View History</span>
+                            <Eye className="ml-1.5 h-3 w-3" />
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-4">No employees found.</p>
+            )}
+          </ScrollArea>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
