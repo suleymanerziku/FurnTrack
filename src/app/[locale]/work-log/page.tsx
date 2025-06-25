@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ListFilter, CheckCircle, Loader2, MinusCircle } from "lucide-react";
+import { PlusCircle, ListFilter, CheckCircle, Loader2, MinusCircle, CalendarIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -15,6 +15,12 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Select,
   SelectContent,
@@ -32,6 +38,7 @@ import { getEmployeesWithBalances, getRecentPayments } from "@/lib/actions/emplo
 import { useToast } from "@/hooks/use-toast";
 import EmployeeTransactionHistoryDialog from "@/components/employees/EmployeeTransactionHistoryDialog";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export default function WorkLogPage() {
   const { toast } = useToast();
@@ -46,13 +53,15 @@ export default function WorkLogPage() {
   const [isFilterDialogOpen, setIsFilterDialogOpen] = React.useState(false);
   const [currentEmployeeFilter, setCurrentEmployeeFilter] = React.useState<string>("");
   const [currentTaskTypeFilter, setCurrentTaskTypeFilter] = React.useState<string>("");
+  const [currentDateFilter, setCurrentDateFilter] = React.useState<Date | undefined>(undefined);
 
   const [appliedFilters, setAppliedFilters] = React.useState<{
     employeeId: string | null;
     taskTypeId: string | null;
-  }>({ employeeId: null, taskTypeId: null });
+    date: Date | null;
+  }>({ employeeId: null, taskTypeId: null, date: null });
 
-  const fetchData = async (filters?: { employeeId?: string | null, taskTypeId?: string | null }) => {
+  const fetchData = async (filters?: { employeeId?: string | null, taskTypeId?: string | null, date?: Date | null }) => {
     setIsLoading(true);
     try {
       const [workData, employeesData, taskTypesData, paymentsData] = await Promise.all([
@@ -83,6 +92,7 @@ export default function WorkLogPage() {
   const handleOpenFilterDialog = () => {
     setCurrentEmployeeFilter(appliedFilters.employeeId || "");
     setCurrentTaskTypeFilter(appliedFilters.taskTypeId || "");
+    setCurrentDateFilter(appliedFilters.date || undefined);
     setIsFilterDialogOpen(true);
   };
 
@@ -90,6 +100,7 @@ export default function WorkLogPage() {
     setAppliedFilters({
       employeeId: currentEmployeeFilter || null,
       taskTypeId: currentTaskTypeFilter || null,
+      date: currentDateFilter || null,
     });
     setIsFilterDialogOpen(false);
   };
@@ -97,9 +108,12 @@ export default function WorkLogPage() {
   const handleClearFilters = () => {
     setCurrentEmployeeFilter("");
     setCurrentTaskTypeFilter("");
-    setAppliedFilters({ employeeId: null, taskTypeId: null });
+    setCurrentDateFilter(undefined);
+    setAppliedFilters({ employeeId: null, taskTypeId: null, date: null });
     setIsFilterDialogOpen(false);
   };
+  
+  const isAnyFilterActive = appliedFilters.employeeId || appliedFilters.taskTypeId || appliedFilters.date;
   
   return (
     <div className="space-y-6">
@@ -164,6 +178,33 @@ export default function WorkLogPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                 <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="filter-date" className="text-right">
+                    Date
+                  </Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "col-span-3 justify-start text-left font-normal",
+                          !currentDateFilter && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {currentDateFilter ? format(currentDateFilter, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={currentDateFilter}
+                        onSelect={(date) => setCurrentDateFilter(date || undefined)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
               <DialogFooter>
@@ -277,7 +318,7 @@ export default function WorkLogPage() {
         <CardHeader>
           <CardTitle>Completed Work Log</CardTitle>
           <CardDescription>
-            {(appliedFilters.employeeId || appliedFilters.taskTypeId) 
+            {isAnyFilterActive 
               ? `Filtered view. Showing ${loggedWork.length} records.`
               : "Overview of all work logged and payments calculated." }
             </CardDescription>
@@ -312,7 +353,7 @@ export default function WorkLogPage() {
             </div>
           ) : (
             <p className="text-muted-foreground">
-              { (appliedFilters.employeeId || appliedFilters.taskTypeId) && employees.length > 0 && taskTypes.length > 0
+              { isAnyFilterActive && employees.length > 0 && taskTypes.length > 0
                 ? "No work logs match the current filters."
                 : "No work logged yet."
               }
@@ -329,3 +370,4 @@ export default function WorkLogPage() {
     </div>
   );
 }
+

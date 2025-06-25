@@ -6,6 +6,7 @@ import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { revalidatePath } from 'next/cache';
 import type { Database } from '../database.types';
+import { format } from 'date-fns';
 
 export async function getTaskTypes(): Promise<TaskType[]> {
   const cookieStore = cookies();
@@ -209,7 +210,7 @@ export async function getAssignedTasks(): Promise<AssignedTask[]> {
   })) as AssignedTask[];
 }
 
-export async function getLoggedWork(filters?: { employeeId?: string | null, taskTypeId?: string | null }): Promise<AssignedTask[]> {
+export async function getLoggedWork(filters?: { employeeId?: string | null, taskTypeId?: string | null, date?: Date | null }): Promise<AssignedTask[]> {
   const cookieStore = cookies();
   const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
 
@@ -236,6 +237,10 @@ export async function getLoggedWork(filters?: { employeeId?: string | null, task
   }
   if (filters?.taskTypeId) {
     query = query.eq('task_type_id', filters.taskTypeId);
+  }
+  if (filters?.date) {
+    const formattedDate = format(filters.date, 'yyyy-MM-dd');
+    query = query.eq('date_assigned', formattedDate);
   }
   
   const { data, error } = await query;
