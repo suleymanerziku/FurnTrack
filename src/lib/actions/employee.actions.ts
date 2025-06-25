@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { EmployeeFormData, WithdrawalFormData, Employee, EmployeeDetailsPageData, EmployeeTransaction } from '@/lib/types';
+import type { EmployeeFormData, WithdrawalFormData, Employee, EmployeeDetailsPageData, EmployeeTransaction, Payment } from '@/lib/types';
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { revalidatePath } from 'next/cache';
@@ -161,6 +161,7 @@ export async function recordWithdrawal(data: WithdrawalFormData): Promise<{ succ
     return { success: false, message: "Failed to record withdrawal, no data returned." };
   }
   
+  revalidatePath('/work-log');
   revalidatePath('/settings/employees'); 
   revalidatePath(`/settings/employees/${data.employee_id}`);
   revalidatePath('/'); // For dashboard updates
@@ -313,4 +314,31 @@ export async function getBasicEmployees(): Promise<Pick<Employee, 'id' | 'name' 
     return [];
   }
   return data || [];
+}
+
+export async function getRecentWithdrawals(limit = 10): Promise<Payment[]> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
+  const { data, error } = await supabase
+    .from('payments')
+    .select(`
+      *,
+      employees ( name )
+    `)
+    .eq('payment_type', 'Withdrawal')
+    .order('date', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("Error fetching recent withdrawals:", error);
+    return [];
+  }
+  if (!data) return [];
+  
+  return data.map(item => ({
+    ...item,
+    employee_name: (item.employees as unknown as {name: string} | null)?.name || 'Unknown Employee',
+  })) as Payment[];
 }

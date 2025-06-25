@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ListFilter, CheckCircle, Loader2, MinusCircle, Eye } from "lucide-react";
+import { PlusCircle, ListFilter, CheckCircle, Loader2, MinusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -26,12 +26,12 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import TaskAssignmentForm from "@/components/tasks/TaskAssignmentForm";
 import EmployeeWithdrawalForm from "@/components/employees/EmployeeWithdrawalForm";
-import type { AssignedTask, Employee, TaskType } from "@/lib/types";
+import type { AssignedTask, Employee, TaskType, Payment } from "@/lib/types";
 import { getLoggedWork, getTaskTypes } from "@/lib/actions/task.actions";
-import { getEmployeesWithBalances } from "@/lib/actions/employee.actions";
+import { getEmployeesWithBalances, getRecentWithdrawals } from "@/lib/actions/employee.actions";
 import { useToast } from "@/hooks/use-toast";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import EmployeeTransactionHistoryDialog from "@/components/employees/EmployeeTransactionHistoryDialog";
+import { format } from "date-fns";
 
 export default function WorkLogPage() {
   const { toast } = useToast();
@@ -40,6 +40,7 @@ export default function WorkLogPage() {
   const [loggedWork, setLoggedWork] = React.useState<AssignedTask[]>([]);
   const [employees, setEmployees] = React.useState<Employee[]>([]);
   const [taskTypes, setTaskTypes] = React.useState<TaskType[]>([]);
+  const [recentWithdrawals, setRecentWithdrawals] = React.useState<Payment[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   const [isFilterDialogOpen, setIsFilterDialogOpen] = React.useState(false);
@@ -54,14 +55,16 @@ export default function WorkLogPage() {
   const fetchData = async (filters?: { employeeId?: string | null, taskTypeId?: string | null }) => {
     setIsLoading(true);
     try {
-      const [workData, employeesData, taskTypesData] = await Promise.all([
+      const [workData, employeesData, taskTypesData, withdrawalsData] = await Promise.all([
         getLoggedWork(filters),
         getEmployeesWithBalances(),
         getTaskTypes(),
+        getRecentWithdrawals(),
       ]);
       setLoggedWork(workData);
       setEmployees(employeesData);
       setTaskTypes(taskTypesData);
+      setRecentWithdrawals(withdrawalsData);
     } catch (error) {
       console.error("Failed to fetch data for work log", error);
       toast({ variant: "destructive", title: "Error", description: "Could not load data for work log." });
@@ -71,7 +74,7 @@ export default function WorkLogPage() {
 
   React.useEffect(() => {
     fetchData(appliedFilters);
-  }, [appliedFilters]);
+  }, [appliedFilters, toast]);
 
   const handleFormSuccess = () => {
     fetchData(appliedFilters);
@@ -219,9 +222,9 @@ export default function WorkLogPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Employee Balances</CardTitle>
+          <CardTitle>Recent Withdrawal Log</CardTitle>
           <CardDescription>
-            A summary of employee balances. Click on an employee to view their detailed transaction history.
+            A log of recent employee withdrawals. Click a name to see full history.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -238,32 +241,31 @@ export default function WorkLogPage() {
                   </div>
                 ))}
               </div>
-            ) : employees.length > 0 ? (
+            ) : recentWithdrawals.length > 0 ? (
               <div className="space-y-3">
-                {employees.map(emp => (
-                  <Link key={emp.id} href={`/settings/employees/${emp.id}`} legacyBehavior>
-                    <a className="block p-4 border rounded-lg shadow-sm hover:bg-muted/50 transition-colors">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h3 className="font-semibold font-headline">{emp.name}</h3>
-                          <p className="text-sm text-muted-foreground">{emp.role || 'N/A'}</p>
+                {recentWithdrawals.map(wd => (
+                  <div key={wd.id} className="p-3 border rounded-lg shadow-sm hover:bg-muted/50 transition-colors">
+                    <div className="grid grid-cols-3 gap-4 items-center">
+                        <div className="col-span-2">
+                           <EmployeeTransactionHistoryDialog employeeId={wd.employee_id} employeeName={wd.employee_name || 'N/A'}>
+                              <button className="font-semibold font-headline text-primary hover:underline text-left">
+                                {wd.employee_name || 'N/A'}
+                              </button>
+                           </EmployeeTransactionHistoryDialog>
+                           <p className="text-xs text-muted-foreground">{format(new Date(wd.date), "PPP")}</p>
                         </div>
                         <div className="text-right">
-                          <p className={`text-sm font-semibold ${(emp.pending_balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            Balance: ${(emp.pending_balance || 0).toFixed(2)}
-                          </p>
-                          <div className="flex items-center justify-end text-xs text-muted-foreground mt-1">
-                            <span>View History</span>
-                            <Eye className="ml-1.5 h-3 w-3" />
-                          </div>
+                           <p className="text-lg font-bold text-red-600">
+                             -${wd.amount.toFixed(2)}
+                           </p>
+                           <p className="text-xs text-muted-foreground truncate" title={wd.notes || ''}>{wd.notes || 'No notes'}</p>
                         </div>
-                      </div>
-                    </a>
-                  </Link>
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-muted-foreground py-4">No employees found.</p>
+              <p className="text-center text-muted-foreground py-4">No withdrawals recorded yet.</p>
             )}
           </ScrollArea>
         </CardContent>
