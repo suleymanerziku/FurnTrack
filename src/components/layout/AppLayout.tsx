@@ -58,6 +58,13 @@ interface AppLayoutProps {
   user: (SupabaseAuthUser & Partial<AppUser>) | null;
 }
 
+interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  disabled?: boolean;
+}
+
 // This component contains the main layout and consumes the sidebar context.
 function MainLayout({ children, user }: AppLayoutProps) {
     const fullPathname = usePathname();
@@ -185,9 +192,6 @@ function MainLayout({ children, user }: AppLayoutProps) {
                     </p>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => router.push('/settings/profile')} className="cursor-pointer">
-                    Profile
-                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
