@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ActivityItem } from "@/lib/types";
@@ -5,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DollarSign, ShoppingCart, Briefcase, UserCheck, Tag } from "lucide-react";
 import { formatDistanceToNow } from 'date-fns';
+import { useI18n } from "@/locales/client";
 
 interface RecentActivityFeedProps {
   activities: ActivityItem[];
@@ -21,26 +23,30 @@ const ActivityIcon = ({ type }: { type: ActivityItem['type'] }) => {
 };
 
 const ActivityDescription = ({ activity }: { activity: ActivityItem }) => {
+  const t = useI18n();
+
   switch (activity.type) {
     case 'sale':
-      return <>Sold <strong>{activity.product_name}</strong> for ${activity.amount.toFixed(2)}</>;
+      return <>{t('dashboard_page.recent_activity.sale_part1')} <strong>{activity.product_name}</strong> {t('dashboard_page.recent_activity.sale_part2')} ${activity.amount.toFixed(2)}</>;
     case 'expense':
-      return <>Expense: <strong>{activity.description}</strong> for ${activity.amount.toFixed(2)}</>;
+      return <>{t('dashboard_page.recent_activity.expense_part1')} <strong>{activity.description}</strong> {t('dashboard_page.recent_activity.expense_part2')} ${activity.amount.toFixed(2)}</>;
     case 'task':
-      return <>{activity.employee_name} completed <strong>{activity.quantity_completed}x {activity.task_name}</strong></>;
+      return <>{activity.employee_name} {t('dashboard_page.recent_activity.task_part1')} <strong>{activity.quantity_completed}x {activity.task_name}</strong></>;
     case 'payment':
-      return <>Paid ${activity.amount.toFixed(2)} to <strong>{activity.employee_name}</strong> ({activity.payment_type})</>;
+      return <>{t('dashboard_page.recent_activity.payment_part1')} ${activity.amount.toFixed(2)} {t('dashboard_page.recent_activity.payment_part2')} <strong>{activity.employee_name}</strong> ({activity.payment_type})</>;
     default:
-      return <>Unknown activity</>;
+      return <>{t('dashboard_page.recent_activity.unknown')}</>;
   }
 };
 
 export default function RecentActivityFeed({ activities }: RecentActivityFeedProps) {
+  const t = useI18n();
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline">Recent Activity</CardTitle>
-        <CardDescription>Latest transactions and operational updates.</CardDescription>
+        <CardTitle className="font-headline">{t('dashboard_page.recent_activity.title')}</CardTitle>
+        <CardDescription>{t('dashboard_page.recent_activity.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[300px]">
@@ -60,7 +66,7 @@ export default function RecentActivityFeed({ activities }: RecentActivityFeedPro
               </div>
             </div>
           )) : (
-             <p className="text-sm text-muted-foreground text-center py-4">No recent activities.</p>
+             <p className="text-sm text-muted-foreground text-center py-4">{t('dashboard_page.recent_activity.no_data')}</p>
           )}
         </ScrollArea>
       </CardContent>

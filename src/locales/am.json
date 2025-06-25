@@ -111,5 +111,120 @@
       "title": "የስርዓት ማስታወሻ",
       "content": "ሥራን መመዝገብ ፈጣን ማጠናቀቅን ያስባል እና ክፍያን ያሰላል፣ ይህም የሰራተኛ ቀሪ ሂሳብን ይነካል። የሰራተኛ ክፍያዎችም በዚህ ገጽ ላይ ሊመዘገቡ ይችላሉ። ማጣሪያዎች ለአሁኑ እይታ ብቻ ይተገበራሉ።"
     }
+  },
+  "dashboard_page": {
+    "financial_overview": {
+      "title": "የገንዘብ አጠቃላይ እይታ",
+      "description": "የዚህ ወር የገንዘብ አፈጻጸም",
+      "total_income": "ጠቅላላ ገቢ",
+      "total_expenses": "ጠቅላላ ወጪ",
+      "net_income": "የተጣራ ገቢ"
+    },
+    "employee_balances": {
+      "title": "የሰራተኞች ቀሪ ሂሳብ",
+      "description": "ለሰራተኞች የሚከፈሉ ክፍያዎች አጠቃላይ እይታ።",
+      "no_data": "ምንም የሰራተኛ መረጃ የለም።",
+      "manage_button": "ሰራተኞችን ያስተዳድሩ"
+    },
+    "recent_activity": {
+      "title": "የቅርብ ጊዜ እንቅስቃሴ",
+      "description": "የቅርብ ጊዜ ግብይቶች እና የስራ ማስኬጃ ዝመናዎች።",
+      "no_data": "ምንም የቅርብ ጊዜ እንቅስቃሴዎች የሉም።",
+      "sale_part1": "ተሸጧል",
+      "sale_part2": "ለ",
+      "expense_part1": "ወጪ:",
+      "expense_part2": "ለ",
+      "task_part1": "አጠናቋል",
+      "payment_part1": "ተከፍሏል",
+      "payment_part2": "ለ",
+      "unknown": "ያልታወቀ እንቅስቃሴ"
+    }
+  },
+  "reports_page": {
+    "title": "ሪፖርቶች",
+    "description": "የሽያጭ፣ የምርት እና የገንዘብ አፈጻጸምን ይተንትኑ።",
+    "select_period": "ጊዜ ይምረጡ",
+    "periods": {
+      "d7": "ያለፉት 7 ቀናት",
+      "d30": "ያለፉት 30 ቀናት",
+      "d90": "ያለፉት 90 ቀናት",
+      "m12": "ያለፉት 12 ወራት"
+    },
+    "loading": "የሪፖርት መረጃ በመጫን ላይ...",
+    "tabs": {
+      "summary": "ማጠቃለያ",
+      "sales": "ሽያጮች",
+      "production": "ምርት",
+      "employees": "ሰራተኞች"
+    },
+    "financial_summary": {
+      "title": "የገንዘብ ማጠቃለያ",
+      "description": "ለተመረጠው ጊዜ የጠቅላላ የሽያጭ ገቢ እና የምርት ወጪዎች ማጠቃለያ።",
+      "total_sales": "ጠቅላላ ሽያጮች",
+      "total_production_cost": "ጠቅላላ የምርት ወጪ",
+      "net": "የተጣራ"
+    },
+    "sales_vs_production_chart": {
+      "title": "የሽያጭ እና የምርት ወጪዎች",
+      "description": "በተመረጠው ጊዜ ውስጥ የገቢ እና የወጪዎች ምስላዊ ንፅፅር።"
+    },
+    "export_button": "ወደ ኤክሴል ላክ",
+    "export_toast_title": "ምንም መረጃ የለም",
+    "export_toast_desc": "ለመላክ ምንም መረጃ የለም።",
+    "sales_revenue_chart": {
+      "title": "የሽያጭ ገቢ",
+      "description": "በተመረጠው ጊዜ ውስጥ የዕለታዊ የሽያጭ ገቢ።"
+    },
+    "sales_data_table": {
+      "title": "የሽያጭ መረጃ ሠንጠረዥ",
+      "date_header": "ቀን",
+      "sales_header": "ሽያጮች ($)"
+    },
+    "production_costs_chart": {
+      "title": "የምርት ወጪዎች",
+      "description": "በተመረጠው ጊዜ ውስጥ የዕለታዊ የምርት ወጪዎች።"
+    },
+    "production_data_table": {
+      "title": "የምርት መረጃ ሠንጠረዥ",
+      "cost_header": "የምርት ወጪ ($)"
+    },
+    "employee_earnings_chart": {
+      "title": "የሰራተኞች ገቢ እና ወጪዎች",
+      "description": "ለተመረጠው ጊዜ በአንድ ሰራተኛ ጠቅላላ ገቢ እና ወጪዎች።"
+    },
+    "employee_activity_log": {
+      "title": "የሰራተኛ እንቅስቃሴ መዝገብ",
+      "date_header": "ቀን",
+      "employee_header": "ሰራተኛ",
+      "type_header": "ዓይነት",
+      "desc_header": "መግለጫ",
+      "amount_header": "መጠን ($)",
+      "no_activity": "ለዚህ ጊዜ ምንም የሰራተኛ እንቅስቃሴ የለም።"
+    }
+  },
+  "settings_hub_page": {
+    "title": "ቅንብሮች",
+    "description": "የመተግበሪያ-ሰፊ ምርጫዎችን እና ነባሪዎችን ያዋቅሩ።",
+    "general": {
+      "title": "አጠቃላይ ቅንብሮች",
+      "description": "እንደ ምንዛሪ፣ ቋንቋ እና ማሳወቂያዎች ያሉ አጠቃላይ የመተግበሪያ ቅንብሮችን ያስተዳድሩ።",
+      "button": "አጠቃላይ ቅንብሮችን ያዋቅሩ"
+    },
+    "admin": {
+      "title": "አስተዳደር",
+      "description": "ተጠቃሚዎችን፣ ሚናዎችን እና ሰራተኞችን ያስተዳድሩ።",
+      "users_button": "ተጠቃሚዎችን ያስተዳድሩ",
+      "roles_button": "ሚናዎችን ያስተዳድሩ",
+      "employees_button": "ሰራተኞችን ያስተዳድሩ"
+    },
+    "production": {
+      "title": "የምርት ቅንብሮች",
+      "description": "በምርት ውስጥ ጥቅም ላይ የዋሉ የተግባር ዓይነቶችን ይግለጹ እና ያስተዳድሩ።",
+      "button": "የተግባር ዓይነቶችን ያስተዳድሩ"
+    },
+    "note": {
+      "title": "ማስታወሻ",
+      "content": "ቅንብሮች በአሁኑ ጊዜ በአገር ውስጥ ተቀምጠዋል ወይም የውሸት መረጃ ይጠቀማሉ። ሙሉ ጽናት ወደፊት በሚደረጉ ዝመናዎች ውስጥ ይተገበራል። የሰራተኛ አስተዳደር አሁን ሙሉ በሙሉ ይሰራል።"
+    }
   }
 }

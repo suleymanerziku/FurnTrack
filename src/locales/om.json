@@ -111,5 +111,120 @@
       "title": "Yaadannoo Sirnaa",
       "content": "Hojii galmeessuun xummura battalaa fudhachuun kaffaltii shallaga, kunis haf-tee hojjettootaa tuqa. Kaffaltiin hojjettootaas fuula kanarratti galmaa'uu danda'a. Calaqqiiwwan ilaalcha ammaaf qofa hojjiirra oolu."
     }
+  },
+  "dashboard_page": {
+    "financial_overview": {
+      "title": "Ibsa Faayinaansii",
+      "description": "Gochi faayinaansii ji'a kanaa",
+      "total_income": "Galii Waliigalaa",
+      "total_expenses": "Baasii Waliigalaa",
+      "net_income": "Galii Qulqulluu"
+    },
+    "employee_balances": {
+      "title": "Haf-tee Hojjettootaa",
+      "description": "Ibsa kaffaltii hojjettootaaf raawwatamu qabu.",
+      "no_data": "Ragaan hojjetaa hin jiru.",
+      "manage_button": "Hojjettoota Bulchuu"
+    },
+    "recent_activity": {
+      "title": "Gochii Dhiheenyaa",
+      "description": "Gurgurtaa dhiheenyaa fi haaromsa hojii.",
+      "no_data": "Gochii dhiheenyaa hin jiru.",
+      "sale_part1": "Gurgurame",
+      "sale_part2": "f",
+      "expense_part1": "Baasii:",
+      "expense_part2": "f",
+      "task_part1": "xumureera",
+      "payment_part1": "Kaffalameera",
+      "payment_part2": "f",
+      "unknown": "Gochii hin beekamne"
+    }
+  },
+  "reports_page": {
+    "title": "Gabaasota",
+    "description": "Gurgurtaa, oomishaa fi raawwii faayinaansii xiinxali.",
+    "select_period": "Yeroo filadhu",
+    "periods": {
+      "d7": "Guyyoota 7 darban",
+      "d30": "Guyyoota 30 darban",
+      "d90": "Guyyoota 90 darban",
+      "m12": "Ji'oota 12 darban"
+    },
+    "loading": "Ragaa gabaasaa fidaa jira...",
+    "tabs": {
+      "summary": "Cuunfaa",
+      "sales": "Gurgurtaa",
+      "production": "Oomisha",
+      "employees": "Hojjettoota"
+    },
+    "financial_summary": {
+      "title": "Cuunfaa Faayinaansii",
+      "description": "Cuunfaa galii gurgurtaa waliigalaa fi baasii oomishaa yeroo filatameef.",
+      "total_sales": "Gurgurtaa Waliigalaa",
+      "total_production_cost": "Baasii Oomishaa Waliigalaa",
+      "net": "Qulqulluu"
+    },
+    "sales_vs_production_chart": {
+      "title": "Gurgurtaa fi Baasii Oomishaa",
+      "description": "Walbira qabinsa galii fi baasii yeroo filatame keessatti."
+    },
+    "export_button": "Gara Excelitti Ergi",
+    "export_toast_title": "Ragaan Hin Jiru",
+    "export_toast_desc": "Ragaan ergamu hin jiru.",
+    "sales_revenue_chart": {
+      "title": "Galii Gurgurtaa",
+      "description": "Galii gurgurtaa guyyaa guyyaa yeroo filatame keessatti."
+    },
+    "sales_data_table": {
+      "title": "Gabatee Ragaa Gurgurtaa",
+      "date_header": "Guyyaa",
+      "sales_header": "Gurgurtaa ($)"
+    },
+    "production_costs_chart": {
+      "title": "Baasii Oomishaa",
+      "description": "Baasii oomishaa guyyaa guyyaa yeroo filatame keessatti."
+    },
+    "production_data_table": {
+      "title": "Gabatee Ragaa Oomishaa",
+      "cost_header": "Baasii Oomishaa ($)"
+    },
+    "employee_earnings_chart": {
+      "title": "Galii Hojjettootaa fi Baasii",
+      "description": "Galii fi baasii waliigalaa hojjetaa tokkoof yeroo filatameef."
+    },
+    "employee_activity_log": {
+      "title": "Galmee Gochii Hojjetaa",
+      "date_header": "Guyyaa",
+      "employee_header": "Hojjetaa",
+      "type_header": "Gosa",
+      "desc_header": "Ibsa",
+      "amount_header": "Hanga ($)",
+      "no_activity": "Yeroo kanaaf gochi hojjetaa hin jiru."
+    }
+  },
+  "settings_hub_page": {
+    "title": "Qunnamtii",
+    "description": "Filannoowwan fi duraa-dursaawwan app guutuu qindeessi.",
+    "general": {
+      "title": "Qunnamtii Waliigalaa",
+      "description": "Qunnamtii app waliigalaa kan akka qarshii, afaanii fi beeksisa to'adhu.",
+      "button": "Qunnamtii Waliigalaa Qindeessi"
+    },
+    "admin": {
+      "title": "Bulchiinsa",
+      "description": "Fayyadamtoota, gahee, fi hojjettoota bulchi.",
+      "users_button": "Fayyadamtoota Bulchi",
+      "roles_button": "Gaheewwan Bulchi",
+      "employees_button": "Hojjettoota Bulchi"
+    },
+    "production": {
+      "title": "Qunnamtii Oomishaa",
+      "description": "Gosoota hojii oomisha keessatti fayyadaman ibsi fi bulchi.",
+      "button": "Gosoota Hojii Bulchi"
+    },
+    "note": {
+      "title": "Yaadannoo",
+      "content": "Qunnamtiin ammaaf iddootti kuufama ykn ragaa sobaa fayyadama. Guutummaan kuufamni fuulduratti kan hojiirra oolu ta'a. Bulchiinsi Hojjettootaa amma guutummaatti hojjeta."
+    }
   }
 }

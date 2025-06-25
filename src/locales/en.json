@@ -111,5 +111,120 @@
       "title": "System Note",
       "content": "Logging work assumes immediate completion and calculates payment, which affects employee balances. Employee payments can also be recorded on this page. Filters apply to the current view only."
     }
+  },
+  "dashboard_page": {
+    "financial_overview": {
+      "title": "Financial Overview",
+      "description": "This month's financial performance",
+      "total_income": "Total Income",
+      "total_expenses": "Total Expenses",
+      "net_income": "Net Income"
+    },
+    "employee_balances": {
+      "title": "Employee Balances",
+      "description": "Overview of pending payments for employees.",
+      "no_data": "No employee data available.",
+      "manage_button": "Manage Employees"
+    },
+    "recent_activity": {
+      "title": "Recent Activity",
+      "description": "Latest transactions and operational updates.",
+      "no_data": "No recent activities.",
+      "sale_part1": "Sold",
+      "sale_part2": "for",
+      "expense_part1": "Expense:",
+      "expense_part2": "for",
+      "task_part1": "completed",
+      "payment_part1": "Paid",
+      "payment_part2": "to",
+      "unknown": "Unknown activity"
+    }
+  },
+  "reports_page": {
+    "title": "Reports",
+    "description": "Analyze sales, production, and financial performance.",
+    "select_period": "Select period",
+    "periods": {
+      "d7": "Last 7 Days",
+      "d30": "Last 30 Days",
+      "d90": "Last 90 Days",
+      "m12": "Last 12 Months"
+    },
+    "loading": "Loading report data...",
+    "tabs": {
+      "summary": "Summary",
+      "sales": "Sales",
+      "production": "Production",
+      "employees": "Employees"
+    },
+    "financial_summary": {
+      "title": "Financial Summary",
+      "description": "A summary of total sales revenue vs. production costs for the selected period.",
+      "total_sales": "Total Sales",
+      "total_production_cost": "Total Production Cost",
+      "net": "Net"
+    },
+    "sales_vs_production_chart": {
+      "title": "Sales vs Production Costs",
+      "description": "A visual comparison of revenue and costs over the selected period."
+    },
+    "export_button": "Export to Excel",
+    "export_toast_title": "No Data",
+    "export_toast_desc": "There is no data to export.",
+    "sales_revenue_chart": {
+      "title": "Sales Revenue",
+      "description": "Daily sales revenue over the selected period."
+    },
+    "sales_data_table": {
+      "title": "Sales Data Table",
+      "date_header": "Date",
+      "sales_header": "Sales ($)"
+    },
+    "production_costs_chart": {
+      "title": "Production Costs",
+      "description": "Daily production costs (total payment for completed tasks) over the selected period."
+    },
+    "production_data_table": {
+      "title": "Production Data Table",
+      "cost_header": "Production Cost ($)"
+    },
+    "employee_earnings_chart": {
+      "title": "Employee Earnings vs. Withdrawals",
+      "description": "Total earnings and withdrawals per employee for the selected period."
+    },
+    "employee_activity_log": {
+      "title": "Employee Activity Log",
+      "date_header": "Date",
+      "employee_header": "Employee",
+      "type_header": "Type",
+      "desc_header": "Description",
+      "amount_header": "Amount ($)",
+      "no_activity": "No employee activity for this period."
+    }
+  },
+  "settings_hub_page": {
+    "title": "Settings",
+    "description": "Configure application-wide preferences and defaults.",
+    "general": {
+      "title": "General Settings",
+      "description": "Manage general application settings like currency, language, and notifications.",
+      "button": "Configure General Settings"
+    },
+    "admin": {
+      "title": "Administration",
+      "description": "Manage users, roles, and employees.",
+      "users_button": "Manage Users",
+      "roles_button": "Manage Roles",
+      "employees_button": "Manage Employees"
+    },
+    "production": {
+      "title": "Production Settings",
+      "description": "Define and manage task types used in production.",
+      "button": "Manage Task Types"
+    },
+    "note": {
+      "title": "Note",
+      "content": "Settings are currently saved locally or use mock data. Full persistence will be implemented in future updates. Employee Management is now fully functional."
+    }
   }
 }

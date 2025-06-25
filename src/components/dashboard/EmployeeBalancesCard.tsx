@@ -8,12 +8,14 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/locales/client";
 
 interface EmployeeBalancesCardProps {
   employees: Employee[];
 }
 
 export default function EmployeeBalancesCard({ employees }: EmployeeBalancesCardProps) {
+  const t = useI18n();
   const formatCurrency = (amount: number | undefined) => {
     if (amount === undefined) return "N/A";
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
@@ -22,8 +24,8 @@ export default function EmployeeBalancesCard({ employees }: EmployeeBalancesCard
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline">Employee Balances</CardTitle>
-        <CardDescription>Overview of pending payments for employees.</CardDescription>
+        <CardTitle className="font-headline">{t('dashboard_page.employee_balances.title')}</CardTitle>
+        <CardDescription>{t('dashboard_page.employee_balances.description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[260px]">
@@ -46,14 +48,14 @@ export default function EmployeeBalancesCard({ employees }: EmployeeBalancesCard
                 </div>
               </div>
             )) : (
-              <p className="text-sm text-muted-foreground text-center py-4">No employee data available.</p>
+              <p className="text-sm text-muted-foreground text-center py-4">{t('dashboard_page.employee_balances.no_data')}</p>
             )}
           </div>
         </ScrollArea>
       </CardContent>
       <CardFooter>
         <Button asChild className="w-full" variant="outline">
-          <Link href="/settings/employees">Manage Employees</Link>
+          <Link href="/settings/employees">{t('dashboard_page.employee_balances.manage_button')}</Link>
         </Button>
       </CardFooter>
     </Card>

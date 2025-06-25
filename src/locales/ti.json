@@ -23,7 +23,7 @@
   },
   "finances_page": {
     "title": "ፋይናንሳዊ ኣመራርሓ",
-    "description": "መሸጣ፣ ወጻኢታት ተኸታተል፣ ከምኡ'ውን ሓፈሻዊ ፋይናንሳዊ ጥዕና ርአ።",
+    "description": "መሸጣ፣ ወጻኢታት ተኸታተል، ከምኡ'ውን ሓፈሻዊ ፋይናንሳዊ ጥዕና ርአ።",
     "summary_card": {
       "title": "ፋይናንሳዊ መጠቃለሊ",
       "description": " ቀንዲ ፋይናንሳዊ መዐቀኒታት ኣብ ዝተመዝገበ ዳታ ተመርኲስካ።",
@@ -110,6 +110,121 @@
     "system_note": {
       "title": "ናይ ስርዓት መዘኻኸሪ",
       "content": "ስራሕ ምምዝጋብ ብኡ ንብኡ ምዝዛም ገይሩ ይወስድን ክፍሊት ይሕሰብን፣ እዚ ድማ ኣብ ሚዛን ሰራሕተኛታት ጽልዋ ይገብር። ክፍሊታት ሰራሕተኛታት ኣብዚ ገጽ እዚ ክምዝገቡ ይኽእሉ እዮም። መጽረይቲታት ነቲ ዘሎ ትርኢት ጥራይ እዮም ዝምልከቱ።"
+    }
+  },
+  "dashboard_page": {
+    "financial_overview": {
+      "title": "ፋይናንሳዊ ትርኢት",
+      "description": "ናይዚ ወርሒ ፋይናንሳዊ ኣፈጻጽማ",
+      "total_income": "ጠቕላላ እቶት",
+      "total_expenses": "ጠቕላላ ወጻኢ",
+      "net_income": "ጽሩይ እቶት"
+    },
+    "employee_balances": {
+      "title": "ናይ ሰራሕተኛታት ሚዛን",
+      "description": "ሓፈሻዊ ትርኢት ናይቶም ንሰራሕተኛታት ዝጽበዩ ክፍሊታት።",
+      "no_data": "ናይ ሰራሕተኛታት ሓበሬታ የለን።",
+      "manage_button": "ሰራሕተኛታት ኣመሓድር"
+    },
+    "recent_activity": {
+      "title": "ናይ ቀረባ ግዜ ንጥፈታት",
+      "description": "ናይ ቀረባ ግዜ ምልውዋጣትን ናይ ስራሕ ምዕባለታትን።",
+      "no_data": "ናይ ቀረባ ግዜ ንጥፈታት የለዉን።",
+      "sale_part1": "ተሸይጡ",
+      "sale_part2": "ን",
+      "expense_part1": "ወጻኢ:",
+      "expense_part2": "ን",
+      "task_part1": "ፈጺሙ",
+      "payment_part1": "ተኸፊሉ",
+      "payment_part2": "ን",
+      "unknown": "ዘይተፈልጠ ንጥፈት"
+    }
+  },
+  "reports_page": {
+    "title": "ጸብጻባት",
+    "description": "ናይ መሸጣ፣ ፍርያትን ፋይናንሳዊ ኣፈጻጽማን መርምር።",
+    "select_period": "እዋን ምረጽ",
+    "periods": {
+      "d7": "ዝሓለፉ 7 መዓልታት",
+      "d30": "ዝሓለፉ 30 መዓልታት",
+      "d90": "ዝሓለፉ 90 መዓልታት",
+      "m12": "ዝሓለፉ 12 ኣዋርሕ"
+    },
+    "loading": "ናይ ጸብጻብ ሓበሬታ ይጽዕን ኣሎ...",
+    "tabs": {
+      "summary": "መጠቃለሊ",
+      "sales": "መሸጣታት",
+      "production": "ፍርያት",
+      "employees": "ሰራሕተኛታት"
+    },
+    "financial_summary": {
+      "title": "ፋይናንሳዊ መጠቃለሊ",
+      "description": "ናይ ጠቕላላ መሸጣ እቶትን ናይ ፍርያት ወጻኢታትን መጠቃለሊ ነቲ ዝተመረጸ እዋን።",
+      "total_sales": "ጠቕላላ መሸጣታት",
+      "total_production_cost": "ጠቕላላ ናይ ፍርያት ወጻኢ",
+      "net": "ጽሩይ"
+    },
+    "sales_vs_production_chart": {
+      "title": "መሸጣታት vs ናይ ፍርያት ወጻኢታት",
+      "description": "ናይ እቶትን ወጻኢታትን ምስላዊ ምውድዳር ኣብቲ ዝተመረጸ እዋን።"
+    },
+    "export_button": "ናብ ኤክሴል ስደድ",
+    "export_toast_title": "ሓበሬታ የለን",
+    "export_toast_desc": "ንኽስደድ ዝኸውን ሓበሬታ የለን።",
+    "sales_revenue_chart": {
+      "title": "ናይ መሸጣ እቶት",
+      "description": "ዕለታዊ ናይ መሸጣ እቶት ኣብቲ ዝተመረጸ እዋን።"
+    },
+    "sales_data_table": {
+      "title": "ናይ መሸጣ ሓበሬታ ሰሌዳ",
+      "date_header": "ዕለት",
+      "sales_header": "መሸጣታት ($)"
+    },
+    "production_costs_chart": {
+      "title": "ናይ ፍርያት ወጻኢታት",
+      "description": "ዕለታዊ ናይ ፍርያት ወጻኢታት ኣብቲ ዝተመረጸ እዋን።"
+    },
+    "production_data_table": {
+      "title": "ናይ ፍርያት ሓበሬታ ሰሌዳ",
+      "cost_header": "ናይ ፍርያት ወጻኢ ($)"
+    },
+    "employee_earnings_chart": {
+      "title": "ናይ ሰራሕተኛታት እቶትን ምውጻእን",
+      "description": "ጠቕላላ እቶትን ምውጻእን ንሓደ ሰራሕተኛ ነቲ ዝተመረጸ እዋን።"
+    },
+    "employee_activity_log": {
+      "title": "ናይ ሰራሕተኛ ንጥፈታት መዝገብ",
+      "date_header": "ዕለት",
+      "employee_header": "ሰራሕተኛ",
+      "type_header": "ዓይነት",
+      "desc_header": "መግለጺ",
+      "amount_header": "መጠን ($)",
+      "no_activity": "ነዚ እዋን'ዚ ናይ ሰራሕተኛ ንጥፈት የለን።"
+    }
+  },
+  "settings_hub_page": {
+    "title": "ቅንብርታት",
+    "description": "ናይ ምሉእ ኣፕሊኬሽን ምርጫታትን ነባሪታትን ኣቀናብር።",
+    "general": {
+      "title": "ሓፈሻዊ ቅንብርታት",
+      "description": "ከም ባጤራ፣ ቋንቋን መተሓሳሰቢን ዝኣመሰሉ ሓፈሻዊ ናይ ኣፕሊኬሽን ቅንብርታት ኣመሓድር።",
+      "button": "ሓፈሻዊ ቅንብርታት ኣቀናብር"
+    },
+    "admin": {
+      "title": "ምምሕዳር",
+      "description": "ተጠቀምቲ፣ ተራታትን ሰራሕተኛታትን ኣመሓድር።",
+      "users_button": "ተጠቀምቲ ኣመሓድር",
+      "roles_button": "ተራታት ኣመሓድር",
+      "employees_button": "ሰራሕተኛታት ኣመሓድር"
+    },
+    "production": {
+      "title": "ናይ ፍርያት ቅንብርታት",
+      "description": "ኣብ ፍርያት ዝጥቀሙሉ ዓይነታት ዕማማት መግለጺ ግበርን ኣመሓድርን።",
+      "button": "ዓይነታት ዕማማት ኣመሓድር"
+    },
+    "note": {
+      "title": "መዘኻኸሪ",
+      "content": "ቅንብርታት ንግዚኡ ኣብ ውሽጢ ዓዲ ይዕቀቡ ወይ ድማ ሓሳዊ ሓበሬታ ይጥቀሙ። ምሉእ ቀዋምነት ኣብ መጻኢ ዝመጽእ ዕደሳታት ክትግበር እዩ። ምምሕዳር ሰራሕተኛታት ሕጂ ምሉእ ብምሉእ ይሰርሕ ኣሎ።"
     }
   }
 }

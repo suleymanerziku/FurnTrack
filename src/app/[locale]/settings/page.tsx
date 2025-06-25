@@ -6,31 +6,33 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Settings as SettingsIcon, UsersRound, ChevronRight, ClipboardList, UserCog, Briefcase } from "lucide-react"; 
+import { useI18n } from "@/locales/client";
 
 export default function SettingsPage() { 
+  const t = useI18n();
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight font-headline">Settings</h2> 
+        <h2 className="text-2xl font-bold tracking-tight font-headline">{t('settings_hub_page.title')}</h2> 
         <p className="text-muted-foreground">
-          Configure application-wide preferences and defaults.
+          {t('settings_hub_page.description')}
         </p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline">
-            <SettingsIcon className="h-5 w-5 text-primary"/> General Settings
+            <SettingsIcon className="h-5 w-5 text-primary"/> {t('settings_hub_page.general.title')}
           </CardTitle>
-          <CardDescription>Manage general application settings like currency, language, and notifications.</CardDescription>
+          <CardDescription>{t('settings_hub_page.general.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Link href="/settings/general" passHref>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
                 <SettingsIcon className="h-4 w-4" />
-                Configure General Settings
+                {t('settings_hub_page.general.button')}
               </div>
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -41,16 +43,16 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline">
-            <UsersRound className="h-5 w-5 text-primary"/> Administration
+            <UsersRound className="h-5 w-5 text-primary"/> {t('settings_hub_page.admin.title')}
           </CardTitle>
-          <CardDescription>Manage users, roles, and employees.</CardDescription>
+          <CardDescription>{t('settings_hub_page.admin.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           <Link href="/settings/users" passHref>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
                 <UsersRound className="h-4 w-4" />
-                Manage Users
+                {t('settings_hub_page.admin.users_button')}
               </div>
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -59,7 +61,7 @@ export default function SettingsPage() {
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
                  <UserCog className="h-4 w-4" /> 
-                 Manage Roles
+                 {t('settings_hub_page.admin.roles_button')}
               </div>
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -68,7 +70,7 @@ export default function SettingsPage() {
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
                  <Briefcase className="h-4 w-4" /> 
-                 Manage Employees
+                 {t('settings_hub_page.admin.employees_button')}
               </div>
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -79,16 +81,16 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline">
-            <ClipboardList className="h-5 w-5 text-primary"/> Production Settings
+            <ClipboardList className="h-5 w-5 text-primary"/> {t('settings_hub_page.production.title')}
           </CardTitle>
-          <CardDescription>Define and manage task types used in production.</CardDescription>
+          <CardDescription>{t('settings_hub_page.production.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Link href="/settings/task-types" passHref>
             <Button variant="outline" className="w-full justify-between">
               <div className="flex items-center gap-2">
                 <ClipboardList className="h-4 w-4" />
-                Manage Task Types
+                {t('settings_hub_page.production.button')}
               </div>
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -97,9 +99,9 @@ export default function SettingsPage() {
       </Card>
 
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
-        <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">Note</h3>
+        <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">{t('settings_hub_page.note.title')}</h3>
         <p className="text-sm text-accent-foreground/70">
-          Settings are currently saved locally or use mock data. Full persistence will be implemented in future updates. Employee Management is now fully functional.
+          {t('settings_hub_page.note.content')}
         </p>
       </div>
     </div>
