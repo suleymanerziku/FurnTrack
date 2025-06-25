@@ -16,6 +16,11 @@ import {
   Menu,
   LogIn,
   LineChart,
+  UserCircle,
+  UsersRound,
+  ChevronRight,
+  ClipboardList,
+  Briefcase,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { User as SupabaseAuthUser } from '@supabase/supabase-js';
@@ -51,6 +56,7 @@ import { signOutAction } from '@/lib/actions/auth.actions';
 import { useToast } from '@/hooks/use-toast';
 import { useI18n, useCurrentLocale } from '@/locales/client';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { UserProvider } from '@/contexts/UserContext';
 
 
 interface AppLayoutProps {
@@ -63,6 +69,7 @@ interface NavItem {
   label: string;
   icon: LucideIcon;
   disabled?: boolean;
+  roles?: string[];
 }
 
 // This component contains the main layout and consumes the sidebar context.
@@ -76,13 +83,19 @@ function MainLayout({ children, user }: AppLayoutProps) {
 
     const pathname = fullPathname.replace(new RegExp(`^/${locale}`), '') || '/';
     
+    const userRole = user?.role || 'Staff'; // Default to a restricted role
+
     const navigationItems: NavItem[] = [
-      { href: '/', label: t('navigation.dashboard'), icon: LayoutDashboard },
-      { href: '/finances', label: t('navigation.finances'), icon: DollarSign },
-      { href: '/work-log', label: t('navigation.work_log'), icon: ListChecks },
-      { href: '/reports', label: t('navigation.reports'), icon: LineChart },
-      { href: '/ai-insights', label: t('navigation.ai_insights'), icon: Wand2 },
+      { href: '/', label: t('navigation.dashboard'), icon: LayoutDashboard, roles: ['Admin', 'Manager', 'Finance', 'Coordinator', 'Staff'] },
+      { href: '/finances', label: t('navigation.finances'), icon: DollarSign, roles: ['Admin', 'Manager', 'Finance'] },
+      { href: '/work-log', label: t('navigation.work_log'), icon: ListChecks, roles: ['Admin', 'Manager', 'Coordinator'] },
+      { href: '/reports', label: t('navigation.reports'), icon: LineChart, roles: ['Admin', 'Manager'] },
+      { href: '/ai-insights', label: t('navigation.ai_insights'), icon: Wand2, roles: ['Admin', 'Manager'] },
     ];
+    
+    const accessibleNavItems = navigationItems.filter(item => 
+        item.roles?.includes(userRole)
+    );
 
     const getPageTitle = () => {
         if (pathname === '/settings') return t('navigation.settings');
@@ -120,7 +133,7 @@ function MainLayout({ children, user }: AppLayoutProps) {
             <ScrollArea className="flex-1">
             <SidebarContent className="p-2">
             <SidebarMenu>
-                {navigationItems.map((item) => (
+                {accessibleNavItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
                     {item.disabled ? (
                     <SidebarMenuButton
@@ -255,10 +268,12 @@ export default function AppLayout({ children, user }: AppLayoutProps) {
     );
   }
 
-  // Render the full layout for all other pages, wrapped in the SidebarProvider
+  // Render the full layout for all other pages, wrapped in the providers
   return (
-    <SidebarProvider>
-      <MainLayout user={user}>{children}</MainLayout>
-    </SidebarProvider>
+    <UserProvider user={user}>
+        <SidebarProvider>
+            <MainLayout user={user}>{children}</MainLayout>
+        </SidebarProvider>
+    </UserProvider>
   );
 }

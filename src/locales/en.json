@@ -205,6 +205,11 @@
   "settings_hub_page": {
     "title": "Settings",
     "description": "Configure application-wide preferences and defaults.",
+    "profile": {
+      "title": "My Profile",
+      "description": "Manage your personal profile and password.",
+      "button": "Go to Profile Settings"
+    },
     "general": {
       "title": "General Settings",
       "description": "Manage general application settings like currency, language, and notifications.",

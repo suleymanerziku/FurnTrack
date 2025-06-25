@@ -38,6 +38,48 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // --- START: RBAC Logic ---
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', session.user.id)
+    .single();
+
+  const userRole = userProfile?.role || 'Staff'; 
+
+  // Admins and Managers have full access.
+  if (['Admin', 'Manager'].includes(userRole)) {
+    return res;
+  }
+  
+  // Get the path without the locale prefix.
+  const reqPath = pathname.replace(new RegExp(`^/${req.nextUrl.locale}`), '') || '/';
+
+  const isAllowed = (role: string, path: string): boolean => {
+      // Paths accessible to almost all authenticated users
+      const commonPaths = ['/', '/settings/profile', '/settings/general'];
+      if(path === '/settings' || commonPaths.some(p => path.startsWith(p))) {
+          return true;
+      }
+
+      // Role-specific paths
+      switch(role) {
+          case 'Finance':
+              return path.startsWith('/finances');
+          case 'Coordinator':
+              return path.startsWith('/work-log');
+          default:
+              return false; // Deny other paths for other roles by default
+      }
+  }
+
+  if (!isAllowed(userRole, reqPath)) {
+      // Redirect to user's dashboard if not authorized
+      const dashboardUrl = new URL(`/${req.nextUrl.locale}`, req.url);
+      return NextResponse.redirect(dashboardUrl);
+  }
+  // --- END: RBAC Logic ---
+
   return res;
 }
 

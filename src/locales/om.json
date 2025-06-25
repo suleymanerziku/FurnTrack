@@ -18,7 +18,7 @@
     "label": "Afaan jijjiiri",
     "en": "Ingiliffa",
     "am": "Amaariffa",
-    "om": "Afaan Oromoo",
+    "om": "Afan Oromo",
     "ti": "Tigiriffa"
   },
   "finances_page": {
@@ -84,7 +84,7 @@
     },
     "payment_dialog": {
       "title": "Kaffaltii Hojjetaa Galmeessi",
-      "description": "Hojjetaa filadhuutii tarree kaffaltii galchi. Kun haf-tee isaanii irraa hir'ifama."
+      "description": "Hojjetaa filadhuutii tarree kaffaltii galchi. Kunis haf-tee isaanii irraa hir'ifama."
     },
     "log_work_dialog": {
       "title": "Hojii Haaraa Xumurame Galmeessi",
@@ -205,6 +205,11 @@
   "settings_hub_page": {
     "title": "Qunnamtii",
     "description": "Filannoowwan fi duraa-dursaawwan app guutuu qindeessi.",
+    "profile": {
+        "title": "Profaayilii Koo",
+        "description": "Profaayilii dhuunfaa fi jecha darbii kee bulchi.",
+        "button": "Gara Qunnamtii Profaayiliitti Deemi"
+    },
     "general": {
       "title": "Qunnamtii Waliigalaa",
       "description": "Qunnamtii app waliigalaa kan akka qarshii, afaanii fi beeksisa to'adhu.",
