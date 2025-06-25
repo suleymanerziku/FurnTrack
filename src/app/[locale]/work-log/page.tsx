@@ -224,7 +224,7 @@ export default function WorkLogPage() {
         <CardHeader>
           <CardTitle>Recent Payment Log</CardTitle>
           <CardDescription>
-            A log of recent employee payments. Click a name to see full history.
+            A log of recent employee payments. Click a card to see full history.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -244,24 +244,26 @@ export default function WorkLogPage() {
             ) : recentPayments.length > 0 ? (
               <div className="space-y-3">
                 {recentPayments.map(wd => (
-                  <div key={wd.id} className="p-3 border rounded-lg shadow-sm hover:bg-muted/50 transition-colors">
-                    <div className="grid grid-cols-3 gap-4 items-center">
-                        <div className="col-span-2">
-                           <EmployeeTransactionHistoryDialog employeeId={wd.employee_id} employeeName={wd.employee_name || 'N/A'}>
-                              <button className="font-semibold font-headline text-primary hover:underline text-left">
+                  <EmployeeTransactionHistoryDialog key={wd.id} employeeId={wd.employee_id} employeeName={wd.employee_name || 'N/A'}>
+                    <DialogTrigger asChild>
+                      <button className="w-full text-left p-3 border rounded-lg shadow-sm hover:bg-muted/50 transition-colors">
+                        <div className="grid grid-cols-3 gap-4 items-center">
+                          <div className="col-span-2">
+                              <p className="font-semibold font-headline text-primary">
                                 {wd.employee_name || 'N/A'}
-                              </button>
-                           </EmployeeTransactionHistoryDialog>
-                           <p className="text-xs text-muted-foreground">{format(new Date(wd.date), "PPP")}</p>
+                              </p>
+                              <p className="text-xs text-muted-foreground">{format(new Date(wd.date), "PPP")}</p>
+                          </div>
+                          <div className="text-right">
+                              <p className="text-lg font-bold text-red-600">
+                                -${wd.amount.toFixed(2)}
+                              </p>
+                              <p className="text-xs text-muted-foreground truncate" title={wd.notes || ''}>{wd.notes || 'No notes'}</p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                           <p className="text-lg font-bold text-red-600">
-                             -${wd.amount.toFixed(2)}
-                           </p>
-                           <p className="text-xs text-muted-foreground truncate" title={wd.notes || ''}>{wd.notes || 'No notes'}</p>
-                        </div>
-                    </div>
-                  </div>
+                      </button>
+                    </DialogTrigger>
+                  </EmployeeTransactionHistoryDialog>
                 ))}
               </div>
             ) : (
