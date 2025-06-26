@@ -31,7 +31,6 @@ export async function middleware(req: NextRequest) {
       return res;
   }
 
-
   // The i18n middleware might have rewritten the URL.
   // We need a session to access these pages.
   const supabase = createMiddlewareClient<Database>({ req, res });
@@ -73,10 +72,12 @@ export async function middleware(req: NextRequest) {
   const { data: roleData, error: roleError } = await supabase
     .from('roles')
     .select('permissions')
-    .eq('name', userRoleName)
+    .ilike('name', userRoleName)
     .single();
 
-  if(roleError) {
+  // Don't treat "not found" as a fatal error, just means no extra permissions.
+  // A real DB error would cause a redirect loop.
+  if(roleError && roleError.code !== 'PGRST116') {
     console.error(`RBAC Error: Could not fetch permissions for role: ${userRoleName}`, roleError);
     // Fail safe: redirect to dashboard if permissions can't be fetched
     const dashboardUrl = new URL(`/${currentLocale}`, req.url);
@@ -93,18 +94,17 @@ export async function middleware(req: NextRequest) {
     '/settings/general',
   ];
 
-  // Check if requested path is either a base permission or in the dynamic list
-  const hasUserPermission = userPermissions.some(p => {
-    // Exact match (e.g., '/finances')
-    if (p === reqPath) return true;
-    // Dynamic route match (e.g., p='/settings/employees', reqPath='/settings/employees/123')
-    if (reqPath.startsWith(p + '/')) return true; 
+  // Combine base and dynamic permissions for a single, robust check
+  const allAllowedPaths = [...basePermissions, ...userPermissions];
+
+  const hasPermission = allAllowedPaths.some(p => {
+    // Exact match for root path (e.g., /)
+    if (p === '/') return reqPath === '/';
+    // For all other paths, check if the requested path is the same or a sub-path
+    // (e.g., permission for '/settings' should allow '/settings/users')
+    if (p !== '/') return reqPath === p || reqPath.startsWith(p + '/');
     return false;
   });
-  
-  const hasPermission = 
-    basePermissions.includes(reqPath) || 
-    hasUserPermission;
   
   if (!hasPermission) {
       const dashboardUrl = new URL(`/${currentLocale}`, req.url);
