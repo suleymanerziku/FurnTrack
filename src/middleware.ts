@@ -94,9 +94,17 @@ export async function middleware(req: NextRequest) {
   ];
 
   // Check if requested path is either a base permission or in the dynamic list
+  const hasUserPermission = userPermissions.some(p => {
+    // Exact match (e.g., '/finances')
+    if (p === reqPath) return true;
+    // Dynamic route match (e.g., p='/settings/employees', reqPath='/settings/employees/123')
+    if (reqPath.startsWith(p + '/')) return true; 
+    return false;
+  });
+  
   const hasPermission = 
     basePermissions.includes(reqPath) || 
-    userPermissions.includes(reqPath);
+    hasUserPermission;
   
   if (!hasPermission) {
       const dashboardUrl = new URL(`/${currentLocale}`, req.url);
