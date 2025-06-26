@@ -14,7 +14,7 @@ export default function SettingsPage() {
   const user = useUser();
   const userRole = user?.role || 'Staff'; // Default to a restricted role
 
-  const canAccessAdminSettings = ['Admin', 'Manager'].includes(userRole);
+  const canAccessAdminSettings = ['admin', 'manager'].includes(userRole.toLowerCase());
 
   return (
     <div className="space-y-6">

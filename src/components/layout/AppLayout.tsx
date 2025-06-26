@@ -94,11 +94,11 @@ function MainLayout({ children, user }: AppLayoutProps) {
     ];
     
     const accessibleNavItems = navigationItems.filter(item => 
-        item.roles?.includes(userRole)
+        item.roles?.map(r => r.toLowerCase()).includes(userRole.toLowerCase())
     );
 
     const getPageTitle = () => {
-        if (pathname === '/settings') return t('navigation.settings');
+        if (pathname === '/settings') return t('settings_hub_page.title');
         if (pathname === '/settings/users') return "User Management";
         if (pathname === '/settings/profile') return "Profile Settings";
         if (pathname === '/settings/task-types') return "Task Type Management";
