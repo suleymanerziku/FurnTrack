@@ -86,6 +86,7 @@ export default function UserForm({ setOpen, onSuccess, currentUser, roles }: Use
         toast({ title: "Success", description: result.message });
         setOpen(false);
         onSuccess(result.user);
+        router.refresh(); // Re-fetch server data to update layout with new role
       } else {
         toast({
           variant: "destructive",
