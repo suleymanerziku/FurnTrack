@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import type { LoginFormData, RegisterFormData, ForgotPasswordFormData, ResetPasswordFormData } from "@/lib/types";
 import type { Database } from "@/lib/database.types";
 
-export async function signInWithPassword(formData: LoginFormData): Promise<{ error: string | null }> {
+export async function signInWithPassword(formData: LoginFormData, redirectedFrom: string | null): Promise<{ error: string | null }> {
   const cookieStore = cookies();
   const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
 
@@ -21,7 +21,7 @@ export async function signInWithPassword(formData: LoginFormData): Promise<{ err
     return { error: error.message };
   }
 
-  redirect("/");
+  redirect(redirectedFrom || "/");
 }
 
 export async function signUpWithPassword(formData: RegisterFormData): Promise<{ error: string | null, success?: boolean }> {

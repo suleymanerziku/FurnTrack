@@ -54,7 +54,8 @@ export default function LoginForm() {
   async function onSubmit(values: LoginFormData) {
     setIsLoading(true);
     setServerError(null);
-    const result = await signInWithPassword(values);
+    const redirectedFrom = searchParams.get('redirectedFrom');
+    const result = await signInWithPassword(values, redirectedFrom);
     if (result?.error) {
       setServerError(result.error);
       toast({
