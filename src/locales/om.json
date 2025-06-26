@@ -220,7 +220,8 @@
       "description": "Fayyadamtoota, gahee, fi hojjettoota bulchi.",
       "users_button": "Fayyadamtoota Bulchi",
       "roles_button": "Gaheewwan Bulchi",
-      "employees_button": "Hojjettoota Bulchi"
+      "employees_button": "Hojjettoota Bulchi",
+      "authorization_button": "Heeyyamoota Bulchuu"
     },
     "production": {
       "title": "Qunnamtii Oomishaa",
@@ -231,5 +232,14 @@
       "title": "Yaadannoo",
       "content": "Qunnamtiin ammaaf iddootti kuufama ykn ragaa sobaa fayyadama. Guutummaan kuufamni fuulduratti kan hojiirra oolu ta'a. Bulchiinsi Hojjettootaa amma guutummaatti hojjeta."
     }
+  },
+  "settings_authorization": {
+    "title": "Qunnamtii Heeyyamaa",
+    "description": "Heeyyamoota gahee sirnaa tokkoon tokkoof ramadaman sakatta'i.",
+    "back_button": "Gara Qunnamtiitti Deebi'i",
+    "card_title": "Ibsa Waliigalaa Heeyyama Gahee",
+    "card_description": "Kun ilaalcha dubbisuuf qofa kan gaheen tokko maal akka argachuu danda'u agarsiisudha. Heeyyamoonni koodii applikeeshinii keessatti to'atamu.",
+    "note_title": "Yaadannoo Sirnaa",
+    "note_content": "Heeyyamoonni gahee middleware applikeeshinii keessatti ibsamu. Heeyyamoota jijjiiruuf, koodiin jijjiiramuu qaba. Kutaa 'Fayyadamtoota Bulchuu' fi 'Gaheewwan Bulchuu' keessatti fayyadamaan kam gahee kam akka qabu to'achuu dandeessu."
   }
 }

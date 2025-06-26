@@ -220,7 +220,8 @@
       "description": "Manage users, roles, and employees.",
       "users_button": "Manage Users",
       "roles_button": "Manage Roles",
-      "employees_button": "Manage Employees"
+      "employees_button": "Manage Employees",
+      "authorization_button": "Manage Authorizations"
     },
     "production": {
       "title": "Production Settings",
@@ -231,5 +232,14 @@
       "title": "Note",
       "content": "Settings are currently saved locally or use mock data. Full persistence will be implemented in future updates. Employee Management is now fully functional."
     }
+  },
+  "settings_authorization": {
+    "title": "Authorization Settings",
+    "description": "Review the permissions assigned to each system role.",
+    "back_button": "Back to Settings",
+    "card_title": "Role Permissions Overview",
+    "card_description": "This is a read-only view of what each role can access. Permissions are managed in the application code.",
+    "note_title": "System Note",
+    "note_content": "Role permissions are defined within the application's middleware. To change permissions, the code must be modified. You can manage which user has which role in the 'Manage Users' and 'Manage Roles' sections."
   }
 }

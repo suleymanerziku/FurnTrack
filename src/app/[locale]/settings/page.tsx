@@ -5,7 +5,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings as SettingsIcon, UsersRound, ChevronRight, ClipboardList, UserCog, Briefcase, UserCircle } from "lucide-react"; 
+import { Settings as SettingsIcon, UsersRound, ChevronRight, ClipboardList, UserCog, Briefcase, UserCircle, ShieldCheck } from "lucide-react"; 
 import { useI18n } from "@/locales/client";
 import { useUser } from "@/contexts/UserContext";
 
@@ -98,6 +98,15 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-2">
                         <Briefcase className="h-4 w-4" /> 
                         {t('settings_hub_page.admin.employees_button')}
+                    </div>
+                    <ChevronRight className="h-4 w-4" />
+                    </Button>
+                </Link>
+                <Link href="/settings/authorization" passHref>
+                    <Button variant="outline" className="w-full justify-between">
+                    <div className="flex items-center gap-2">
+                        <ShieldCheck className="h-4 w-4" /> 
+                        {t('settings_hub_page.admin.authorization_button')}
                     </div>
                     <ChevronRight className="h-4 w-4" />
                     </Button>
