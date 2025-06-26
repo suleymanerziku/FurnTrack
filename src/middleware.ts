@@ -62,53 +62,40 @@ export async function middleware(req: NextRequest) {
   // Manually extract locale and path for permission checking as req.nextUrl.locale is not set by next-international
   const pathSegments = pathname.split('/');
   const potentialLocale = pathSegments[1];
-  const currentLocale = locales.includes(potentialLocale) ? potentialLocale : defaultLocale;
+  const currentLocale = locales.includes(potentialLocale as any) ? potentialLocale : defaultLocale;
   
   let reqPath = pathname;
-  if (locales.includes(potentialLocale)) {
+  if (locales.includes(potentialLocale as any)) {
       reqPath = pathname.replace(`/${potentialLocale}`, '') || '/';
   }
 
   const checkPermissions = (role: string, path: string): boolean => {
     const normalizedRole = role.toLowerCase();
 
-    // Base permissions for all authenticated users
+    // Base permissions for all authenticated users (exact paths)
     const basePermissions = [
-        '/',
-        '/settings/profile',
-        '/settings/general',
+      '/',
+      '/settings',
+      '/settings/profile',
+      '/settings/general',
     ];
 
-    // Role-specific page prefixes
+    // Role-specific page paths (must be exact)
     const rolePermissions: Record<string, string[]> = {
-        finance: ['/finances'],
-        coordinator: ['/work-log'],
-        // Staff has no extra permissions beyond the base ones.
+      finance: ['/finances'],
+      coordinator: ['/work-log'],
+      staff: [], // No extra permissions beyond base
     };
 
-    const allowedPrefixes = [
-        ...basePermissions,
-        ...(rolePermissions[normalizedRole] || [])
+    const allowedPaths = [
+      ...basePermissions,
+      ...(rolePermissions[normalizedRole] || []),
     ];
-    
-    // Allow access to the main /settings page itself.
-    if (path === '/settings') {
-        return true;
-    }
-    
-    // Check if the requested path starts with any of the allowed prefixes.
-    if (allowedPrefixes.some(prefix => {
-        // The root path needs an exact match to avoid allowing all paths.
-        if (prefix === '/') {
-            return path === '/';
-        }
-        return path.startsWith(prefix);
-    })) {
-        return true;
-    }
 
-    return false;
-  }
+    // Check if the requested path is exactly one of the allowed paths.
+    // This is safer than `startsWith` and correctly blocks unauthorized settings pages.
+    return allowedPaths.includes(path);
+  };
 
 
   if (!checkPermissions(userRole, reqPath)) {
