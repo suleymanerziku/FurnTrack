@@ -48,32 +48,57 @@ export async function middleware(req: NextRequest) {
   const userRole = userProfile?.role || 'Staff'; 
 
   // Admins and Managers have full access.
-  if (['Admin', 'Manager'].includes(userRole)) {
+  // Using toLowerCase() for a case-insensitive comparison.
+  if (['admin', 'manager'].includes(userRole.toLowerCase())) {
     return res;
   }
   
   // Get the path without the locale prefix.
   const reqPath = pathname.replace(new RegExp(`^/${req.nextUrl.locale}`), '') || '/';
 
-  const isAllowed = (role: string, path: string): boolean => {
-      // Paths accessible to almost all authenticated users
-      const commonPaths = ['/', '/settings/profile', '/settings/general'];
-      if(path === '/settings' || commonPaths.some(p => path.startsWith(p))) {
-          return true;
-      }
+  const checkPermissions = (role: string, path: string): boolean => {
+    const normalizedRole = role.toLowerCase();
 
-      // Role-specific paths
-      switch(role) {
-          case 'Finance':
-              return path.startsWith('/finances');
-          case 'Coordinator':
-              return path.startsWith('/work-log');
-          default:
-              return false; // Deny other paths for other roles by default
-      }
+    // Base permissions for all authenticated users
+    const basePermissions = [
+        '/',
+        '/settings/profile',
+        '/settings/general',
+    ];
+
+    // Role-specific page prefixes
+    const rolePermissions: Record<string, string[]> = {
+        finance: ['/finances'],
+        coordinator: ['/work-log'],
+        // Staff has no extra permissions beyond the base ones.
+    };
+
+    const allowedPrefixes = [
+        ...basePermissions,
+        ...(rolePermissions[normalizedRole] || [])
+    ];
+    
+    // Allow access to the main /settings page itself.
+    if (path === '/settings') {
+        return true;
+    }
+    
+    // Check if the requested path starts with any of the allowed prefixes.
+    if (allowedPrefixes.some(prefix => {
+        // The root path needs an exact match to avoid allowing all paths.
+        if (prefix === '/') {
+            return path === '/';
+        }
+        return path.startsWith(prefix);
+    })) {
+        return true;
+    }
+
+    return false;
   }
 
-  if (!isAllowed(userRole, reqPath)) {
+
+  if (!checkPermissions(userRole, reqPath)) {
       // Redirect to user's dashboard if not authorized
       const dashboardUrl = new URL(`/${req.nextUrl.locale}`, req.url);
       return NextResponse.redirect(dashboardUrl);
