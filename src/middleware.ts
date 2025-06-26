@@ -87,6 +87,7 @@ export async function middleware(req: NextRequest) {
   
   // Base permissions for all authenticated users that cannot be configured
   const basePermissions = [
+    '/', // Grant access to the main dashboard for all roles
     '/settings', // The settings hub page itself
     '/settings/profile',
     '/settings/general',
