@@ -212,10 +212,10 @@ export async function getEmployeeDetailsPageData(employeeId: string): Promise<Em
     .single();
 
   if (empError || !employee) {
-    console.error("Error fetching employee details:", empError);
-    // If not found, redirect instead of returning empty data that might cause page errors
-    if (empError?.code === 'PGRST116') { // PGRST116: "Row to update not found"
-        redirect('/settings/employees?error=Employee not found');
+    // Let the page component handle 'not found' cases.
+    // This prevents side-effects like redirects inside a data-fetching function.
+    if (empError && empError.code !== 'PGRST116') { // PGRST116 means no rows found
+      console.error("Error fetching employee details:", empError);
     }
     return { employee: null, transactions: [], currentBalance: 0 };
   }
