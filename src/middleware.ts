@@ -45,65 +45,63 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // --- START: RBAC Logic ---
+  // --- START: NEW DYNAMIC RBAC Logic ---
   const { data: userProfile } = await supabase
     .from('users')
     .select('role')
     .eq('id', session.user.id)
     .single();
 
-  const userRole = userProfile?.role || 'Staff'; 
+  const userRoleName = userProfile?.role || 'Staff'; 
 
-  // Admins and Managers have full access.
-  if (['admin', 'manager'].includes(userRole.toLowerCase())) {
+  // Admins always have access. This is a failsafe.
+  if (userRoleName.toLowerCase() === 'admin') {
     return res;
   }
   
-  // Manually extract locale and path for permission checking as req.nextUrl.locale is not set by next-international
+  // Manually extract locale and path for permission checking
   const pathSegments = pathname.split('/');
   const potentialLocale = pathSegments[1];
   const currentLocale = locales.includes(potentialLocale as any) ? potentialLocale : defaultLocale;
   
   let reqPath = pathname;
   if (locales.includes(potentialLocale as any)) {
-      reqPath = pathname.replace(`/${potentialLocale}`, '') || '/';
+      reqPath = pathname.replace(`/${currentLocale}`, '') || '/';
   }
 
-  const checkPermissions = (role: string, path: string): boolean => {
-    const normalizedRole = role.toLowerCase();
+  // Fetch permissions for the user's role from the database
+  const { data: roleData, error: roleError } = await supabase
+    .from('roles')
+    .select('permissions')
+    .eq('name', userRoleName)
+    .single();
 
-    // Base permissions for all authenticated users (exact paths)
-    const basePermissions = [
-      '/',
-      '/settings',
-      '/settings/profile',
-      '/settings/general',
-    ];
+  if(roleError) {
+    console.error(`RBAC Error: Could not fetch permissions for role: ${userRoleName}`, roleError);
+    // Fail safe: redirect to dashboard if permissions can't be fetched
+    const dashboardUrl = new URL(`/${currentLocale}`, req.url);
+    return NextResponse.redirect(dashboardUrl);
+  }
 
-    // Role-specific page paths (must be exact)
-    const rolePermissions: Record<string, string[]> = {
-      finance: ['/finances'],
-      coordinator: ['/work-log'],
-      staff: [], // No extra permissions beyond base
-    };
+  const userPermissions = roleData?.permissions || [];
+  
+  // Base permissions for all authenticated users that cannot be configured
+  const basePermissions = [
+    '/settings', // The settings hub page itself
+    '/settings/profile',
+    '/settings/general',
+  ];
 
-    const allowedPaths = [
-      ...basePermissions,
-      ...(rolePermissions[normalizedRole] || []),
-    ];
-
-    // Check if the requested path is exactly one of the allowed paths.
-    // This is safer than `startsWith` and correctly blocks unauthorized settings pages.
-    return allowedPaths.includes(path);
-  };
-
-
-  if (!checkPermissions(userRole, reqPath)) {
-      // Redirect to user's dashboard if not authorized
+  // Check if requested path is either a base permission or in the dynamic list
+  const hasPermission = 
+    basePermissions.includes(reqPath) || 
+    userPermissions.includes(reqPath);
+  
+  if (!hasPermission) {
       const dashboardUrl = new URL(`/${currentLocale}`, req.url);
       return NextResponse.redirect(dashboardUrl);
   }
-  // --- END: RBAC Logic ---
+  // --- END: NEW DYNAMIC RBAC Logic ---
 
   return res;
 }

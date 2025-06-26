@@ -47,6 +47,7 @@ export async function addRole(data: RoleFormData): Promise<{ success: boolean; m
       name: data.name,
       description: data.description || null,
       status: 'Active', 
+      permissions: [], // Default to no permissions
     })
     .select()
     .single();
@@ -60,6 +61,7 @@ export async function addRole(data: RoleFormData): Promise<{ success: boolean; m
   }
 
   revalidatePath('/settings/roles');
+  revalidatePath('/settings/authorization');
   return { success: true, message: "Role added successfully.", role: newRole };
 }
 
@@ -159,4 +161,34 @@ export async function toggleRoleStatus(id: string): Promise<{ success: boolean; 
   
   revalidatePath('/settings/roles');
   return { success: true, message: `Role status toggled to ${newStatus}.`, role: updatedRole };
+}
+
+export async function updateRolesPermissions(
+  updates: { roleId: string; permissions: string[] }[]
+): Promise<{ success: boolean; message: string }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
+  // In a real app, you'd use a transaction here. For simplicity, we'll do it in a loop.
+  const errors = [];
+  for (const update of updates) {
+    const { error } = await supabase
+      .from('roles')
+      .update({ permissions: update.permissions })
+      .eq('id', update.roleId);
+    
+    if (error) {
+      console.error(`Error updating permissions for role ${update.roleId}:`, error);
+      errors.push(error.message);
+    }
+  }
+
+  if (errors.length > 0) {
+    return { success: false, message: `Some permissions failed to update: ${errors.join(', ')}` };
+  }
+
+  revalidatePath('/settings/authorization');
+  revalidatePath('/[locale]/layout', 'layout'); // Revalidate layout to update sidebar for current user
+  
+  return { success: true, message: "Permissions updated successfully." };
 }

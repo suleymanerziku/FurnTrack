@@ -197,6 +197,7 @@ export interface Role {
   name: string;
   description?: string;
   status: RoleStatus;
+  permissions: string[] | null;
   created_at: string; // ISO timestamp string
 }
 

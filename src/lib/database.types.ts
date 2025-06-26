@@ -234,6 +234,7 @@ export interface Database {
           name: string
           description: string | null
           status: string // Active, Inactive
+          permissions: string[] | null
           created_at: string
         }
         Insert: {
@@ -241,6 +242,7 @@ export interface Database {
           name: string
           description?: string | null
           status: string
+          permissions?: string[] | null
           created_at?: string
         }
         Update: {
@@ -248,6 +250,7 @@ export interface Database {
           name?: string
           description?: string | null
           status?: string
+          permissions?: string[] | null
           created_at?: string
         }
         Relationships: []
