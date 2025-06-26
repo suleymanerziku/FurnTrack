@@ -1,7 +1,7 @@
 
 'use server';
 
-import type { User, UserFormData } from '@/lib/types';
+import type { User, UserFormData, ProfileInfoFormData, ResetPasswordFormData } from '@/lib/types';
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { revalidatePath } from 'next/cache';
@@ -176,4 +176,70 @@ export async function toggleUserStatus(id: string): Promise<{ success: boolean; 
   
   revalidatePath('/settings/users');
   return { success: true, message: `User status toggled to ${newStatus}.`, user: updatedUser };
+}
+
+
+export async function updateCurrentUserInfo(data: ProfileInfoFormData): Promise<{ success: boolean; message: string }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+  if (!authUser) {
+    return { success: false, message: "User not found. You may need to log in again." };
+  }
+
+  const emailChanged = data.email && data.email !== authUser.email;
+
+  // 1. Update Supabase Auth user. This handles email change verification.
+  const { error: authError } = await supabase.auth.updateUser({
+    email: data.email,
+    data: { name: data.name },
+  });
+
+  if (authError) {
+    console.error("Error updating auth user data:", authError);
+    return { success: false, message: authError.message };
+  }
+
+  // 2. Update public.users profile table.
+  const { error: profileError } = await supabase
+    .from('users')
+    .update({ name: data.name, email: data.email })
+    .eq('id', authUser.id);
+    
+  if (profileError) {
+    console.error("Error updating public.users profile:", profileError);
+    return { success: false, message: `Auth data updated, but profile update failed: ${profileError.message}` };
+  }
+
+  revalidatePath('/settings/profile');
+  revalidatePath('/[locale]/layout', 'layout'); // Important for sidebar name update
+
+  let message = "Profile information updated successfully.";
+  if (emailChanged) {
+      message += " A confirmation link has been sent to your new email address.";
+  }
+  
+  return { success: true, message };
+}
+
+export async function updateCurrentUserPassword(data: { password: string }): Promise<{ error: string | null }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "You must be logged in to change your password." };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: data.password,
+  });
+
+  if (error) {
+    console.error("Update user password error from profile:", error.message);
+    return { error: error.message };
+  }
+
+  return { error: null };
 }

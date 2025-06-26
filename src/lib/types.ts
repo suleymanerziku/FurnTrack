@@ -206,7 +206,8 @@ export const RoleFormInputSchema = z.object({
 });
 export type RoleFormData = z.infer<typeof RoleFormInputSchema>;
 
-// Authentication Form Schemas
+// --- Authentication Form Schemas ---
+
 export const LoginFormSchema = z.object({
   email: z.string().email("Invalid email address."),
   password: z.string().min(1, "Password is required."),
@@ -237,6 +238,14 @@ export const ResetPasswordFormSchema = z.object({
   path: ["confirmPassword"],
 });
 export type ResetPasswordFormData = z.infer<typeof ResetPasswordFormSchema>;
+
+// Profile Settings Form
+export const ProfileInfoFormSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters.").max(100),
+  email: z.string().email("Invalid email address."),
+});
+export type ProfileInfoFormData = z.infer<typeof ProfileInfoFormSchema>;
+
 
 // Reports Page Types
 export interface EmployeeActivity {

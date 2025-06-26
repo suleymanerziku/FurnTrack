@@ -2,73 +2,99 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, UserCircle, Lock } from "lucide-react";
+import { useUser } from "@/contexts/UserContext";
+import { 
+  ProfileInfoFormSchema, 
+  type ProfileInfoFormData, 
+  ResetPasswordFormSchema, 
+  type ResetPasswordFormData 
+} from "@/lib/types";
+import { updateCurrentUserInfo, updateCurrentUserPassword } from "@/lib/actions/user.actions";
 
 export default function ProfileSettingsPage() {
   const { toast } = useToast();
-  const [isSavingInfo, setIsSavingInfo] = React.useState(false);
-  const [isSavingPassword, setIsSavingPassword] = React.useState(false);
+  const user = useUser();
+  const router = useRouter();
 
-  // Mock form state - in a real app, this would come from user data
-  const [name, setName] = React.useState("FurnTrack Admin");
-  const [email, setEmail] = React.useState("admin@furntrack.com");
+  const infoForm = useForm<ProfileInfoFormData>({
+    resolver: zodResolver(ProfileInfoFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+    },
+  });
 
-  const [currentPassword, setCurrentPassword] = React.useState("");
-  const [newPassword, setNewPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const passwordForm = useForm<ResetPasswordFormData>({
+    resolver: zodResolver(ResetPasswordFormSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  const handleSaveInformation = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSavingInfo(true);
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Profile information updated (mock):", { name, email });
-      toast({
-        title: "Profile Updated (Mock)",
-        description: "Your personal information has been updated.",
+  React.useEffect(() => {
+    if (user) {
+      infoForm.reset({
+        name: user.name || "",
+        email: user.email || "",
       });
-      setIsSavingInfo(false);
-    }, 1000);
+    }
+  }, [user, infoForm]);
+
+  const handleSaveInformation = async (data: ProfileInfoFormData) => {
+    const result = await updateCurrentUserInfo(data);
+    if (result.success) {
+      toast({
+        title: "Profile Updated",
+        description: result.message,
+      });
+      router.refresh(); // Re-fetch server data to update layout (e.g., sidebar name)
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: result.message,
+      });
+    }
   };
 
-  const handleSavePassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newPassword !== confirmPassword) {
+  const handleSavePassword = async (data: ResetPasswordFormData) => {
+    const result = await updateCurrentUserPassword({ password: data.password });
+    if (result.error) {
       toast({
         variant: "destructive",
-        title: "Password Mismatch",
-        description: "New password and confirm password do not match.",
+        title: "Password Update Failed",
+        description: result.error,
       });
-      return;
-    }
-    if (!newPassword) {
+    } else {
       toast({
-        variant: "destructive",
-        title: "Password Required",
-        description: "New password cannot be empty.",
-      });
-      return;
-    }
-    setIsSavingPassword(true);
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Password updated (mock)");
-      toast({
-        title: "Password Updated (Mock)",
+        title: "Password Updated",
         description: "Your password has been successfully changed.",
       });
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setIsSavingPassword(false);
-    }, 1000);
+      passwordForm.reset();
+    }
   };
+
+  const { isSubmitting: isSavingInfo } = infoForm.formState;
+  const { isSubmitting: isSavingPassword } = passwordForm.formState;
+
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -82,48 +108,64 @@ export default function ProfileSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline"><UserCircle className="h-5 w-5 text-primary" /> Personal Information</CardTitle>
-          <CardDescription>Update your name, email, and profile picture.</CardDescription>
+          <CardDescription>Update your name and email address. Changing your email will require re-verification.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSaveInformation} className="space-y-6">
-            <div className="flex items-center space-x-4 mb-6">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src="https://placehold.co/80x80.png" alt="User Avatar" data-ai-hint="user avatar" />
-                <AvatarFallback>FT</AvatarFallback>
-              </Avatar>
-              <div>
-                <Button type="button" variant="outline" disabled>Change Avatar (WIP)</Button>
-                <p className="text-xs text-muted-foreground mt-1">JPG, GIF or PNG. 1MB max.</p>
+          <Form {...infoForm}>
+            <form onSubmit={infoForm.handleSubmit(handleSaveInformation)} className="space-y-6">
+              <div className="flex items-center space-x-4 mb-6">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={`https://placehold.co/80x80.png?text=${infoForm.getValues('name')?.charAt(0) || 'U'}`} alt="User Avatar" data-ai-hint="user avatar letter" />
+                  <AvatarFallback>{infoForm.getValues('name')?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <Button type="button" variant="outline" disabled>Change Avatar (WIP)</Button>
+                  <p className="text-xs text-muted-foreground mt-1">JPG, GIF or PNG. 1MB max.</p>
+                </div>
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input 
-                id="name" 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
-                placeholder="Your full name"
-                disabled={isSavingInfo}
+              <FormField
+                control={infoForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Your full name"
+                        disabled={isSavingInfo}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder="your@email.com"
-                disabled={isSavingInfo}
+              <FormField
+                control={infoForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="email" 
+                        placeholder="your@email.com"
+                        disabled={isSavingInfo}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="flex justify-end">
-              <Button type="submit" disabled={isSavingInfo} className="w-full sm:w-auto">
-                {isSavingInfo && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Information
-              </Button>
-            </div>
-          </form>
+              <div className="flex justify-end">
+                <Button type="submit" disabled={isSavingInfo} className="w-full sm:w-auto">
+                  {isSavingInfo && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Information
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
 
@@ -133,47 +175,52 @@ export default function ProfileSettingsPage() {
           <CardDescription>Change your account password.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSavePassword} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current Password</Label>
-              <Input 
-                id="currentPassword" 
-                type="password" 
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Enter your current password"
-                disabled={isSavingPassword}
+          <Form {...passwordForm}>
+            <form onSubmit={passwordForm.handleSubmit(handleSavePassword)} className="space-y-6">
+              <FormField
+                control={passwordForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>New Password</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        placeholder="Enter your new password"
+                        disabled={isSavingPassword}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
-              <Input 
-                id="newPassword" 
-                type="password" 
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Enter your new password"
-                disabled={isSavingPassword}
+              <FormField
+                control={passwordForm.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm New Password</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="password" 
+                        placeholder="Confirm your new password"
+                        disabled={isSavingPassword}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <Input 
-                id="confirmPassword" 
-                type="password" 
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm your new password"
-                disabled={isSavingPassword}
-              />
-            </div>
-            <div className="flex justify-end">
-              <Button type="submit" disabled={isSavingPassword} className="w-full sm:w-auto">
-                {isSavingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Update Password
-              </Button>
-            </div>
-          </form>
+              <div className="flex justify-end">
+                <Button type="submit" disabled={isSavingPassword} className="w-full sm:w-auto">
+                  {isSavingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Update Password
+                </Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
