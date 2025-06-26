@@ -25,6 +25,13 @@ export async function middleware(req: NextRequest) {
   // All other non-public routes go through i18n and then auth check.
   const res = i18nMiddleware(req);
 
+  // If i18n middleware decided to redirect (e.g., to add a missing locale),
+  // we should just follow that redirect and not process further.
+  if (res.status === 307 || res.status === 308) {
+      return res;
+  }
+
+
   // The i18n middleware might have rewritten the URL.
   // We need a session to access these pages.
   const supabase = createMiddlewareClient<Database>({ req, res });
@@ -48,13 +55,19 @@ export async function middleware(req: NextRequest) {
   const userRole = userProfile?.role || 'Staff'; 
 
   // Admins and Managers have full access.
-  // Using toLowerCase() for a case-insensitive comparison.
   if (['admin', 'manager'].includes(userRole.toLowerCase())) {
     return res;
   }
   
-  // Get the path without the locale prefix.
-  const reqPath = pathname.replace(new RegExp(`^/${req.nextUrl.locale}`), '') || '/';
+  // Manually extract locale and path for permission checking as req.nextUrl.locale is not set by next-international
+  const pathSegments = pathname.split('/');
+  const potentialLocale = pathSegments[1];
+  const currentLocale = locales.includes(potentialLocale) ? potentialLocale : defaultLocale;
+  
+  let reqPath = pathname;
+  if (locales.includes(potentialLocale)) {
+      reqPath = pathname.replace(`/${potentialLocale}`, '') || '/';
+  }
 
   const checkPermissions = (role: string, path: string): boolean => {
     const normalizedRole = role.toLowerCase();
@@ -100,7 +113,7 @@ export async function middleware(req: NextRequest) {
 
   if (!checkPermissions(userRole, reqPath)) {
       // Redirect to user's dashboard if not authorized
-      const dashboardUrl = new URL(`/${req.nextUrl.locale}`, req.url);
+      const dashboardUrl = new URL(`/${currentLocale}`, req.url);
       return NextResponse.redirect(dashboardUrl);
   }
   // --- END: RBAC Logic ---
