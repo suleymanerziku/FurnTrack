@@ -11,14 +11,36 @@ export async function signInWithPassword(formData: LoginFormData, redirectedFrom
   const cookieStore = cookies();
   const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email: formData.email,
     password: formData.password,
   });
 
-  if (error) {
-    console.error("Sign in error:", error.message);
-    return { error: error.message };
+  if (authError) {
+    console.error("Sign in error:", authError.message);
+    return { error: authError.message };
+  }
+  
+  if (authData.user) {
+    const { data: userProfile, error: profileError } = await supabase
+      .from('users')
+      .select('status')
+      .eq('id', authData.user.id)
+      .single();
+      
+    if (profileError || !userProfile) {
+      await supabase.auth.signOut(); // Ensure partial session is cleared
+      console.error(`Login denied: Could not find profile for user ${authData.user.id}.`, profileError);
+      return { error: "Login failed: User profile not found. Please contact an administrator." };
+    }
+    
+    if (userProfile.status === 'Inactive') {
+      await supabase.auth.signOut(); // Sign out the user to prevent access
+      return { error: "Your account is inactive. Please contact an administrator to reactivate it." };
+    }
+  } else {
+    // This case should ideally not be reached if authError is null, but it's a good safeguard.
+    return { error: "Login failed: Could not retrieve user information after authentication." };
   }
 
   redirect(redirectedFrom || "/");
