@@ -169,8 +169,8 @@ export async function updateRolesPermissions(
   const cookieStore = cookies();
   const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
 
-  // In a real app, you'd use a transaction here. For simplicity, we'll do it in a loop.
-  const errors = [];
+  // In a real app, you might use a transaction here (e.g., by calling an RPC function).
+  // For simplicity, we'll loop through the updates. If one fails, we stop.
   for (const update of updates) {
     const { error } = await supabase
       .from('roles')
@@ -179,12 +179,16 @@ export async function updateRolesPermissions(
     
     if (error) {
       console.error(`Error updating permissions for role ${update.roleId}:`, error);
-      errors.push(error.message);
+      // Check for the specific missing column error from Supabase/Postgres
+      if (error.code === '42703' || error.message.includes("'permissions' column")) {
+         return { 
+            success: false, 
+            message: "Database Schema Mismatch: The 'permissions' column is missing from the 'roles' table. To fix this, please add a column named 'permissions' with the type 'text[]' to your 'roles' table in the Supabase Table Editor."
+         };
+      }
+      // For any other error, return a generic failure message
+      return { success: false, message: `Failed to update permissions for role ID ${update.roleId}: ${error.message}` };
     }
-  }
-
-  if (errors.length > 0) {
-    return { success: false, message: `Some permissions failed to update: ${errors.join(', ')}` };
   }
 
   revalidatePath('/settings/authorization');
