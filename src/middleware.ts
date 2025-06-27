@@ -44,20 +44,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // --- START: NEW DYNAMIC RBAC Logic ---
-  const { data: userProfile } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', session.user.id)
-    .single();
-
-  const userRoleName = userProfile?.role || 'Staff'; 
-
-  // Admins always have access. This is a failsafe.
-  if (userRoleName.toLowerCase() === 'admin') {
-    return res;
-  }
-  
   // Manually extract locale and path for permission checking
   const pathSegments = pathname.split('/');
   const potentialLocale = pathSegments[1];
@@ -68,6 +54,20 @@ export async function middleware(req: NextRequest) {
       reqPath = pathname.replace(`/${currentLocale}`, '') || '/';
   }
 
+  // --- START: REFINED DYNAMIC RBAC Logic ---
+  const { data: userProfile } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', session.user.id)
+    .single();
+
+  const userRoleName = userProfile?.role || 'Staff'; 
+
+  // Admins and Managers have access to everything. This is a failsafe.
+  if (userRoleName.toLowerCase() === 'admin' || userRoleName.toLowerCase() === 'manager') {
+    return res;
+  }
+  
   // Fetch permissions for the user's role from the database
   const { data: roleData, error: roleError } = await supabase
     .from('roles')
@@ -75,11 +75,8 @@ export async function middleware(req: NextRequest) {
     .ilike('name', userRoleName)
     .single();
 
-  // Don't treat "not found" as a fatal error, just means no extra permissions.
-  // A real DB error would cause a redirect loop.
   if(roleError && roleError.code !== 'PGRST116') {
     console.error(`RBAC Error: Could not fetch permissions for role: ${userRoleName}`, roleError);
-    // Fail safe: redirect to dashboard if permissions can't be fetched
     const dashboardUrl = new URL(`/${currentLocale}`, req.url);
     return NextResponse.redirect(dashboardUrl);
   }
@@ -88,21 +85,29 @@ export async function middleware(req: NextRequest) {
   
   // Base permissions for all authenticated users that cannot be configured
   const basePermissions = [
-    '/', // Grant access to the main dashboard for all roles
-    '/settings', // The settings hub page itself
     '/settings/profile',
     '/settings/general',
   ];
 
-  // Combine base and dynamic permissions for a single, robust check
-  const allAllowedPaths = [...basePermissions, ...userPermissions];
+  // Combine base and dynamic permissions. Use a Set to handle potential duplicates.
+  let allAllowedPaths = [...new Set(['/', ...basePermissions, ...userPermissions])];
 
+  // Grant access to the /settings hub page ONLY if the user has permission to access one of its children.
+  // This is crucial to prevent redirect loops where a user is sent to /settings but has no visible links.
+  if (allAllowedPaths.some(p => p.startsWith('/settings/'))) {
+    allAllowedPaths.push('/settings');
+  }
+
+  // A user has permission if the requested path is an EXACT match to an allowed path,
+  // OR if the requested path is a dynamic sub-path of an allowed path (e.g., /employees/[id]).
   const hasPermission = allAllowedPaths.some(p => {
-    // Exact match for root path (e.g., /)
-    if (p === '/') return reqPath === '/';
-    // For all other paths, check if the requested path is the same or a sub-path
-    // (e.g., permission for '/settings' should allow '/settings/users')
-    if (p !== '/') return reqPath === p || reqPath.startsWith(p + '/');
+    // Exact match: e.g. reqPath '/settings/profile' matches permission '/settings/profile'
+    if (reqPath === p) return true;
+    
+    // Dynamic sub-path match: e.g. reqPath '/settings/employees/123' matches permission '/settings/employees'
+    // We avoid a root path check (p !== '/') because it's not a parent of other routes in that way.
+    if (p !== '/' && reqPath.startsWith(p + '/')) return true;
+    
     return false;
   });
   
@@ -110,7 +115,7 @@ export async function middleware(req: NextRequest) {
       const dashboardUrl = new URL(`/${currentLocale}`, req.url);
       return NextResponse.redirect(dashboardUrl);
   }
-  // --- END: NEW DYNAMIC RBAC Logic ---
+  // --- END: REFINED DYNAMIC RBAC Logic ---
 
   return res;
 }
