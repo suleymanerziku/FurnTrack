@@ -81,7 +81,8 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(dashboardUrl);
   }
 
-  const userPermissions = roleData?.permissions || [];
+  // Safely cast the permissions from Json to a string array
+  const userPermissions = (roleData?.permissions as string[]) || [];
   
   // Base permissions for all authenticated users that cannot be configured
   const basePermissions = [

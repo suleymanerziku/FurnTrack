@@ -42,7 +42,8 @@ export default function AuthorizationSettingsPage() {
         setRoles(rolesData);
         const initialPermissions: Record<string, string[]> = {};
         for (const role of rolesData) {
-          initialPermissions[role.id] = role.permissions || [];
+          // Cast the permissions from Json to string[]
+          initialPermissions[role.id] = (role.permissions as string[]) || [];
         }
         setPermissions(initialPermissions);
       } catch (error) {
