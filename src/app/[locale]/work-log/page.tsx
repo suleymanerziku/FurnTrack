@@ -274,6 +274,62 @@ export default function WorkLogPage() {
 
       <Card>
         <CardHeader>
+          <CardTitle>{t('work_log_page.work_log.title')}</CardTitle>
+          <CardDescription>
+            {isAnyFilterActive 
+              ? t('work_log_page.work_log.description_filtered', { count: loggedWork.length })
+              : t('work_log_page.work_log.description_default') }
+            </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+             <div className="flex justify-center items-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="ml-2 text-muted-foreground">{t('work_log_page.work_log.loading')}</p>
+            </div>
+          ) : loggedWork.length > 0 ? (
+            <div className="space-y-3">
+              {loggedWork.map(task => {
+                const isEditable = new Date().getTime() - new Date(task.created_at).getTime() < SIX_HOURS_IN_MS;
+                return(
+                  <div key={task.id} className="flex items-center gap-2">
+                    <EmployeeTransactionHistoryDialog employeeId={task.employee_id} employeeName={task.employee_name || 'N/A'}>
+                      <DialogTrigger asChild>
+                        <button className="flex-grow text-left p-4 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between sm:items-start hover:bg-muted/50 transition-colors">
+                          <div className="mb-2 sm:mb-0">
+                            <h3 className="font-semibold font-headline">{task.task_name || `Task ID: ${task.task_type_id}`}</h3>
+                            <p className="text-sm text-muted-foreground">{t('work_log_page.work_log.employee_label')}: {task.employee_name || `Emp. ID: ${task.employee_id}`}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {t('work_log_page.work_log.quantity_label')}: {task.quantity_completed} | {t('work_log_page.work_log.date_label')}: {new Date(task.date_assigned).toLocaleDateString()} | {t('work_log_page.work_log.payment_label')}: ${task.total_payment.toFixed(2)}
+                            </p>
+                          </div>
+                          <Badge variant="default" className="mt-2 sm:mt-0 self-start sm:self-center">
+                            <CheckCircle className="mr-1 h-3 w-3" />
+                            {task.status || "Completed"}
+                          </Badge>
+                        </button>
+                      </DialogTrigger>
+                    </EmployeeTransactionHistoryDialog>
+                     <Button variant="outline" size="sm" disabled={!isEditable} onClick={() => setEditingTask(task)} title={isEditable ? "Edit work log" : "Cannot edit records older than 6 hours"}>
+                        <Edit className="h-3 w-3" />
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">
+              { isAnyFilterActive && employees.length > 0 && taskTypes.length > 0
+                ? t('work_log_page.work_log.no_data_filtered')
+                : t('work_log_page.work_log.no_data')
+              }
+            </p>
+          )}
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
           <CardTitle>{t('work_log_page.payment_log.title')}</CardTitle>
           <CardDescription>
             {t('work_log_page.payment_log.description')}
@@ -330,62 +386,6 @@ export default function WorkLogPage() {
               <p className="text-center text-muted-foreground py-4">{t('work_log_page.payment_log.no_data')}</p>
             )}
           </ScrollArea>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('work_log_page.work_log.title')}</CardTitle>
-          <CardDescription>
-            {isAnyFilterActive 
-              ? t('work_log_page.work_log.description_filtered', { count: loggedWork.length })
-              : t('work_log_page.work_log.description_default') }
-            </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-             <div className="flex justify-center items-center py-10">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="ml-2 text-muted-foreground">{t('work_log_page.work_log.loading')}</p>
-            </div>
-          ) : loggedWork.length > 0 ? (
-            <div className="space-y-3">
-              {loggedWork.map(task => {
-                const isEditable = new Date().getTime() - new Date(task.created_at).getTime() < SIX_HOURS_IN_MS;
-                return(
-                  <div key={task.id} className="flex items-center gap-2">
-                    <EmployeeTransactionHistoryDialog employeeId={task.employee_id} employeeName={task.employee_name || 'N/A'}>
-                      <DialogTrigger asChild>
-                        <button className="flex-grow text-left p-4 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between sm:items-start hover:bg-muted/50 transition-colors">
-                          <div className="mb-2 sm:mb-0">
-                            <h3 className="font-semibold font-headline">{task.task_name || `Task ID: ${task.task_type_id}`}</h3>
-                            <p className="text-sm text-muted-foreground">{t('work_log_page.work_log.employee_label')}: {task.employee_name || `Emp. ID: ${task.employee_id}`}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {t('work_log_page.work_log.quantity_label')}: {task.quantity_completed} | {t('work_log_page.work_log.date_label')}: {new Date(task.date_assigned).toLocaleDateString()} | {t('work_log_page.work_log.payment_label')}: ${task.total_payment.toFixed(2)}
-                            </p>
-                          </div>
-                          <Badge variant="default" className="mt-2 sm:mt-0 self-start sm:self-center">
-                            <CheckCircle className="mr-1 h-3 w-3" />
-                            {task.status || "Completed"}
-                          </Badge>
-                        </button>
-                      </DialogTrigger>
-                    </EmployeeTransactionHistoryDialog>
-                     <Button variant="outline" size="sm" disabled={!isEditable} onClick={() => setEditingTask(task)} title={isEditable ? "Edit work log" : "Cannot edit records older than 6 hours"}>
-                        <Edit className="h-3 w-3" />
-                    </Button>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-muted-foreground">
-              { isAnyFilterActive && employees.length > 0 && taskTypes.length > 0
-                ? t('work_log_page.work_log.no_data_filtered')
-                : t('work_log_page.work_log.no_data')
-              }
-            </p>
-          )}
         </CardContent>
       </Card>
       
