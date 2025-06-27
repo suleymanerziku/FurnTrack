@@ -24,34 +24,50 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { recordExpense } from "@/lib/actions/finance.actions";
-import { ExpenseFormInputSchema, type ExpenseFormData } from "@/lib/types";
+import { recordExpense, updateExpense } from "@/lib/actions/finance.actions";
+import { ExpenseFormInputSchema, type ExpenseFormData, type Expense } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
 
 interface RecordExpenseFormProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
   onSuccess?: () => void;
+  currentExpense?: Expense | null;
 }
 
-export default function RecordExpenseForm({ setOpen, onSuccess }: RecordExpenseFormProps) {
+export default function RecordExpenseForm({ setOpen, onSuccess, currentExpense }: RecordExpenseFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const isEditMode = !!currentExpense;
 
   const form = useForm<ExpenseFormData>({
     resolver: zodResolver(ExpenseFormInputSchema),
     defaultValues: {
       description: "",
-      amount: null, // Changed from undefined
+      amount: null,
       date: new Date(),
       receiptNumber: "",
     },
   });
 
+  React.useEffect(() => {
+    if (isEditMode && currentExpense) {
+      form.reset({
+        description: currentExpense.description,
+        amount: currentExpense.amount,
+        date: new Date(currentExpense.date),
+        receiptNumber: currentExpense.receipt_number || "",
+      });
+    }
+  }, [currentExpense, isEditMode, form]);
+
   async function onSubmit(values: ExpenseFormData) {
     setIsLoading(true);
     try {
-      const result = await recordExpense(values);
+      const result = isEditMode && currentExpense
+        ? await updateExpense(currentExpense.id, values)
+        : await recordExpense(values);
+
       if (result.success) {
         toast({ title: "Success", description: result.message });
         form.reset();
@@ -61,7 +77,7 @@ export default function RecordExpenseForm({ setOpen, onSuccess }: RecordExpenseF
         toast({
           variant: "destructive",
           title: "Error",
-          description: result.message || "Failed to record expense.",
+          description: result.message || `Failed to ${isEditMode ? 'update' : 'record'} expense.`,
         });
       }
     } catch (error) {
@@ -164,7 +180,7 @@ export default function RecordExpenseForm({ setOpen, onSuccess }: RecordExpenseF
         />
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Record Expense
+          {isEditMode ? "Save Changes" : "Record Expense"}
         </Button>
       </form>
     </Form>

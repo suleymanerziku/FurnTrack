@@ -1,12 +1,14 @@
 
 'use server';
 
-import type { TaskTypeFormData, TaskAssignmentFormData, TaskType, AssignedTask, TaskEntryData } from '@/lib/types';
+import type { TaskTypeFormData, TaskAssignmentFormData, TaskType, AssignedTask, TaskEntryData, EditWorkLogFormData } from '@/lib/types';
 import { createServerActionClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { revalidatePath } from 'next/cache';
 import type { Database } from '../database.types';
 import { format } from 'date-fns';
+
+const SIX_HOURS_IN_MS = 6 * 60 * 60 * 1000;
 
 export async function getTaskTypes(): Promise<TaskType[]> {
   const cookieStore = cookies();
@@ -176,6 +178,56 @@ export async function assignTask(data: TaskAssignmentFormData): Promise<{ succes
   }
 }
 
+export async function updateAssignedTask(id: string, data: EditWorkLogFormData): Promise<{ success: boolean; message: string; }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
+  const { data: originalTask, error: fetchError } = await supabase
+    .from('assigned_tasks')
+    .select('created_at, task_type_id')
+    .eq('id', id)
+    .single();
+
+  if (fetchError || !originalTask) {
+    return { success: false, message: "Work log record not found." };
+  }
+  
+  const recordAge = new Date().getTime() - new Date(originalTask.created_at).getTime();
+  if (recordAge > SIX_HOURS_IN_MS) {
+    return { success: false, message: "Record is older than 6 hours and can no longer be edited." };
+  }
+
+  const { data: taskType, error: ttError } = await supabase
+    .from('task_types')
+    .select('unit_price')
+    .eq('id', originalTask.task_type_id)
+    .single();
+    
+  if (ttError || !taskType) {
+    return { success: false, message: "Could not find task type to recalculate payment." };
+  }
+  
+  const totalPayment = taskType.unit_price * data.quantity_completed;
+
+  const { error: updateError } = await supabase
+    .from('assigned_tasks')
+    .update({
+      quantity_completed: data.quantity_completed,
+      date_assigned: data.date_assigned.toISOString().split('T')[0],
+      total_payment: totalPayment,
+    })
+    .eq('id', id);
+
+  if (updateError) {
+    console.error("Error updating work log:", updateError);
+    return { success: false, message: updateError.message };
+  }
+
+  revalidatePath('/work-log');
+  revalidatePath('/settings/employees');
+  revalidatePath('/');
+  return { success: true, message: "Work log updated successfully." };
+}
 
 export async function getAssignedTasks(): Promise<AssignedTask[]> {
   const cookieStore = cookies();

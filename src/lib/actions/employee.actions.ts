@@ -8,6 +8,7 @@ import { revalidatePath } from 'next/cache';
 import type { Database } from '../database.types';
 import { redirect } from 'next/navigation';
 
+const SIX_HOURS_IN_MS = 6 * 60 * 60 * 1000;
 
 export async function getEmployeeById(id: string): Promise<Employee | null> {
   const cookieStore = cookies();
@@ -168,6 +169,52 @@ export async function recordPayment(data: PaymentFormData): Promise<{ success: b
   return { success: true, message: "Payment recorded successfully.", paymentId: newPayment.id };
 }
 
+export async function updatePayment(id: string, data: PaymentFormData): Promise<{ success: boolean; message: string; payment?: Payment }> {
+  const cookieStore = cookies();
+  const supabase = createServerActionClient<Database>({ cookies: () => cookieStore });
+
+  const { data: originalPayment, error: fetchError } = await supabase
+    .from('payments')
+    .select('created_at')
+    .eq('id', id)
+    .single();
+
+  if (fetchError || !originalPayment) {
+    return { success: false, message: "Payment record not found." };
+  }
+
+  const recordAge = new Date().getTime() - new Date(originalPayment.created_at).getTime();
+  if (recordAge > SIX_HOURS_IN_MS) {
+    return { success: false, message: "Record is older than 6 hours and can no longer be edited." };
+  }
+
+  const { data: updatedPayment, error: updateError } = await supabase
+    .from('payments')
+    .update({
+      employee_id: data.employee_id,
+      amount: data.amount,
+      date: data.date.toISOString().split('T')[0],
+      notes: data.notes || null,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (updateError) {
+    console.error("Error updating payment:", updateError);
+    return { success: false, message: updateError.message };
+  }
+  if (!updatedPayment) {
+    return { success: false, message: "Failed to update payment, no data returned." };
+  }
+
+  revalidatePath('/work-log');
+  revalidatePath('/settings/employees');
+  revalidatePath(`/settings/employees/${data.employee_id}`);
+  revalidatePath('/');
+  return { success: true, message: "Payment updated successfully.", payment: updatedPayment as Payment };
+}
+
 
 async function calculateEmployeeBalance(employeeId: string, supabase: ReturnType<typeof createServerActionClient<Database>>): Promise<number> {
   let balance = 0;
@@ -212,8 +259,6 @@ export async function getEmployeeDetailsPageData(employeeId: string): Promise<Em
     .single();
 
   if (empError || !employee) {
-    // Let the page component handle 'not found' cases.
-    // This prevents side-effects like redirects inside a data-fetching function.
     if (empError && empError.code !== 'PGRST116') { // PGRST116 means no rows found
       console.error("Error fetching employee details:", empError);
     }

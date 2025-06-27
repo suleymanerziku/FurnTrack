@@ -31,8 +31,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { PaymentFormInputSchema, type PaymentFormData, type Employee } from "@/lib/types";
-import { recordPayment } from "@/lib/actions/employee.actions";
+import { PaymentFormInputSchema, type PaymentFormData, type Employee, type Payment } from "@/lib/types";
+import { recordPayment, updatePayment } from "@/lib/actions/employee.actions";
 import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -40,11 +40,13 @@ interface EmployeePaymentFormProps {
   employees: Employee[];
   setOpen: Dispatch<SetStateAction<boolean>>;
   onSuccess?: () => void;
+  currentPayment?: Payment | null;
 }
 
-export default function EmployeePaymentForm({ employees, setOpen, onSuccess }: EmployeePaymentFormProps) {
+export default function EmployeePaymentForm({ employees, setOpen, onSuccess, currentPayment }: EmployeePaymentFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const isEditMode = !!currentPayment;
 
   const form = useForm<PaymentFormData>({
     resolver: zodResolver(PaymentFormInputSchema),
@@ -56,10 +58,24 @@ export default function EmployeePaymentForm({ employees, setOpen, onSuccess }: E
     },
   });
 
+  React.useEffect(() => {
+    if (isEditMode && currentPayment) {
+      form.reset({
+        employee_id: currentPayment.employee_id,
+        amount: currentPayment.amount,
+        date: new Date(currentPayment.date),
+        notes: currentPayment.notes || "",
+      });
+    }
+  }, [currentPayment, isEditMode, form]);
+
   async function onSubmit(values: PaymentFormData) {
     setIsLoading(true);
     try {
-      const result = await recordPayment(values);
+      const result = isEditMode && currentPayment
+        ? await updatePayment(currentPayment.id, values)
+        : await recordPayment(values);
+
       if (result.success) {
         toast({ title: "Success", description: result.message });
         form.reset();
@@ -69,7 +85,7 @@ export default function EmployeePaymentForm({ employees, setOpen, onSuccess }: E
         toast({
           variant: "destructive",
           title: "Error",
-          description: result.message || "Failed to record payment.",
+          description: result.message || `Failed to ${isEditMode ? 'update' : 'record'} payment.`,
         });
       }
     } catch (error) {
@@ -92,7 +108,7 @@ export default function EmployeePaymentForm({ employees, setOpen, onSuccess }: E
           render={({ field }) => (
             <FormItem>
               <FormLabel>Employee</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value} disabled={isEditMode}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select an employee" />
@@ -180,9 +196,9 @@ export default function EmployeePaymentForm({ employees, setOpen, onSuccess }: E
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isLoading || employees.length === 0}>
+        <Button type="submit" className="w-full" disabled={isLoading || (employees.length === 0 && !isEditMode)}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Record Payment
+          {isEditMode ? "Save Changes" : "Record Payment"}
         </Button>
       </form>
     </Form>

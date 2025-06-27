@@ -2,8 +2,8 @@
 "use client";
 
 import * as React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,69 +14,47 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { recordSale, updateSale } from "@/lib/actions/finance.actions";
-import { SaleFormInputSchema, type SaleFormData, type Sale } from "@/lib/types";
+import { EditWorkLogFormSchema, type EditWorkLogFormData, type AssignedTask } from "@/lib/types";
+import { updateAssignedTask } from "@/lib/actions/task.actions";
 import { useToast } from "@/hooks/use-toast";
 import type { Dispatch, SetStateAction } from "react";
 
-interface RecordSaleFormProps {
+interface EditWorkLogFormProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
-  onSuccess?: () => void;
-  currentSale?: Sale | null;
+  onSuccess: () => void;
+  task: AssignedTask;
 }
 
-export default function RecordSaleForm({ setOpen, onSuccess, currentSale }: RecordSaleFormProps) {
+export default function EditWorkLogForm({ setOpen, onSuccess, task }: EditWorkLogFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
-  const isEditMode = !!currentSale;
 
-  const form = useForm<SaleFormData>({
-    resolver: zodResolver(SaleFormInputSchema),
+  const form = useForm<EditWorkLogFormData>({
+    resolver: zodResolver(EditWorkLogFormSchema),
     defaultValues: {
-      productName: "",
-      amount: null,
-      date: new Date(),
-      receiptNumber: "",
+      quantity_completed: task.quantity_completed,
+      date_assigned: new Date(task.date_assigned),
     },
   });
 
-  React.useEffect(() => {
-    if (isEditMode && currentSale) {
-      form.reset({
-        productName: currentSale.product_name,
-        amount: currentSale.amount,
-        date: new Date(currentSale.date),
-        receiptNumber: currentSale.receipt_number || "",
-      });
-    }
-  }, [currentSale, isEditMode, form]);
-
-  async function onSubmit(values: SaleFormData) {
+  async function onSubmit(values: EditWorkLogFormData) {
     setIsLoading(true);
     try {
-      const result = isEditMode && currentSale
-        ? await updateSale(currentSale.id, values)
-        : await recordSale(values);
-
+      const result = await updateAssignedTask(task.id, values);
       if (result.success) {
-        toast({ title: "Success", description: result.message });
-        form.reset();
+        toast({ title: "Success", description: "Work log updated successfully." });
         setOpen(false);
-        onSuccess?.();
+        onSuccess();
       } else {
         toast({
           variant: "destructive",
           title: "Error",
-          description: result.message || `Failed to ${isEditMode ? 'update' : 'record'} sale.`,
+          description: result.message || "Failed to update work log.",
         });
       }
     } catch (error) {
@@ -93,14 +71,19 @@ export default function RecordSaleForm({ setOpen, onSuccess, currentSale }: Reco
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
+        <div className="p-3 border rounded-lg bg-muted/50">
+            <p className="text-sm font-medium">{task.employee_name}</p>
+            <p className="text-sm text-muted-foreground">{task.task_name}</p>
+        </div>
+
         <FormField
           control={form.control}
-          name="productName"
+          name="quantity_completed"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Product Name</FormLabel>
+              <FormLabel>Quantity Completed</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Oak Dining Chair" {...field} />
+                <Input type="number" {...field} value={field.value ?? ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -108,23 +91,10 @@ export default function RecordSaleForm({ setOpen, onSuccess, currentSale }: Reco
         />
         <FormField
           control={form.control}
-          name="amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Amount</FormLabel>
-              <FormControl>
-                <Input type="number" step="0.01" placeholder="e.g., 150.00" {...field} value={field.value === null ? '' : field.value} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="date"
+          name="date_assigned"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Date of Sale</FormLabel>
+              <FormLabel>Date of Work</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -149,9 +119,6 @@ export default function RecordSaleForm({ setOpen, onSuccess, currentSale }: Reco
                     mode="single"
                     selected={field.value}
                     onSelect={field.onChange}
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
                     initialFocus
                   />
                 </PopoverContent>
@@ -160,22 +127,9 @@ export default function RecordSaleForm({ setOpen, onSuccess, currentSale }: Reco
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="receiptNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Receipt Number (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., RCV-00123" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isEditMode ? "Save Changes" : "Record Sale"}
+          Update Work Log
         </Button>
       </form>
     </Form>

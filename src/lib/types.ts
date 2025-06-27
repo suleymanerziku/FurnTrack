@@ -52,7 +52,7 @@ export interface Sale {
   product_name: string;
   amount: number;
   date: string; // ISO date string
-  receiptNumber?: string;
+  receipt_number?: string | null;
   created_at: string; // ISO timestamp string
 }
 
@@ -61,7 +61,7 @@ export interface Expense {
   description: string;
   amount: number;
   date: string; // ISO date string
-  receiptNumber?: string;
+  receipt_number?: string | null;
   created_at: string; // ISO timestamp string
 }
 
@@ -257,3 +257,14 @@ export interface EmployeeActivity {
   description: string;
   amount: number;
 }
+
+
+// Schema for editing a single work log entry
+export const EditWorkLogFormSchema = z.object({
+  quantity_completed: z.coerce
+    .number({ invalid_type_error: "Quantity must be a number."})
+    .int("Quantity must be an integer.")
+    .positive("Quantity must be positive."),
+  date_assigned: z.date({ required_error: "Date is required" }),
+});
+export type EditWorkLogFormData = z.infer<typeof EditWorkLogFormSchema>;

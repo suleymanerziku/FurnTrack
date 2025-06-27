@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, ListFilter, CheckCircle, Loader2, MinusCircle, CalendarIcon } from "lucide-react";
+import { PlusCircle, ListFilter, CheckCircle, Loader2, MinusCircle, CalendarIcon, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -32,6 +32,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import TaskAssignmentForm from "@/components/tasks/TaskAssignmentForm";
 import EmployeePaymentForm from "@/components/employees/EmployeePaymentForm";
+import EditWorkLogForm from "@/components/tasks/EditWorkLogForm"; // New import
 import type { AssignedTask, Employee, TaskType, Payment } from "@/lib/types";
 import { getLoggedWork, getTaskTypes } from "@/lib/actions/task.actions";
 import { getEmployeesWithBalances, getRecentPayments } from "@/lib/actions/employee.actions";
@@ -41,27 +42,33 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/locales/client";
 
+const SIX_HOURS_IN_MS = 6 * 60 * 60 * 1000;
+
 export default function WorkLogPage() {
   const { toast } = useToast();
   const t = useI18n();
+  
+  // Dialog states for creating new records
   const [isTaskFormOpen, setIsTaskFormOpen] = React.useState(false);
   const [isPaymentFormOpen, setIsPaymentFormOpen] = React.useState(false);
+  
+  // Data states
   const [loggedWork, setLoggedWork] = React.useState<AssignedTask[]>([]);
   const [employees, setEmployees] = React.useState<Employee[]>([]);
   const [taskTypes, setTaskTypes] = React.useState<TaskType[]>([]);
   const [recentPayments, setRecentPayments] = React.useState<Payment[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
+  // Filter states
   const [isFilterDialogOpen, setIsFilterDialogOpen] = React.useState(false);
   const [currentEmployeeFilter, setCurrentEmployeeFilter] = React.useState<string>("");
   const [currentTaskTypeFilter, setCurrentTaskTypeFilter] = React.useState<string>("");
   const [currentDateFilter, setCurrentDateFilter] = React.useState<Date | undefined>(undefined);
+  const [appliedFilters, setAppliedFilters] = React.useState<{ employeeId: string | null; taskTypeId: string | null; date: Date | null; }>({ employeeId: null, taskTypeId: null, date: null });
 
-  const [appliedFilters, setAppliedFilters] = React.useState<{
-    employeeId: string | null;
-    taskTypeId: string | null;
-    date: Date | null;
-  }>({ employeeId: null, taskTypeId: null, date: null });
+  // Editing states
+  const [editingPayment, setEditingPayment] = React.useState<Payment | null>(null);
+  const [editingTask, setEditingTask] = React.useState<AssignedTask | null>(null);
 
   const fetchData = async (filters?: { employeeId?: string | null, taskTypeId?: string | null, date?: Date | null }) => {
     setIsLoading(true);
@@ -85,10 +92,12 @@ export default function WorkLogPage() {
 
   React.useEffect(() => {
     fetchData(appliedFilters);
-  }, [appliedFilters, toast]);
+  }, [appliedFilters]);
 
   const handleFormSuccess = () => {
     fetchData(appliedFilters);
+    setEditingPayment(null);
+    setEditingTask(null);
   };
 
   const handleOpenFilterDialog = () => {
@@ -286,28 +295,36 @@ export default function WorkLogPage() {
               </div>
             ) : recentPayments.length > 0 ? (
               <div className="space-y-3">
-                {recentPayments.map(wd => (
-                  <EmployeeTransactionHistoryDialog key={wd.id} employeeId={wd.employee_id} employeeName={wd.employee_name || 'N/A'}>
-                    <DialogTrigger asChild>
-                      <button className="w-full text-left p-3 border rounded-lg shadow-sm hover:bg-muted/50 transition-colors">
-                        <div className="grid grid-cols-3 gap-4 items-center">
-                          <div className="col-span-2">
-                              <p className="font-semibold font-headline text-primary">
-                                {wd.employee_name || 'N/A'}
-                              </p>
-                              <p className="text-xs text-muted-foreground">{format(new Date(wd.date), "PPP")}</p>
-                          </div>
-                          <div className="text-right">
-                              <p className="text-lg font-bold text-red-600">
-                                -${wd.amount.toFixed(2)}
-                              </p>
-                              <p className="text-xs text-muted-foreground truncate" title={wd.notes || ''}>{wd.notes || 'No notes'}</p>
-                          </div>
-                        </div>
-                      </button>
-                    </DialogTrigger>
-                  </EmployeeTransactionHistoryDialog>
-                ))}
+                {recentPayments.map(payment => {
+                  const isEditable = new Date().getTime() - new Date(payment.created_at).getTime() < SIX_HOURS_IN_MS;
+                  return (
+                    <div key={payment.id} className="flex items-center gap-2">
+                      <EmployeeTransactionHistoryDialog employeeId={payment.employee_id} employeeName={payment.employee_name || 'N/A'}>
+                        <DialogTrigger asChild>
+                          <button className="flex-grow text-left p-3 border rounded-lg shadow-sm hover:bg-muted/50 transition-colors">
+                            <div className="grid grid-cols-3 gap-4 items-center">
+                              <div className="col-span-2">
+                                  <p className="font-semibold font-headline text-primary">
+                                    {payment.employee_name || 'N/A'}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">{format(new Date(payment.date), "PPP")}</p>
+                              </div>
+                              <div className="text-right">
+                                  <p className="text-lg font-bold text-red-600">
+                                    -${payment.amount.toFixed(2)}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground truncate" title={payment.notes || ''}>{payment.notes || 'No notes'}</p>
+                              </div>
+                            </div>
+                          </button>
+                        </DialogTrigger>
+                      </EmployeeTransactionHistoryDialog>
+                      <Button variant="outline" size="sm" disabled={!isEditable} onClick={() => setEditingPayment(payment)} title={isEditable ? "Edit payment" : "Cannot edit records older than 6 hours"}>
+                          <Edit className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )
+                })}
               </div>
             ) : (
               <p className="text-center text-muted-foreground py-4">{t('work_log_page.payment_log.no_data')}</p>
@@ -333,25 +350,33 @@ export default function WorkLogPage() {
             </div>
           ) : loggedWork.length > 0 ? (
             <div className="space-y-3">
-              {loggedWork.map(task => (
-                <EmployeeTransactionHistoryDialog key={task.id} employeeId={task.employee_id} employeeName={task.employee_name || 'N/A'}>
-                  <DialogTrigger asChild>
-                    <button className="w-full text-left p-4 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between sm:items-start hover:bg-muted/50 transition-colors">
-                      <div className="mb-2 sm:mb-0">
-                        <h3 className="font-semibold font-headline">{task.task_name || `Task ID: ${task.task_type_id}`}</h3>
-                        <p className="text-sm text-muted-foreground">{t('work_log_page.work_log.employee_label')}: {task.employee_name || `Emp. ID: ${task.employee_id}`}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {t('work_log_page.work_log.quantity_label')}: {task.quantity_completed} | {t('work_log_page.work_log.date_label')}: {new Date(task.date_assigned).toLocaleDateString()} | {t('work_log_page.work_log.payment_label')}: ${task.total_payment.toFixed(2)}
-                        </p>
-                      </div>
-                      <Badge variant="default" className="mt-2 sm:mt-0 self-start sm:self-center">
-                        <CheckCircle className="mr-1 h-3 w-3" />
-                        {task.status || "Completed"}
-                      </Badge>
-                    </button>
-                  </DialogTrigger>
-                </EmployeeTransactionHistoryDialog>
-              ))}
+              {loggedWork.map(task => {
+                const isEditable = new Date().getTime() - new Date(task.created_at).getTime() < SIX_HOURS_IN_MS;
+                return(
+                  <div key={task.id} className="flex items-center gap-2">
+                    <EmployeeTransactionHistoryDialog employeeId={task.employee_id} employeeName={task.employee_name || 'N/A'}>
+                      <DialogTrigger asChild>
+                        <button className="flex-grow text-left p-4 border rounded-lg shadow-sm flex flex-col sm:flex-row justify-between sm:items-start hover:bg-muted/50 transition-colors">
+                          <div className="mb-2 sm:mb-0">
+                            <h3 className="font-semibold font-headline">{task.task_name || `Task ID: ${task.task_type_id}`}</h3>
+                            <p className="text-sm text-muted-foreground">{t('work_log_page.work_log.employee_label')}: {task.employee_name || `Emp. ID: ${task.employee_id}`}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {t('work_log_page.work_log.quantity_label')}: {task.quantity_completed} | {t('work_log_page.work_log.date_label')}: {new Date(task.date_assigned).toLocaleDateString()} | {t('work_log_page.work_log.payment_label')}: ${task.total_payment.toFixed(2)}
+                            </p>
+                          </div>
+                          <Badge variant="default" className="mt-2 sm:mt-0 self-start sm:self-center">
+                            <CheckCircle className="mr-1 h-3 w-3" />
+                            {task.status || "Completed"}
+                          </Badge>
+                        </button>
+                      </DialogTrigger>
+                    </EmployeeTransactionHistoryDialog>
+                     <Button variant="outline" size="sm" disabled={!isEditable} onClick={() => setEditingTask(task)} title={isEditable ? "Edit work log" : "Cannot edit records older than 6 hours"}>
+                        <Edit className="h-3 w-3" />
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <p className="text-muted-foreground">
@@ -363,6 +388,29 @@ export default function WorkLogPage() {
           )}
         </CardContent>
       </Card>
+      
+      {/* Edit Payment Dialog */}
+      <Dialog open={!!editingPayment} onOpenChange={(open) => !open && setEditingPayment(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Payment</DialogTitle>
+            <DialogDescription>Update the details of the payment. Click save when you're done.</DialogDescription>
+          </DialogHeader>
+          <EmployeePaymentForm setOpen={(open) => !open && setEditingPayment(null)} onSuccess={handleFormSuccess} currentPayment={editingPayment} employees={employees} />
+        </DialogContent>
+      </Dialog>
+      
+      {/* Edit Work Log Dialog */}
+      <Dialog open={!!editingTask} onOpenChange={(open) => !open && setEditingTask(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Work Log</DialogTitle>
+            <DialogDescription>Update the quantity or date for this completed task.</DialogDescription>
+          </DialogHeader>
+          {editingTask && <EditWorkLogForm setOpen={(open) => !open && setEditingTask(null)} onSuccess={handleFormSuccess} task={editingTask} />}
+        </DialogContent>
+      </Dialog>
+
       <div className="mt-4 p-6 bg-accent/20 rounded-lg border border-accent">
         <h3 className="font-headline text-lg font-semibold mb-2 text-accent-foreground/80">{t('work_log_page.system_note.title')}</h3>
         <p className="text-sm text-accent-foreground/70">
