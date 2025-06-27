@@ -14,15 +14,15 @@ const i18nMiddleware = createI18nMiddleware({
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Auth routes are handled first and bypass i18n logic that prefixes paths.
+  // Public auth routes bypass i18n and auth checks
   if (pathname.startsWith('/auth')) {
     const res = NextResponse.next();
     const supabase = createMiddlewareClient<Database>({ req, res });
-    await supabase.auth.getSession(); // Refresh session
+    await supabase.auth.getSession(); // Refresh session, but don't block
     return res;
   }
   
-  // All other non-public routes go through i18n and then auth check.
+  // All other routes go through i18n and then auth check.
   const res = i18nMiddleware(req);
 
   // If i18n middleware decided to redirect (e.g., to add a missing locale),
@@ -31,92 +31,94 @@ export async function middleware(req: NextRequest) {
       return res;
   }
 
-  // The i18n middleware might have rewritten the URL.
-  // We need a session to access these pages.
+  // --- Start Authentication Check ---
   const supabase = createMiddlewareClient<Database>({ req, res });
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
     const loginUrl = new URL('/auth/login', req.url);
-    // After i18n, pathname might be prefixed, e.g., /am/dashboard
+    // After i18n, pathname might be prefixed, e.g., /en/dashboard
     // We save this full path to redirect back to it after login.
     loginUrl.searchParams.set('redirectedFrom', pathname);
     return NextResponse.redirect(loginUrl);
   }
+  // --- End Authentication Check ---
 
-  // Manually extract locale and path for permission checking
+  // --- Start Authorization (RBAC) Logic ---
+
+  // 1. Get the user's role from your `users` table.
+  const { data: userProfile, error: profileError } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', session.user.id)
+    .single();
+  
+  if (profileError || !userProfile) {
+    console.error(`RBAC Error: Could not fetch profile for user ${session.user.id}.`, profileError);
+    // Redirect to login and clear session if profile is missing
+    const loginUrl = new URL('/auth/login', req.url);
+    loginUrl.searchParams.set('error', 'Your user profile could not be loaded. Please log in again.');
+    const response = NextResponse.redirect(loginUrl);
+    await createMiddlewareClient<Database>({ req, res: response }).auth.signOut();
+    return response;
+  }
+
+  const userRoleName = userProfile.role || 'Staff'; // Default to a restricted role
+
+  // 2. Admins and Managers have access to everything.
+  if (['admin', 'manager'].includes(userRoleName.toLowerCase())) {
+    return res;
+  }
+
+  // 3. Define page access permissions for other roles
+  const rolePermissions: Record<string, string[]> = {
+    'Finance': ['/finances'],
+    'Coordinator': ['/work-log'],
+    // Staff has no extra permissions beyond the base ones.
+  };
+
+  // Base permissions for ALL authenticated users
+  const basePermissions = [
+    '/', // Dashboard access for all
+    '/settings/profile',
+    '/settings/general',
+  ];
+
+  // 4. Determine the user's full set of permissions
+  const userRolePermissions = rolePermissions[userRoleName] || [];
+  const allAllowedPaths = [...new Set([...basePermissions, ...userRolePermissions])];
+
+  // Grant access to the /settings hub page ONLY if the user has permission to access one of its children.
+  if (allAllowedPaths.some(p => p.startsWith('/settings/'))) {
+    allAllowedPaths.push('/settings');
+  }
+  
+  // 5. Check if the user has permission to access the requested path
+  
+  // Extract the clean path without locale prefix
   const pathSegments = pathname.split('/');
   const potentialLocale = pathSegments[1];
   const currentLocale = locales.includes(potentialLocale as any) ? potentialLocale : defaultLocale;
-  
   let reqPath = pathname;
   if (locales.includes(potentialLocale as any)) {
       reqPath = pathname.replace(`/${currentLocale}`, '') || '/';
   }
 
-  // --- START: REFINED DYNAMIC RBAC Logic ---
-  const { data: userProfile } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', session.user.id)
-    .single();
-
-  const userRoleName = userProfile?.role || 'Staff'; 
-
-  // Admins and Managers have access to everything. This is a failsafe.
-  if (userRoleName.toLowerCase() === 'admin' || userRoleName.toLowerCase() === 'manager') {
-    return res;
-  }
-  
-  // Fetch permissions for the user's role from the database
-  const { data: roleData, error: roleError } = await supabase
-    .from('roles')
-    .select('permissions')
-    .ilike('name', userRoleName)
-    .single();
-
-  if(roleError && roleError.code !== 'PGRST116') {
-    console.error(`RBAC Error: Could not fetch permissions for role: ${userRoleName}`, roleError);
-    const dashboardUrl = new URL(`/${currentLocale}`, req.url);
-    return NextResponse.redirect(dashboardUrl);
-  }
-
-  // Safely cast the permissions from Json to a string array
-  const userPermissions = (roleData?.permissions as string[]) || [];
-  
-  // Base permissions for all authenticated users that cannot be configured
-  const basePermissions = [
-    '/settings/profile',
-    '/settings/general',
-  ];
-
-  // Combine base and dynamic permissions. Use a Set to handle potential duplicates.
-  let allAllowedPaths = [...new Set(['/', ...basePermissions, ...userPermissions])];
-
-  // Grant access to the /settings hub page ONLY if the user has permission to access one of its children.
-  // This is crucial to prevent redirect loops where a user is sent to /settings but has no visible links.
-  if (allAllowedPaths.some(p => p.startsWith('/settings/'))) {
-    allAllowedPaths.push('/settings');
-  }
-
-  // A user has permission if the requested path is an EXACT match to an allowed path,
-  // OR if the requested path is a dynamic sub-path of an allowed path (e.g., /employees/[id]).
   const hasPermission = allAllowedPaths.some(p => {
     // Exact match: e.g. reqPath '/settings/profile' matches permission '/settings/profile'
     if (reqPath === p) return true;
     
     // Dynamic sub-path match: e.g. reqPath '/settings/employees/123' matches permission '/settings/employees'
-    // We avoid a root path check (p !== '/') because it's not a parent of other routes in that way.
     if (p !== '/' && reqPath.startsWith(p + '/')) return true;
     
     return false;
   });
   
+  // 6. Redirect if the user does not have permission
   if (!hasPermission) {
       const dashboardUrl = new URL(`/${currentLocale}`, req.url);
       return NextResponse.redirect(dashboardUrl);
   }
-  // --- END: REFINED DYNAMIC RBAC Logic ---
 
   return res;
 }
