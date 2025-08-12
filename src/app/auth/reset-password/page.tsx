@@ -25,7 +25,7 @@ function ResetPasswordPageContent({ access_token }: { access_token?: string | nu
 }
 
 
-export default function ResetPasswordPage({
+function ResetPasswordPageWrapper({
   searchParams,
 }: {
   searchParams: { error?: string; code?: string; access_token?: string };
@@ -57,8 +57,18 @@ export default function ResetPasswordPage({
   // The `access_token` is not directly used from URL in modern Supabase flows for the form itself.
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
       <ResetPasswordPageContent access_token={searchParams.access_token} />
-    </Suspense>
   );
+}
+
+export default function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams: { error?: string; code?: string; access_token?: string };
+}) {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ResetPasswordPageWrapper searchParams={searchParams} />
+        </Suspense>
+    )
 }

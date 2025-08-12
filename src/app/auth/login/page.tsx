@@ -1,8 +1,9 @@
 
 import AuthLayout from '@/components/auth/AuthLayout';
 import LoginForm from '@/components/auth/LoginForm';
+import { Suspense } from 'react';
 
-export default function LoginPage() {
+function LoginPageContent() {
   return (
     <AuthLayout 
       title="Welcome Back!"
@@ -11,4 +12,12 @@ export default function LoginPage() {
       <LoginForm />
     </AuthLayout>
   );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <LoginPageContent />
+        </Suspense>
+    )
 }
