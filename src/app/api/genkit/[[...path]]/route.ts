@@ -1,6 +1,6 @@
 'use server';
 
-import { genkitAPI } from '@genkit-ai/next/server';
+import { genkitAPI } from '@genkit-ai/next';
 
 // This is required to initialize the Genkit plugin.
 import '@/ai/genkit';
