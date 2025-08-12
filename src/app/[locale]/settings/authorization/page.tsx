@@ -19,7 +19,6 @@ const availablePermissions = [
   { id: '/finances', label: 'Finances', description: 'Access financial records, sales, and expenses.' },
   { id: '/work-log', label: 'Work & Payment Log', description: 'Log completed tasks and manage employee payments.' },
   { id: '/reports', label: 'Reports', description: 'View and generate performance reports.' },
-  { id: '/ai-insights', label: 'AI Insights', description: 'Use AI-powered data analysis.' },
   { id: '/settings/users', label: 'User Management', description: 'Add, edit, and manage system users.' },
   { id: '/settings/roles', label: 'Role Management', description: 'Define and manage system roles.' },
   { id: '/settings/employees', label: 'Employee Management', description: 'Manage employee profiles and details.' },

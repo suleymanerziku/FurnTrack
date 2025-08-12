@@ -1,6 +1,7 @@
+
 # FurnTrack - Furniture Manufacturing Management
 
-This is a Next.js application built with Firebase Studio to help manage a furniture manufacturing business. It includes features for financial tracking, employee and task management, and AI-powered insights.
+This is a Next.js application built with Firebase Studio to help manage a furniture manufacturing business. It includes features for financial tracking, employee and task management.
 
 ## Getting Started
 
@@ -25,14 +26,12 @@ You need to connect your local application to your new Supabase project.
 5.  You will find your **Project URL** and **Project API Keys**. You need the `anon` `public` key.
 6.  Copy the **Project URL** and paste it as the value for `NEXT_PUBLIC_SUPABASE_URL` in your `.env.local` file.
 7.  Copy the `anon` `public` key and paste it as the value for `NEXT_PUBLIC_SUPABASE_ANON_KEY` in your `.env.local` file.
-8.  You will also need a Google AI API key for the AI Insights feature. Get one from [Google AI Studio](https://aistudio.google.com/app/apikey) and add it as `GOOGLE_API_KEY`.
 
 Your `.env.local` file should look like this:
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-GOOGLE_API_KEY=your-google-ai-api-key
 ```
 
 ### 3. Set Up the Database Schema

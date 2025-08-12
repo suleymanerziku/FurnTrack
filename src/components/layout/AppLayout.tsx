@@ -10,17 +10,12 @@ import {
   ListChecks,
   DollarSign,
   Settings as SettingsIcon,
-  Wand2,
   MoreHorizontal,
   LogOut,
   Menu,
   LogIn,
   LineChart,
   UserCircle,
-  UsersRound,
-  ChevronRight,
-  ClipboardList,
-  Briefcase,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { User as SupabaseAuthUser } from '@supabase/supabase-js';
@@ -29,15 +24,15 @@ import type { User as AppUser } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import {
   Sidebar,
-  SidebarHeader,
   SidebarContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
   SidebarFooter,
+  SidebarHeader,
   SidebarInset,
-  useSidebar,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarProvider,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Logo } from './Logo';
@@ -90,7 +85,6 @@ function MainLayout({ children, user }: AppLayoutProps) {
       { href: '/finances', label: t('navigation.finances'), icon: DollarSign, roles: ['Admin', 'Manager', 'Finance'] },
       { href: '/work-log', label: t('navigation.work_log'), icon: ListChecks, roles: ['Admin', 'Manager', 'Coordinator'] },
       { href: '/reports', label: t('navigation.reports'), icon: LineChart, roles: ['Admin', 'Manager'] },
-      { href: '/ai-insights', label: t('navigation.ai_insights'), icon: Wand2, roles: ['Admin', 'Manager'] },
     ];
     
     const accessibleNavItems = navigationItems.filter(item => 

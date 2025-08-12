@@ -5,7 +5,6 @@
     "finances": "ፋይናንስ",
     "work_log": "ናይ ስራሕን ክፍሊትን መዝገብ",
     "reports": "ሪፖርት",
-    "ai_insights": "AI Insights",
     "settings": "ቅንብርታት"
   },
   "settings_general": {
@@ -217,7 +216,7 @@
     },
     "admin": {
       "title": "ምምሕዳር",
-      "description": "ተጠቀምቲ፣ ተራታትን ሰራሕተኛታትን ኣመሓድር።",
+      "description": "ተጠቀምቲ، ተራታትን ሰራሕተኛታትን ኣመሓድር።",
       "users_button": "ተጠቀምቲ ኣመሓድር",
       "roles_button": "ተራታት ኣመሓድር",
       "employees_button": "ሰራሕተኛታት ኣመሓድር",
