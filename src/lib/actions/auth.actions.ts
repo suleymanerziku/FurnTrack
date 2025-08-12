@@ -24,7 +24,7 @@ export async function signInWithPassword(formData: LoginFormData, redirectedFrom
   if (authData.user) {
     const { data: userProfile, error: profileError } = await supabase
       .from('users')
-      .select('status')
+      .select('status, role') // Fetch role as well
       .eq('id', authData.user.id)
       .single();
       
@@ -38,6 +38,10 @@ export async function signInWithPassword(formData: LoginFormData, redirectedFrom
       await supabase.auth.signOut(); // Sign out the user to prevent access
       return { error: "Your account is inactive. Please contact an administrator to reactivate it." };
     }
+
+    // Refresh the session to include the user's role in the JWT claims
+    await supabase.auth.refreshSession();
+    
   } else {
     // This case should ideally not be reached if authError is null, but it's a good safeguard.
     return { error: "Login failed: Could not retrieve user information after authentication." };
@@ -55,6 +59,8 @@ export async function signUpWithPassword(formData: RegisterFormData): Promise<{ 
     console.error("NEXT_PUBLIC_SITE_URL is not set. Email confirmation link might not work.");
     return { error: "Site URL configuration error. Cannot send confirmation email." };
   }
+  
+  const defaultRole = 'Staff'; // Define the default role
 
   // Step 1: Create the auth user
   const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -62,8 +68,9 @@ export async function signUpWithPassword(formData: RegisterFormData): Promise<{ 
     password: formData.password,
     options: {
       emailRedirectTo: `${siteUrl}/auth/callback`,
-      data: { // Pass name to be used in email templates if needed
+      data: { 
         name: formData.name,
+        role: defaultRole, // Add role to user metadata
       }
     },
   });
@@ -88,7 +95,7 @@ export async function signUpWithPassword(formData: RegisterFormData): Promise<{ 
       id: authData.user.id,
       name: formData.name,
       email: formData.email,
-      role: 'Staff', // Assign a default role for new sign-ups
+      role: defaultRole,
       status: 'Active',
     });
   

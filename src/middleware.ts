@@ -45,28 +45,12 @@ export async function middleware(req: NextRequest) {
   // --- End Authentication Check ---
 
   // --- Start Authorization (RBAC) Logic ---
-
-  // 1. Get the user's role from your `users` table.
-  const { data: userProfile, error: profileError } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', session.user.id)
-    .single();
   
-  if (profileError || !userProfile) {
-    console.error(`RBAC Error: Could not fetch profile for user ${session.user.id}.`, profileError);
-    // Redirect to login and clear session if profile is missing
-    const loginUrl = new URL('/auth/login', req.url);
-    loginUrl.searchParams.set('error', 'Your user profile could not be loaded. Please log in again.');
-    const response = NextResponse.redirect(loginUrl);
-    await createMiddlewareClient<Database>({ req, res: response }).auth.signOut();
-    return response;
-  }
-
-  const userRoleName = userProfile.role || 'Staff'; // Default to a restricted role
+  // 1. Get user role from JWT claims (user_metadata)
+  const userRoleName = session.user.user_metadata?.role || 'Staff';
 
   // 2. Admins and Managers have access to everything.
-  if (['admin', 'manager'].includes(userRoleName.toLowerCase())) {
+  if (['Admin', 'Manager'].includes(userRoleName)) {
     return res;
   }
 
