@@ -11,74 +11,95 @@ const i18nMiddleware = createI18nMiddleware({
   defaultLocale,
 });
 
+// --- START PERMISSION DEFINITIONS ---
+
+// Base permissions for ALL authenticated users
+const BASE_PERMISSIONS = [
+  '/', // Dashboard
+  '/settings/profile',
+  '/settings/general',
+  '/settings', // The settings hub page itself
+];
+
+// Permissions specific to certain roles
+const ROLE_PERMISSIONS: Record<string, string[]> = {
+  Admin: [
+    '/finances',
+    '/work-log',
+    '/reports',
+    '/settings/users',
+    '/settings/roles',
+    '/settings/employees',
+    '/settings/authorization',
+    '/settings/task-types',
+  ],
+  Manager: [
+    '/finances',
+    '/work-log',
+    '/reports',
+    '/settings/users',
+    '/settings/roles',
+    '/settings/employees',
+    '/settings/authorization',
+    '/settings/task-types',
+  ],
+  Finance: [
+    '/finances'
+  ],
+  Coordinator: [
+    '/work-log'
+  ],
+  Staff: [], // Staff have only base permissions
+};
+
+// --- END PERMISSION DEFINITIONS ---
+
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Public auth routes bypass i18n and auth checks
+  // Bypass all checks for static assets and internal Next.js paths.
+  if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.endsWith('.ico') || pathname.endsWith('.png')) {
+    return NextResponse.next();
+  }
+
+  // Handle auth pages separately: they are public.
   if (pathname.startsWith('/auth')) {
     const res = NextResponse.next();
     const supabase = createMiddlewareClient<Database>({ req, res });
-    await supabase.auth.getSession(); // Refresh session, but don't block
+    await supabase.auth.getSession(); // Refresh session if one exists, but don't block.
     return res;
   }
   
-  // All other routes go through i18n and then auth check.
-  const res = i18nMiddleware(req);
-
-  // If i18n middleware decided to redirect (e.g., to add a missing locale),
-  // we should just follow that redirect and not process further.
-  if (res.status === 307 || res.status === 308) {
-      return res;
+  // Apply i18n middleware to all other routes.
+  const i18nResponse = i18nMiddleware(req);
+  // If i18n redirects, follow it immediately.
+  if (i18nResponse.status === 307 || i18nResponse.status === 308) {
+      return i18nResponse;
   }
 
-  // --- Start Authentication Check ---
-  const supabase = createMiddlewareClient<Database>({ req, res });
+  // --- Start Authentication & Authorization ---
+  const supabase = createMiddlewareClient<Database>({ req, res: i18nResponse });
   const { data: { session } } = await supabase.auth.getSession();
 
+  // If there's no active session, redirect to login.
   if (!session) {
     const loginUrl = new URL('/auth/login', req.url);
-    // After i18n, pathname might be prefixed, e.g., /en/dashboard
-    // We save this full path to redirect back to it after login.
     loginUrl.searchParams.set('redirectedFrom', pathname);
     return NextResponse.redirect(loginUrl);
   }
-  // --- End Authentication Check ---
 
-  // --- Start Authorization (RBAC) Logic ---
+  // --- Authorization (RBAC) Logic ---
+  const userRole = session.user.user_metadata?.role || 'Staff';
+
+  // Get all permissions for the user's role.
+  // Admins and Managers get all defined role permissions.
+  const userPermissions = (userRole === 'Admin' || userRole === 'Manager')
+    ? Object.values(ROLE_PERMISSIONS).flat()
+    : (ROLE_PERMISSIONS[userRole] || []);
   
-  // 1. Get user role from JWT claims (user_metadata)
-  const userRoleName = session.user.user_metadata?.role || 'Staff';
+  const allowedPaths = [...new Set([...BASE_PERMISSIONS, ...userPermissions])];
 
-  // 2. Admins and Managers have access to everything.
-  if (['Admin', 'Manager'].includes(userRoleName)) {
-    return res;
-  }
-
-  // 3. Define page access permissions for other roles
-  const rolePermissions: Record<string, string[]> = {
-    'Finance': ['/finances'],
-    'Coordinator': ['/work-log'],
-    // Staff has no extra permissions beyond the base ones.
-  };
-
-  // Base permissions for ALL authenticated users
-  const basePermissions = [
-    '/', // Dashboard access for all
-    '/settings/profile',
-    '/settings/general',
-  ];
-
-  // 4. Determine the user's full set of permissions
-  const userRolePermissions = rolePermissions[userRoleName] || [];
-  const allAllowedPaths = [...new Set([...basePermissions, ...userRolePermissions])];
-
-  // Grant access to the /settings hub page ONLY if the user has permission to access one of its children.
-  if (allAllowedPaths.some(p => p.startsWith('/settings/'))) {
-    allAllowedPaths.push('/settings');
-  }
-  
-  // 5. Check if the user has permission to access the requested path
-  
   // Extract the clean path without locale prefix
   const pathSegments = pathname.split('/');
   const potentialLocale = pathSegments[1];
@@ -88,23 +109,16 @@ export async function middleware(req: NextRequest) {
       reqPath = pathname.replace(`/${currentLocale}`, '') || '/';
   }
 
-  const hasPermission = allAllowedPaths.some(p => {
-    // Exact match: e.g. reqPath '/settings/profile' matches permission '/settings/profile'
-    if (reqPath === p) return true;
-    
-    // Dynamic sub-path match: e.g. reqPath '/settings/employees/123' matches permission '/settings/employees'
-    if (p !== '/' && reqPath.startsWith(p + '/')) return true;
-    
-    return false;
-  });
+  // Check if user has permission. This handles exact matches and sub-paths.
+  const hasPermission = allowedPaths.some(p => reqPath.startsWith(p));
   
-  // 6. Redirect if the user does not have permission
+  // If user does not have permission, redirect to their default dashboard.
   if (!hasPermission) {
       const dashboardUrl = new URL(`/${currentLocale}`, req.url);
       return NextResponse.redirect(dashboardUrl);
   }
 
-  return res;
+  return i18nResponse;
 }
 
 export const config = {
@@ -115,9 +129,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - images/ (public images folder if you have one)
-     * - public/ (if you serve other static assets from public directly)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|images|public).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
